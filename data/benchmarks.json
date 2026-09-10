@@ -1,0 +1,38 @@
+{
+  "disclaimer": "SYNTHETIC BENCHMARKS. These distributions are illustrative reference points constructed for the sandbox, not measurements of a real seller population. They exist so the copilot can demonstrate peer comparison; they must never be presented to a real user as empirical market data.",
+  "basis": "Each entry gives p25 / median / p75 for the metric across a notional peer group of e-commerce micro-sellers in that category.",
+  "categories": {
+    "apparel_print_on_demand": {
+      "label": "Apparel / print-on-demand",
+      "gross_margin": { "p25": 0.42, "median": 0.52, "p75": 0.61 },
+      "refund_rate": { "p25": 0.028, "median": 0.045, "p75": 0.072 },
+      "platform_fee_rate": { "p25": 0.09, "median": 0.125, "p75": 0.155 },
+      "ad_spend_pct_of_revenue": { "p25": 0.06, "median": 0.10, "p75": 0.16 },
+      "cash_buffer_days": { "p25": 12, "median": 24, "p75": 45 }
+    },
+    "food_and_beverage": {
+      "label": "Food & beverage (DTC)",
+      "gross_margin": { "p25": 0.48, "median": 0.58, "p75": 0.66 },
+      "refund_rate": { "p25": 0.008, "median": 0.018, "p75": 0.031 },
+      "platform_fee_rate": { "p25": 0.04, "median": 0.062, "p75": 0.085 },
+      "ad_spend_pct_of_revenue": { "p25": 0.05, "median": 0.09, "p75": 0.14 },
+      "cash_buffer_days": { "p25": 18, "median": 34, "p75": 58 }
+    },
+    "handmade_homeware": {
+      "label": "Handmade homeware / craft",
+      "gross_margin": { "p25": 0.55, "median": 0.64, "p75": 0.72 },
+      "refund_rate": { "p25": 0.021, "median": 0.038, "p75": 0.061 },
+      "platform_fee_rate": { "p25": 0.11, "median": 0.145, "p75": 0.175 },
+      "ad_spend_pct_of_revenue": { "p25": 0.02, "median": 0.05, "p75": 0.09 },
+      "cash_buffer_days": { "p25": 10, "median": 21, "p75": 40 }
+    },
+    "electronics_parts": {
+      "label": "Electronics / parts reselling",
+      "gross_margin": { "p25": 0.22, "median": 0.33, "p75": 0.44 },
+      "refund_rate": { "p25": 0.030, "median": 0.048, "p75": 0.075 },
+      "platform_fee_rate": { "p25": 0.05, "median": 0.082, "p75": 0.115 },
+      "ad_spend_pct_of_revenue": { "p25": 0.02, "median": 0.04, "p75": 0.07 },
+      "cash_buffer_days": { "p25": 14, "median": 27, "p75": 48 }
+    }
+  }
+}

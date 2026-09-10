@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+logs/
+.pytest_cache/
+# Deck build artifacts (the .pptx itself is committed as a deliverable)
+*.pdf
+slide-*.jpg
+thumbnails*.jpg

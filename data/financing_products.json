@@ -1,0 +1,603 @@
+{
+  "catalog_version": "2026-09-10",
+  "currency": "EUR",
+  "disclaimer": "ILLUSTRATIVE SANDBOX CATALOG. Provider names are fictional. Terms are representative of real European SME financing product *categories* (revenue-based finance, invoice factoring, EU microfinance, inventory/purchase-order finance, bank credit lines, merchant cash advance, equipment lease, public grants) but are not offers, quotes, or descriptions of any real lender's products. Nothing here constitutes financial advice or a credit decision.",
+  "cost_model_notes": {
+    "fixed_installment": "Amortising loan. apr is a nominal annual percentage rate; total cost computed on a level-payment amortisation schedule.",
+    "revenue_share": "Fixed total repayment = amount x factor_rate, collected as a share of daily sales. Duration is estimated from the seller's actual sales rate, so the effective APR rises if sales come in faster than expected.",
+    "factoring": "Advance against outstanding receivables/platform balance. Fee charged per 30 days outstanding on the advanced amount.",
+    "grant": "Non-repayable. Cost of capital is zero; the real cost is application effort and reporting obligations."
+  },
+  "products": [
+    {
+      "id": "nordcap-rev-advance",
+      "name": "NordCap Revenue Advance",
+      "provider": "NordCap Growth (fictional)",
+      "type": "revenue_based_finance",
+      "description": "Growth capital repaid as a fixed percentage of daily marketplace sales. No fixed monthly instalment, so repayment slows automatically when sales slow.",
+      "eligibility": {
+        "min_monthly_revenue": 5000,
+        "min_months_trading": 12,
+        "max_debt_to_revenue": 0.75,
+        "max_refund_rate": 0.07,
+        "max_chargeback_rate": 0.012,
+        "regions": [
+          "EU",
+          "UK"
+        ],
+        "min_amount": 3000,
+        "max_amount": 120000,
+        "max_multiple_of_monthly_revenue": 1.5
+      },
+      "terms": {
+        "structure": "revenue_share",
+        "cost_model": {
+          "type": "revenue_share",
+          "factor_rate": 1.09,
+          "share_of_daily_sales": 0.14
+        },
+        "speed_days": 3,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Best fit for sellers with volatile or seasonal sales who cannot commit to a fixed instalment."
+    },
+    {
+      "id": "helios-rev-advance-plus",
+      "name": "Helios Revenue Advance Plus",
+      "provider": "Helios Capital Partners (fictional)",
+      "type": "revenue_based_finance",
+      "description": "Larger revenue-share facility for established sellers with clean refund history.",
+      "eligibility": {
+        "min_monthly_revenue": 15000,
+        "min_months_trading": 24,
+        "max_debt_to_revenue": 0.6,
+        "max_refund_rate": 0.04,
+        "max_chargeback_rate": 0.008,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 15000,
+        "max_amount": 350000,
+        "max_multiple_of_monthly_revenue": 2.0
+      },
+      "terms": {
+        "structure": "revenue_share",
+        "cost_model": {
+          "type": "revenue_share",
+          "factor_rate": 1.07,
+          "share_of_daily_sales": 0.11
+        },
+        "speed_days": 5,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Cheaper than entry-level revenue finance but a materially higher eligibility bar."
+    },
+    {
+      "id": "brightbridge-factoring",
+      "name": "BrightBridge Marketplace Factoring",
+      "provider": "BrightBridge Working Capital (fictional)",
+      "type": "invoice_factoring",
+      "description": "Advances up to 85% of funds already earned but still held in the marketplace payout queue. Designed specifically to bridge payout hold periods.",
+      "eligibility": {
+        "min_monthly_revenue": 4000,
+        "min_months_trading": 6,
+        "max_debt_to_revenue": 1.2,
+        "max_refund_rate": 0.1,
+        "max_chargeback_rate": 0.02,
+        "regions": [
+          "EU",
+          "UK"
+        ],
+        "min_amount": 500,
+        "max_amount": 60000,
+        "requires_platform_balance": true
+      },
+      "terms": {
+        "structure": "factoring",
+        "cost_model": {
+          "type": "factoring",
+          "fee_pct_per_30d": 0.024,
+          "advance_rate": 0.85
+        },
+        "speed_days": 1,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Cheapest way to solve a pure timing gap, because it is repaid automatically by the next payout rather than out of future profit."
+    },
+    {
+      "id": "meridian-credit-line",
+      "name": "Meridian Flexible Credit Line",
+      "provider": "Meridian Handelsbank (fictional)",
+      "type": "credit_line",
+      "description": "Revolving credit line. Interest charged only on the drawn balance, so it can sit unused as a safety buffer.",
+      "eligibility": {
+        "min_monthly_revenue": 12000,
+        "min_months_trading": 24,
+        "max_debt_to_revenue": 0.7,
+        "max_refund_rate": 0.06,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 5000,
+        "max_amount": 150000,
+        "max_multiple_of_monthly_revenue": 1.0
+      },
+      "terms": {
+        "structure": "revolving",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.112,
+          "term_months": 12
+        },
+        "speed_days": 14,
+        "collateral_required": false,
+        "personal_guarantee": true,
+        "early_repayment_penalty": false
+      },
+      "notes": "Slow to arrange, so it is a facility to put in place before a crunch rather than during one."
+    },
+    {
+      "id": "hanse-inventory-finance",
+      "name": "Hanse Inventory & Purchase-Order Finance",
+      "provider": "Hanse Trade Finance (fictional)",
+      "type": "inventory_finance",
+      "description": "Pays a supplier invoice directly so stock can be bought ahead of a seasonal peak. Repaid once the stock sells through.",
+      "eligibility": {
+        "min_monthly_revenue": 10000,
+        "min_months_trading": 18,
+        "max_debt_to_revenue": 0.8,
+        "max_refund_rate": 0.07,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 5000,
+        "max_amount": 250000,
+        "categories_excluded": [
+          "handmade_homeware"
+        ]
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.134,
+          "term_months": 6
+        },
+        "speed_days": 10,
+        "collateral_required": true,
+        "collateral_note": "The financed inventory itself is the security.",
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Only worth it when the supplier discount or margin on the stock exceeds the financing cost."
+    },
+    {
+      "id": "eu-micro-starter",
+      "name": "European Microfinance Starter Loan",
+      "provider": "EU Microfinance Intermediary (illustrative public-scheme product)",
+      "type": "microloan",
+      "description": "Small subsidised term loan for young micro-enterprises, modelled on EU-backed microfinance schemes delivered through national intermediaries.",
+      "eligibility": {
+        "min_monthly_revenue": 800,
+        "min_months_trading": 3,
+        "max_debt_to_revenue": 1.5,
+        "max_refund_rate": 0.15,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 1000,
+        "max_amount": 25000,
+        "max_employees": 9,
+        "max_monthly_revenue": 25000
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.055,
+          "term_months": 36
+        },
+        "speed_days": 28,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Cheapest debt available to very small or young sellers, but the slowest to arrange. Apply before you need it."
+    },
+    {
+      "id": "lusitania-micro",
+      "name": "Lusitania Micro Credit",
+      "provider": "Lusitania Cooperative Bank (fictional)",
+      "type": "microloan",
+      "description": "Regional microloan for artisan and craft businesses, including sellers with a short trading history.",
+      "eligibility": {
+        "min_monthly_revenue": 1500,
+        "min_months_trading": 6,
+        "max_debt_to_revenue": 1.0,
+        "max_refund_rate": 0.12,
+        "regions": [
+          "EU"
+        ],
+        "countries": [
+          "PT",
+          "ES"
+        ],
+        "min_amount": 1000,
+        "max_amount": 15000,
+        "max_monthly_revenue": 20000
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.079,
+          "term_months": 24
+        },
+        "speed_days": 18,
+        "collateral_required": false,
+        "personal_guarantee": true,
+        "early_repayment_penalty": false
+      },
+      "notes": "Requires a personal guarantee, which is a real risk for a sole trader to weigh."
+    },
+    {
+      "id": "craft-digital-grant",
+      "name": "Regional Craft & Digital Trade Grant",
+      "provider": "Regional Development Agency (illustrative public grant)",
+      "type": "grant",
+      "description": "Non-repayable grant for small craft producers investing in digital sales channels, photography or e-commerce tooling.",
+      "eligibility": {
+        "min_monthly_revenue": 500,
+        "max_monthly_revenue": 8000,
+        "min_months_trading": 6,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 1000,
+        "max_amount": 8000,
+        "categories_included": [
+          "handmade_homeware",
+          "apparel_print_on_demand",
+          "food_and_beverage"
+        ]
+      },
+      "terms": {
+        "structure": "grant",
+        "cost_model": {
+          "type": "grant"
+        },
+        "speed_days": 60,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "co_funding_required_pct": 0.25,
+        "reporting_obligations": "Spend evidence and a short outcome report within 12 months.",
+        "use_of_funds_restricted": true
+      },
+      "notes": "Free money, but slow, competitive, and requires the seller to co-fund 25% of the project cost."
+    },
+    {
+      "id": "sme-digitalisation-grant",
+      "name": "SME Digitalisation Voucher",
+      "provider": "National Digital Agency (illustrative public grant)",
+      "type": "grant",
+      "description": "Voucher scheme covering part of the cost of e-commerce systems, automation or analytics tooling.",
+      "eligibility": {
+        "min_monthly_revenue": 2000,
+        "max_monthly_revenue": 60000,
+        "min_months_trading": 12,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 1500,
+        "max_amount": 15000
+      },
+      "terms": {
+        "structure": "grant",
+        "cost_model": {
+          "type": "grant"
+        },
+        "speed_days": 45,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "co_funding_required_pct": 0.4,
+        "reporting_obligations": "Itemised invoices and proof of payment.",
+        "use_of_funds_restricted": true
+      },
+      "notes": "Cannot be used for stock or working capital - capital expenditure and software only."
+    },
+    {
+      "id": "swiftcash-mca",
+      "name": "SwiftCash Merchant Advance",
+      "provider": "SwiftCash Payments (fictional)",
+      "type": "merchant_cash_advance",
+      "description": "Fast lump sum repaid by holding back a large share of daily card settlements.",
+      "eligibility": {
+        "min_monthly_revenue": 3000,
+        "min_months_trading": 4,
+        "max_debt_to_revenue": 2.0,
+        "max_refund_rate": 0.14,
+        "regions": [
+          "EU",
+          "UK"
+        ],
+        "min_amount": 1000,
+        "max_amount": 50000,
+        "max_multiple_of_monthly_revenue": 1.2
+      },
+      "terms": {
+        "structure": "revenue_share",
+        "cost_model": {
+          "type": "revenue_share",
+          "factor_rate": 1.28,
+          "share_of_daily_sales": 0.22
+        },
+        "speed_days": 1,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Very expensive. Included deliberately so the copilot can show a seller what the fast option actually costs compared with the alternatives."
+    },
+    {
+      "id": "atlas-term-loan",
+      "name": "Atlas Business Term Loan",
+      "provider": "Atlas Kreditbank (fictional)",
+      "type": "term_loan",
+      "description": "Conventional amortising business loan with a fixed monthly instalment.",
+      "eligibility": {
+        "min_monthly_revenue": 20000,
+        "min_months_trading": 30,
+        "max_debt_to_revenue": 0.5,
+        "max_refund_rate": 0.05,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 20000,
+        "max_amount": 400000,
+        "max_multiple_of_monthly_revenue": 3.0
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.089,
+          "term_months": 48
+        },
+        "speed_days": 30,
+        "collateral_required": true,
+        "collateral_note": "Business assets, and a floating charge in some jurisdictions.",
+        "personal_guarantee": true,
+        "early_repayment_penalty": true
+      },
+      "notes": "Cheapest headline rate in the catalog, with the strictest leverage test and the slowest process."
+    },
+    {
+      "id": "kite-equipment-lease",
+      "name": "Kite Equipment Lease",
+      "provider": "Kite Asset Finance (fictional)",
+      "type": "equipment_lease",
+      "description": "Lease for production or fulfilment equipment. The asset is the security, so leverage tests are lighter.",
+      "eligibility": {
+        "min_monthly_revenue": 6000,
+        "min_months_trading": 12,
+        "max_debt_to_revenue": 1.1,
+        "max_refund_rate": 0.09,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 2000,
+        "max_amount": 90000
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.121,
+          "term_months": 36
+        },
+        "speed_days": 12,
+        "collateral_required": true,
+        "collateral_note": "The leased equipment.",
+        "personal_guarantee": false,
+        "early_repayment_penalty": true
+      },
+      "notes": "Only relevant for equipment purchases - cannot be drawn as working capital."
+    },
+    {
+      "id": "ember-seasonal-bridge",
+      "name": "Ember Seasonal Bridge",
+      "provider": "Ember Seasonal Finance (fictional)",
+      "type": "bridge_loan",
+      "description": "Short-dated bridge sized to a specific seasonal peak, with interest-only payments until a single balloon repayment.",
+      "eligibility": {
+        "min_monthly_revenue": 8000,
+        "min_months_trading": 18,
+        "max_debt_to_revenue": 0.9,
+        "max_refund_rate": 0.08,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 4000,
+        "max_amount": 80000,
+        "max_multiple_of_monthly_revenue": 1.0
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.158,
+          "term_months": 4
+        },
+        "speed_days": 6,
+        "collateral_required": false,
+        "personal_guarantee": true,
+        "early_repayment_penalty": false
+      },
+      "notes": "Balloon repayment concentrates all the risk on one date - only sensible if the peak reliably delivers."
+    },
+    {
+      "id": "verde-sustainability-loan",
+      "name": "Verde Sustainability Loan",
+      "provider": "Verde Impact Fund (fictional)",
+      "type": "term_loan",
+      "description": "Discounted term loan for verifiable sustainability investments such as low-waste packaging or energy-efficient equipment.",
+      "eligibility": {
+        "min_monthly_revenue": 5000,
+        "min_months_trading": 12,
+        "max_debt_to_revenue": 0.8,
+        "max_refund_rate": 0.08,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 3000,
+        "max_amount": 75000
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.068,
+          "term_months": 36
+        },
+        "speed_days": 21,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false,
+        "use_of_funds_restricted": true
+      },
+      "notes": "Cheap, but funds are ring-fenced to qualifying sustainability spend and must be evidenced."
+    },
+    {
+      "id": "harbor-overdraft",
+      "name": "Harbor Business Overdraft",
+      "provider": "Harbor Bank (fictional)",
+      "type": "overdraft",
+      "description": "Small overdraft facility attached to the business current account, intended to absorb short timing mismatches.",
+      "eligibility": {
+        "min_monthly_revenue": 3000,
+        "min_months_trading": 9,
+        "max_debt_to_revenue": 1.0,
+        "max_refund_rate": 0.1,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 500,
+        "max_amount": 15000,
+        "max_multiple_of_monthly_revenue": 0.5
+      },
+      "terms": {
+        "structure": "revolving",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.164,
+          "term_months": 12
+        },
+        "speed_days": 9,
+        "collateral_required": false,
+        "personal_guarantee": true,
+        "early_repayment_penalty": false
+      },
+      "notes": "Expensive per euro but small and flexible. Useful as a backstop rather than a funding source."
+    },
+    {
+      "id": "granary-supplier-terms",
+      "name": "Granary Supplier Payment Terms",
+      "provider": "Granary Trade Credit (fictional)",
+      "type": "trade_credit",
+      "description": "Extends supplier payment terms to 60 or 90 days for a flat fee, without moving cash into the seller's account.",
+      "eligibility": {
+        "min_monthly_revenue": 6000,
+        "min_months_trading": 12,
+        "max_debt_to_revenue": 1.0,
+        "max_refund_rate": 0.08,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 2000,
+        "max_amount": 100000
+      },
+      "terms": {
+        "structure": "trade_credit",
+        "cost_model": {
+          "type": "factoring",
+          "fee_pct_per_30d": 0.019,
+          "advance_rate": 1.0
+        },
+        "speed_days": 7,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "early_repayment_penalty": false
+      },
+      "notes": "Solves a payables timing problem directly. Requires the supplier to accept the arrangement."
+    },
+    {
+      "id": "pinnacle-growth-loan",
+      "name": "Pinnacle Growth Loan",
+      "provider": "Pinnacle Ventures Debt (fictional)",
+      "type": "term_loan",
+      "description": "Growth loan for scaling sellers with strong margins and low leverage.",
+      "eligibility": {
+        "min_monthly_revenue": 25000,
+        "min_months_trading": 36,
+        "max_debt_to_revenue": 0.45,
+        "max_refund_rate": 0.035,
+        "max_chargeback_rate": 0.005,
+        "regions": [
+          "EU"
+        ],
+        "min_amount": 25000,
+        "max_amount": 500000,
+        "max_multiple_of_monthly_revenue": 2.5
+      },
+      "terms": {
+        "structure": "fixed_installment",
+        "cost_model": {
+          "type": "fixed_installment",
+          "apr": 0.096,
+          "term_months": 36
+        },
+        "speed_days": 25,
+        "collateral_required": false,
+        "personal_guarantee": true,
+        "early_repayment_penalty": true
+      },
+      "notes": "Deliberately hard to qualify for - useful for showing a seller what they are working towards."
+    },
+    {
+      "id": "orchard-community-grant",
+      "name": "Orchard Community Enterprise Grant",
+      "provider": "Orchard Foundation (illustrative philanthropic grant)",
+      "type": "grant",
+      "description": "Small non-repayable grant for micro-enterprises owned by under-represented founders, with no co-funding requirement.",
+      "eligibility": {
+        "min_monthly_revenue": 300,
+        "max_monthly_revenue": 12000,
+        "min_months_trading": 3,
+        "regions": [
+          "EU",
+          "UK"
+        ],
+        "min_amount": 500,
+        "max_amount": 5000
+      },
+      "terms": {
+        "structure": "grant",
+        "cost_model": {
+          "type": "grant"
+        },
+        "speed_days": 40,
+        "collateral_required": false,
+        "personal_guarantee": false,
+        "co_funding_required_pct": 0.0,
+        "reporting_obligations": "One-page impact update at six months."
+      },
+      "notes": "No co-funding and no repayment, which makes it the single best option for the smallest sellers if they qualify."
+    }
+  ]
+}

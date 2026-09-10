@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SME Finance Copilot</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #14181f;
+    --muted: #626b7a;
+    --line: #e3e6eb;
+    --accent: #1f5fd0;
+    --accent-soft: #eaf1fd;
+    --ok: #16794a;
+    --warn: #9a6100;
+    --crit: #b3261e;
+    --crit-soft: #fdecea;
+    --warn-soft: #fdf5e6;
+    --ok-soft: #ebf6f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    background: var(--panel); border-bottom: 1px solid var(--line);
+    padding: 14px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 17px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+  .badge {
+    font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 600;
+    background: var(--accent-soft); color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .sandbox-banner {
+    background: #fff8e1; border-bottom: 1px solid #f0e2b6; color: #6b5200;
+    padding: 8px 20px; font-size: 12.5px;
+  }
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 0; min-height: calc(100vh - 96px); }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  aside { background: var(--panel); border-right: 1px solid var(--line); padding: 16px; }
+  aside h2, .panel h2 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); margin: 0 0 10px; font-weight: 650;
+  }
+  .seller {
+    border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
+    margin-bottom: 9px; cursor: pointer; background: #fff; transition: .12s;
+  }
+  .seller:hover { border-color: #c3ccdb; }
+  .seller.active { border-color: var(--accent); background: var(--accent-soft); }
+  .seller .n { font-weight: 620; font-size: 14px; }
+  .seller .m { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .seller .figs { display: flex; gap: 10px; margin-top: 7px; font-size: 11.5px; }
+  .seller .figs span { color: var(--muted); }
+  .seller .figs b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  main { padding: 18px 20px 28px; max-width: 1000px; }
+  .chat { display: flex; flex-direction: column; gap: 14px; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg .who {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; color: #fff; background: var(--muted); margin-top: 2px;
+  }
+  .msg.user .who { background: #3a4453; }
+  .msg.bot .who { background: var(--accent); }
+  .bubble {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; flex: 1; min-width: 0;
+  }
+  .msg.user .bubble { background: #eef1f6; }
+  .bubble p { margin: 0 0 9px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .card {
+    border: 1px solid var(--line); border-radius: 11px; margin-top: 11px;
+    background: #fcfcfd; overflow: hidden;
+  }
+  .card > .head {
+    padding: 9px 13px; border-bottom: 1px solid var(--line); font-size: 12px;
+    font-weight: 650; color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+    background: #f8f9fb;
+  }
+  .card > .body { padding: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 620; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .alert { border-left: 3px solid var(--line); padding: 9px 12px; margin-bottom: 9px; border-radius: 0 8px 8px 0; }
+  .alert.critical { border-color: var(--crit); background: var(--crit-soft); }
+  .alert.warning { border-color: #d99400; background: var(--warn-soft); }
+  .alert.info { border-color: var(--accent); background: var(--accent-soft); }
+  .alert.good { border-color: var(--ok); background: var(--ok-soft); }
+  .alert .h { font-weight: 640; margin-bottom: 3px; }
+  .alert .d { font-size: 13px; color: #3c4453; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 5px; font-weight: 620; }
+  .pill.free { background: var(--ok-soft); color: var(--ok); }
+  .pill.fin { background: var(--accent-soft); color: var(--accent); }
+  .pill.slow { background: var(--warn-soft); color: var(--warn); }
+  .pill.no { background: var(--crit-soft); color: var(--crit); }
+  .pill.yes { background: var(--ok-soft); color: var(--ok); }
+  .composer { display: flex; gap: 9px; margin-top: 16px; }
+  .composer input {
+    flex: 1; padding: 11px 13px; border: 1px solid var(--line); border-radius: 9px;
+    font-size: 14px; font-family: inherit; background: #fff;
+  }
+  .composer input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  button {
+    padding: 11px 16px; border-radius: 9px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  button:hover { filter: brightness(1.07); }
+  button.ghost { background: #fff; color: var(--accent); }
+  button.danger { background: #fff; color: var(--crit); border-color: #e5b8b4; }
+  button:disabled { opacity: .5; cursor: default; }
+  .prompts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+  .prompts button {
+    padding: 6px 11px; font-size: 12.5px; font-weight: 500;
+    background: #fff; color: #2c3542; border: 1px solid var(--line); border-radius: 999px;
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 14px; margin-top: 16px; }
+  details summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 600; }
+  pre {
+    background: #10141b; color: #cbd5e1; padding: 11px; border-radius: 8px;
+    overflow-x: auto; font-size: 11.5px; line-height: 1.5; max-height: 300px;
+  }
+  .muted { color: var(--muted); font-size: 12.5px; }
+  .kv { display: grid; grid-template-columns: auto auto; gap: 4px 14px; font-size: 13px; }
+  .kv .k { color: var(--muted); }
+  .kv .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .checks li { margin-bottom: 3px; font-size: 12.5px; }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--line);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>SME Finance Copilot</h1>
+  <span class="badge" id="mode">loading</span>
+  <span class="muted" id="asof"></span>
+</header>
+<div class="sandbox-banner">
+  <strong>Simulated sandbox.</strong> Every seller, transaction, balance and financing product here is synthetic.
+  This tool matches against published eligibility criteria — it does not underwrite, approve, or give financial advice.
+</div>
+
+<div class="layout">
+  <aside>
+    <h2>Sellers</h2>
+    <div id="sellers"></div>
+    <div class="panel" style="margin-top:14px">
+      <h2>Permission tiers</h2>
+      <div id="tiers" class="muted">loading…</div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="chat" id="chat"></div>
+    <div class="composer">
+      <input id="input" placeholder="Ask about cash flow, financing or your numbers…" autocomplete="off">
+      <button id="send">Send</button>
+    </div>
+    <div class="prompts" id="prompts"></div>
+
+    <div class="panel">
+      <h2>Audit trail</h2>
+      <p class="muted" style="margin:0 0 9px">
+        Every tool call, permission decision and guardrail hit is appended to a hash-chained log.
+        Editing or removing a record breaks the chain.
+      </p>
+      <button class="ghost" id="verify">Verify chain</button>
+      <button class="ghost" id="showlog">Show log</button>
+      <div id="chainresult" style="margin-top:9px"></div>
+      <pre id="logout" hidden></pre>
+    </div>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const eur = n => 'EUR ' + Math.round(n).toLocaleString('en-US');
+const pct = n => (n * 100).toFixed(1) + '%';
+let state = { sellerId: null, sessionId: null, sellers: [] };
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+  return r.json();
+}
+
+// ---------- boot ----------
+async function boot() {
+  const h = await api('/api/health');
+  $('#mode').textContent = h.agent_mode === 'llm' ? 'LLM mode' : 'Offline mode';
+  $('#mode').title = h.note;
+  $('#asof').textContent = 'Data as of ' + h.as_of;
+
+  const s = await api('/api/sellers');
+  state.sellers = s.sellers;
+  $('#sellers').innerHTML = s.sellers.map(x => `
+    <div class="seller" data-id="${esc(x.seller_id)}">
+      <div class="n">${esc(x.name)}</div>
+      <div class="m">${esc(x.owner)} · ${esc(x.country)} · ${x.months_trading} mo trading</div>
+      <div class="figs">
+        <span>rev/mo <b>${eur(x.monthly_revenue)}</b></span>
+        <span>bank <b>${eur(x.bank_balance)}</b></span>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.seller').forEach(el =>
+    el.onclick = () => selectSeller(el.dataset.id));
+
+  const t = await api('/api/security/tiers');
+  $('#tiers').innerHTML = t.tiers.map(x =>
+    `<div style="margin-bottom:6px"><b style="font-size:12px">${esc(x.tier)}</b>
+     <div style="font-size:11.5px">${esc(x.description)}</div></div>`).join('')
+    + `<div style="font-size:11.5px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)">
+       <b>Agent can self-approve actions:</b> no. ${esc(t.enforcement)}</div>`;
+
+  selectSeller(s.sellers[0].seller_id);
+}
+
+async function selectSeller(id) {
+  state.sellerId = id;
+  document.querySelectorAll('.seller').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === id));
+  const sess = await api('/api/session', {
+    method: 'POST', body: JSON.stringify({ seller_id: id, granted_tier: 'T2_ACTION' }),
+  });
+  state.sessionId = sess.session_id;
+
+  const seller = state.sellers.find(x => x.seller_id === id);
+  $('#chat').innerHTML = '';
+  addMsg('bot', `<p>Now looking at <b>${esc(seller.name)}</b> — ${esc(seller.owner)},
+    ${esc(seller.country)}, trading ${seller.months_trading} months,
+    about ${eur(seller.monthly_revenue)}/month.</p>
+    <p class="muted">${esc(seller.persona_note)}</p>`);
+
+  $('#prompts').innerHTML = [
+    'Can I afford my payments this month?',
+    'What financing could I get?',
+    'How is my business doing?',
+    'Anything I should worry about?',
+  ].map(p => `<button data-p="${esc(p)}">${esc(p)}</button>`).join('');
+  document.querySelectorAll('#prompts button').forEach(b =>
+    b.onclick = () => send(b.dataset.p));
+}
+
+// ---------- chat ----------
+function addMsg(role, html) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="who">${role === 'user' ? 'You' : 'AI'}</div>
+                   <div class="bubble">${html}</div>`;
+  $('#chat').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return div;
+}
+
+async function send(text) {
+  const msg = (text ?? $('#input').value).trim();
+  if (!msg || !state.sessionId) return;
+  $('#input').value = '';
+  addMsg('user', `<p>${esc(msg)}</p>`);
+  const pending = addMsg('bot', '<span class="spinner"></span>');
+  $('#send').disabled = true;
+  try {
+    const r = await api('/api/chat', {
+      method: 'POST', body: JSON.stringify({ session_id: state.sessionId, message: msg }),
+    });
+    const body = pending.querySelector('.bubble');
+    body.innerHTML = r.reply.split('\n\n').map(p => `<p>${esc(p)}</p>`).join('');
+    if (r.guardrail && r.guardrail.blocked) {
+      body.innerHTML += `<div class="alert critical" style="margin-top:10px">
+        <div class="h">Guardrail triggered: ${esc(r.guardrail.reason)}</div>
+        <div class="d">The request was refused before any tool ran, and the event was
+        written to the audit log.</div></div>`;
+    }
+    (r.cards || []).forEach(c => body.appendChild(renderCard(c)));
+    if (r.tool_calls && r.tool_calls.length) {
+      const d = document.createElement('div');
+      d.className = 'muted';
+      d.style.marginTop = '9px';
+      d.textContent = 'Tools used: ' + r.tool_calls.join(', ') + ' · mode: ' + r.mode;
+      body.appendChild(d);
+    }
+  } catch (e) {
+    pending.querySelector('.bubble').innerHTML =
+      `<p style="color:var(--crit)">Error: ${esc(e.message)}</p>`;
+  } finally {
+    $('#send').disabled = false;
+  }
+}
+
+// ---------- cards ----------
+function card(title, bodyEl) {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = `<div class="head">${esc(title)}</div>`;
+  const b = document.createElement('div');
+  b.className = 'body';
+  if (typeof bodyEl === 'string') b.innerHTML = bodyEl; else b.appendChild(bodyEl);
+  d.appendChild(b);
+  return d;
+}
+
+function renderCard(c) {
+  if (c.type === 'forecast') return renderForecast(c.data);
+  if (c.type === 'alerts') return renderAlerts(c.data);
+  if (c.type === 'options') return renderOptions(c.data);
+  if (c.type === 'analysis') return renderAnalysis(c.data);
+  if (c.type === 'confirmation') return renderConfirmation(c.data);
+  return card('Result', `<pre>${esc(JSON.stringify(c.data, null, 2))}</pre>`);
+}
+
+function chartSVG(series, buffer) {
+  const W = 700, H = 210, PL = 54, PR = 12, PT = 12, PB = 26;
+  const vals = series.map(s => s.balance);
+  let lo = Math.min(0, ...vals, buffer), hi = Math.max(...vals, buffer);
+  const pad = (hi - lo) * 0.1 || 100; lo -= pad; hi += pad;
+  const x = i => PL + i * (W - PL - PR) / Math.max(1, series.length - 1);
+  const y = v => PT + (hi - v) * (H - PT - PB) / (hi - lo);
+
+  const line = series.map((s, i) => `${x(i).toFixed(1)},${y(s.balance).toFixed(1)}`).join(' ');
+  const area = `${PL},${y(lo)} ${line} ${x(series.length - 1)},${y(lo)}`;
+
+  const ticks = [hi, (hi + lo) / 2, lo].map(v =>
+    `<text x="${PL - 7}" y="${(y(v) + 3.5).toFixed(1)}" text-anchor="end"
+      font-size="10" fill="#8a93a3">${Math.round(v / 1000)}k</text>
+     <line x1="${PL}" y1="${y(v).toFixed(1)}" x2="${W - PR}" y2="${y(v).toFixed(1)}"
+      stroke="#eef0f4"/>`).join('');
+
+  const zeroY = y(0), bufY = y(buffer);
+  const marks = series.map((s, i) => {
+    const big = (s.events || []).filter(e => e.amount >= 1500);
+    if (!big.length) return '';
+    return `<circle cx="${x(i).toFixed(1)}" cy="${y(s.balance).toFixed(1)}" r="3.5"
+      fill="#b3261e"><title>${esc(s.date)}: ${big.map(e =>
+      e.counterparty + ' ' + eur(e.amount)).join(', ')}</title></circle>`;
+  }).join('');
+
+  const firstDate = series[0]?.date ?? '', lastDate = series[series.length - 1]?.date ?? '';
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img"
+    aria-label="Projected bank balance">
+    ${ticks}
+    <line x1="${PL}" y1="${zeroY.toFixed(1)}" x2="${W - PR}" y2="${zeroY.toFixed(1)}"
+      stroke="#b3261e" stroke-width="1.2"/>
+    <line x1="${PL}" y1="${bufY.toFixed(1)}" x2="${W - PR}" y2="${bufY.toFixed(1)}"
+      stroke="#d99400" stroke-dasharray="4 3" stroke-width="1.2"/>
+    <polygon points="${area}" fill="#1f5fd0" opacity="0.07"/>
+    <polyline points="${line}" fill="none" stroke="#1f5fd0" stroke-width="2"/>
+    ${marks}
+    <text x="${PL}" y="${H - 8}" font-size="10" fill="#8a93a3">${esc(firstDate)}</text>
+    <text x="${W - PR}" y="${H - 8}" font-size="10" fill="#8a93a3"
+      text-anchor="end">${esc(lastDate)}</text>
+    <text x="${W - PR}" y="${(bufY - 5).toFixed(1)}" font-size="9.5" fill="#9a6100"
+      text-anchor="end">safety buffer ${eur(buffer)}</text>
+  </svg>`;
+}
+
+function renderForecast(f) {
+  const fi = f.findings, a = f.assumptions;
+  const html = `
+    ${chartSVG(f.series, f.safety_buffer)}
+    <div class="kv" style="margin-top:11px">
+      <div class="k">Opening bank balance</div><div class="v">${eur(f.opening_bank_balance)}</div>
+      <div class="k">Held in payout queue</div><div class="v">${eur(f.opening_platform_balance)}</div>
+      <div class="k">Lowest projected point</div>
+      <div class="v" style="color:${fi.trough_balance < 0 ? 'var(--crit)' : 'inherit'}">
+        ${eur(fi.trough_balance)} on ${esc(fi.trough_date)}</div>
+      ${fi.goes_negative ? `<div class="k">Goes negative</div>
+        <div class="v" style="color:var(--crit)">${esc(fi.first_negative_date)}</div>` : ''}
+      ${fi.shortfall_to_buffer > 0 ? `<div class="k">Needed to hold the buffer</div>
+        <div class="v">${eur(fi.shortfall_to_buffer)} for ${fi.suggested_bridge_days} days</div>
+        <div class="k">Lead time to arrange</div>
+        <div class="v">${fi.days_until_first_shortfall} days</div>` : ''}
+    </div>
+    ${fi.primary_drivers && fi.primary_drivers.length ? `
+      <div style="margin-top:11px"><b style="font-size:12.5px">What drives the drawdown</b>
+      <table style="margin-top:5px"><tbody>${fi.primary_drivers.map(d =>
+        `<tr><td>${esc(d.counterparty)}</td><td class="num">${eur(d.amount)}</td></tr>`).join('')}
+      </tbody></table></div>` : ''}
+    <details style="margin-top:11px"><summary>Assumptions behind this projection</summary>
+      <div class="kv" style="margin-top:8px">
+        <div class="k">Method</div><div class="v" style="font-weight:400">${esc(a.method)}</div>
+        <div class="k">Sales growth / 28d</div><div class="v">${a.growth_factor_per_28d}</div>
+        <div class="k">Platform fees</div><div class="v">${pct(a.platform_fee_rate)}</div>
+        <div class="k">Refund rate</div><div class="v">${pct(a.refund_rate)}</div>
+        <div class="k">Payout cadence</div><div class="v">${a.payout_cadence_days}d, ${a.payout_hold_days}d hold</div>
+        <div class="k">Variable costs</div>
+        <div class="v">${Object.entries(a.variable_cost_rates).map(([k, v]) =>
+          k + ' ' + pct(v)).join(', ')}</div>
+      </div></details>`;
+  return card(`Cash-flow forecast · next ${f.horizon_days} days`, html);
+}
+
+function renderAlerts(d) {
+  const alerts = d.alerts.map(a =>
+    `<div class="alert ${esc(a.severity)}"><div class="h">${esc(a.headline)}</div>
+     <div class="d">${esc(a.detail)}</div></div>`).join('');
+  const mits = d.mitigations.length ? `
+    <b style="font-size:12.5px">What you can do, cheapest first</b>
+    <table style="margin-top:5px"><thead><tr><th>Option</th><th>Type</th>
+      <th class="num">Cost</th></tr></thead><tbody>
+    ${d.mitigations.map(m => `<tr>
+      <td><b>${esc(m.action)}</b><div class="muted">${esc(m.detail)}</div></td>
+      <td><span class="pill ${m.type === 'free' ? 'free' : 'fin'}">${esc(m.type)}</span></td>
+      <td class="num">${m.cost ? eur(m.cost) : 'free'}</td></tr>`).join('')}
+    </tbody></table>` : '';
+  return card('Alerts and actions', alerts + mits);
+}
+
+function renderOptions(d) {
+  const row = (e, slow) => `<tr>
+    <td><b>${esc(e.name)}</b><div class="muted">${esc(e.provider)} · ${esc(e.type)}</div>
+      <div class="muted" style="margin-top:4px">${esc(e.cost.cost_basis || '')}</div>
+      ${slow ? `<div style="margin-top:4px"><span class="pill slow">would not arrive in time</span></div>` : ''}
+      <details style="margin-top:5px"><summary>Eligibility checks</summary>
+        <ul class="checks" style="margin:6px 0 0;padding-left:16px">
+        ${e.checks.map(c => `<li>${c.passed
+          ? '<span class="pill yes">pass</span>' : '<span class="pill no">fail</span>'}
+          ${esc(c.label)}: needs ${esc(String(c.required))}, you have ${esc(String(c.actual))}
+          ${c.hint ? `<div class="muted">${esc(c.hint)}</div>` : ''}</li>`).join('')}
+        </ul></details></td>
+    <td class="num">${eur(e.cost.cost_for_period)}</td>
+    <td class="num">${e.speed_days}d</td>
+    <td class="num">${e.cost.effective_apr ? pct(e.cost.effective_apr) : '—'}</td></tr>`;
+
+  const inTime = d.eligible.filter(e => !e.too_slow);
+  const slow = d.eligible.filter(e => e.too_slow);
+  let html = `<p class="muted" style="margin-top:0">${esc(d.summary)}</p>
+    <table><thead><tr><th>Product</th><th class="num">Cost for period</th>
+      <th class="num">Speed</th><th class="num">Eff. APR</th></tr></thead>
+      <tbody>${inTime.map(e => row(e, false)).join('')}${slow.map(e => row(e, true)).join('')}
+      </tbody></table>`;
+
+  if (d.near_miss.length) {
+    html += `<details style="margin-top:12px"><summary>
+      ${d.near_miss.length} option(s) you narrowly miss — and what would change that</summary>
+      <table style="margin-top:7px"><tbody>${d.near_miss.map(n => `<tr>
+        <td><b>${esc(n.name)}</b>${n.why_not.map(w =>
+          `<div class="muted">${esc(w.label)}: needs ${esc(String(w.required))},
+           you have ${esc(String(w.actual))}. ${esc(w.hint || '')}</div>`).join('')}</td>
+      </tr>`).join('')}</tbody></table></details>`;
+  }
+  if (d.excluded_wrong_purpose && d.excluded_wrong_purpose.length) {
+    html += `<details style="margin-top:9px"><summary>
+      ${d.excluded_wrong_purpose.length} excluded: funds cannot be used for this purpose</summary>
+      <ul class="checks" style="margin:7px 0 0;padding-left:16px">
+      ${d.excluded_wrong_purpose.map(w =>
+        `<li><b>${esc(w.name)}</b> — ${esc(w.excluded_reason)}</li>`).join('')}</ul></details>`;
+  }
+  html += `<p class="muted" style="margin-bottom:0;margin-top:11px">${esc(d.disclaimer)}</p>`;
+  return card(`Financing options · ${eur(d.requested_amount)}`, html);
+}
+
+function renderAnalysis(a) {
+  const h = a.headline_metrics;
+  const cmp = a.peer_comparison.metrics || {};
+  const html = `
+    <div class="kv">
+      <div class="k">Revenue (last 30d)</div><div class="v">${eur(h.revenue_last_30d)}</div>
+      <div class="k">Change vs prior 30d</div>
+      <div class="v" style="color:${h.revenue_change_pct >= 0 ? 'var(--ok)' : 'var(--crit)'}">
+        ${h.revenue_change_pct > 0 ? '+' : ''}${h.revenue_change_pct}%</div>
+      <div class="k">Contribution margin</div><div class="v">${pct(h.contribution_margin)}</div>
+      <div class="k">Fixed costs / month</div><div class="v">${eur(h.fixed_costs_monthly)}</div>
+      <div class="k">Estimated monthly net</div>
+      <div class="v" style="color:${h.estimated_monthly_net >= 0 ? 'var(--ok)' : 'var(--crit)'}">
+        ${eur(h.estimated_monthly_net)}</div>
+      <div class="k">Break-even revenue</div><div class="v">${eur(h.breakeven_monthly_revenue)}</div>
+      <div class="k">Cash trapped in payouts</div>
+      <div class="v">${eur(h.platform_balance)} (${h.cash_trapped_days_of_sales}d of sales)</div>
+      <div class="k">Cash buffer</div><div class="v">${h.cash_buffer_days ?? '—'} days</div>
+    </div>
+    ${Object.keys(cmp).length ? `<div style="margin-top:12px">
+      <b style="font-size:12.5px">Versus category peers — ${esc(a.peer_comparison.category_label)}</b>
+      <table style="margin-top:5px"><thead><tr><th>Metric</th><th class="num">You</th>
+        <th class="num">Peer median</th><th>Position</th></tr></thead><tbody>
+      ${Object.entries(cmp).map(([k, v]) => `<tr><td>${esc(k.replace(/_/g, ' '))}</td>
+        <td class="num">${k.includes('days') ? v.value : pct(v.value)}</td>
+        <td class="num">${k.includes('days') ? v.median : pct(v.median)}</td>
+        <td><span class="pill ${v.favourable ? 'yes' : 'no'}">${esc(v.position)}</span></td>
+      </tr>`).join('')}</tbody></table>
+      <p class="muted" style="margin-bottom:0">${esc(a.peer_comparison.disclaimer)}</p></div>` : ''}
+    ${a.observations.map(o => `<div class="alert ${esc(o.severity)}" style="margin-top:9px">
+      <div class="h">${esc(o.headline)}</div><div class="d">${esc(o.detail)}</div></div>`).join('')}`;
+  return card('Financial analysis', html);
+}
+
+function renderConfirmation(d) {
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="alert warning"><div class="h">Your approval is required</div>
+      <div class="d">${esc(d.what_will_happen)}</div></div>
+    <div class="kv" style="margin-top:9px">
+      ${Object.entries(d.parameters_for_review || {}).map(([k, v]) =>
+        `<div class="k">${esc(k)}</div><div class="v">${esc(String(v))}</div>`).join('')}
+    </div>
+    <p class="muted">${esc(d.how_to_proceed)}</p>
+    <div style="display:flex;gap:8px"><button class="ok">Approve</button>
+      <button class="danger no">Decline</button></div>
+    <div class="res" style="margin-top:9px"></div>`;
+
+  const decide = async approved => {
+    el.querySelectorAll('button').forEach(b => b.disabled = true);
+    const r = await api('/api/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ session_id: state.sessionId, token: d.confirmation_token, approved }),
+    });
+    el.querySelector('.res').innerHTML =
+      `<div class="alert ${r.status === 'executed_in_sandbox' ? 'good' : 'info'}">
+        <div class="h">${esc(r.status)}</div>
+        <div class="d">${esc(r.note || r.reason || '')}</div></div>`;
+  };
+  el.querySelector('.ok').onclick = () => decide(true);
+  el.querySelector('.no').onclick = () => decide(false);
+  return card('Action requires confirmation', el);
+}
+
+// ---------- audit ----------
+$('#verify').onclick = async () => {
+  const r = await api('/api/audit/verify');
+  $('#chainresult').innerHTML = `<div class="alert ${r.valid ? 'good' : 'critical'}">
+    <div class="h">${r.valid ? 'Chain intact' : 'Chain broken at record ' + r.broken_at}</div>
+    <div class="d">${esc(r.reason)} (${r.records} records)</div></div>`;
+};
+$('#showlog').onclick = async () => {
+  const r = await api('/api/audit?limit=40');
+  const out = $('#logout');
+  out.hidden = false;
+  out.textContent = r.records.map(x =>
+    `${x.ts.slice(11, 19)}  ${x.event.padEnd(30)} ${(x.tool || '').padEnd(26)} ${x.decision || ''}`
+  ).join('\n');
+};
+
+$('#send').onclick = () => send();
+$('#input').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+boot().catch(e => document.body.insertAdjacentHTML('afterbegin',
+  `<div class="sandbox-banner" style="background:var(--crit-soft);color:var(--crit)">
+   Failed to start: ${esc(e.message)}</div>`));
+</script>
+</body>
+</html>

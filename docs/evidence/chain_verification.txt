@@ -1,0 +1,25 @@
+Audit log hash-chain verification
+=================================
+
+Records:  61
+Valid:    True
+Reason:   Chain intact.
+
+Each record stores the SHA-256 of the preceding record. Editing,
+reordering, inserting or deleting any record breaks the chain and is
+detected. Verify independently at any time with:
+
+    python -c "import os; os.environ['AUDIT_LOG_PATH']='docs/evidence/audit_log.jsonl'; \
+        from app.security.audit import verify_chain; print(verify_chain())"
+
+Event counts
+------------
+  action_confirmation                3
+  action_staged                      2
+  guardrail_indirect_injection       6
+  guardrail_input_injection          1
+  guardrail_scope                    1
+  tool_call                          19
+  tool_denied                        1
+  turn_end                           14
+  turn_start                         14
