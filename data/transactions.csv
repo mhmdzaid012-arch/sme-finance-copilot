@@ -114,8 +114,8 @@ kofi-coffee-00030,kofi-coffee,2026-03-06,platform,platform_fee,platform_fees,-54
 kofi-coffee-00032,kofi-coffee,2026-03-06,bank,expense,cogs,-356.33,Supplier / Fulfilment,cost of goods
 kofi-coffee-00033,kofi-coffee,2026-03-06,bank,expense,shipping,-84.39,Courier,outbound shipping
 kofi-coffee-01122,kofi-coffee,2026-03-06,bank,expense,software,-89.0,Shopify Plus,recurring monthly
-kofi-coffee-01135,kofi-coffee,2026-03-06,platform,payout,payouts,-477.35,Payout to Bank,release of sales through 2026-03-01
-kofi-coffee-01136,kofi-coffee,2026-03-06,bank,payout,payouts,477.35,Marketplace Payout,release of sales through 2026-03-01
+kofi-coffee-01141,kofi-coffee,2026-03-06,platform,payout,payouts,-477.35,Payout to Bank,release of sales through 2026-03-01
+kofi-coffee-01142,kofi-coffee,2026-03-06,bank,payout,payouts,477.35,Marketplace Payout,release of sales through 2026-03-01
 linas-ceramics-00031,linas-ceramics,2026-03-06,platform,sale,sales,135.67,Marketplace Orders,4 orders
 linas-ceramics-00032,linas-ceramics,2026-03-06,platform,platform_fee,platform_fees,-20.62,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00034,linas-ceramics,2026-03-06,bank,expense,cogs,-42.06,Supplier / Fulfilment,cost of goods
@@ -253,6 +253,7 @@ kofi-coffee-00064,kofi-coffee,2026-03-12,platform,platform_fee,platform_fees,-45
 kofi-coffee-00066,kofi-coffee,2026-03-12,bank,expense,cogs,-300.25,Supplier / Fulfilment,cost of goods
 kofi-coffee-00067,kofi-coffee,2026-03-12,bank,expense,shipping,-71.11,Courier,outbound shipping
 kofi-coffee-00068,kofi-coffee,2026-03-12,bank,expense,advertising,-59.87,Ad Platform,performance ads
+kofi-coffee-01135,kofi-coffee,2026-03-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
 linas-ceramics-00020,linas-ceramics,2026-03-12,platform,refund,refunds,-5.73,Customer Refunds,returned items
 linas-ceramics-00066,linas-ceramics,2026-03-12,platform,sale,sales,82.61,Marketplace Orders,2 orders
 linas-ceramics-00067,linas-ceramics,2026-03-12,platform,platform_fee,platform_fees,-12.56,Marketplace Fees,commission+payment fees @ 15.2%
@@ -277,8 +278,8 @@ kofi-coffee-00070,kofi-coffee,2026-03-13,platform,platform_fee,platform_fees,-46
 kofi-coffee-00072,kofi-coffee,2026-03-13,bank,expense,cogs,-303.93,Supplier / Fulfilment,cost of goods
 kofi-coffee-00073,kofi-coffee,2026-03-13,bank,expense,shipping,-71.98,Courier,outbound shipping
 kofi-coffee-00074,kofi-coffee,2026-03-13,bank,expense,advertising,-78.13,Ad Platform,performance ads
-kofi-coffee-01137,kofi-coffee,2026-03-13,platform,payout,payouts,-5275.51,Payout to Bank,release of sales through 2026-03-08
-kofi-coffee-01138,kofi-coffee,2026-03-13,bank,payout,payouts,5275.51,Marketplace Payout,release of sales through 2026-03-08
+kofi-coffee-01143,kofi-coffee,2026-03-13,platform,payout,payouts,-5275.51,Payout to Bank,release of sales through 2026-03-08
+kofi-coffee-01144,kofi-coffee,2026-03-13,bank,payout,payouts,5275.51,Marketplace Payout,release of sales through 2026-03-08
 linas-ceramics-00033,linas-ceramics,2026-03-13,platform,refund,refunds,-11.73,Customer Refunds,returned items
 linas-ceramics-00039,linas-ceramics,2026-03-13,platform,refund,refunds,-7.38,Customer Refunds,returned items
 linas-ceramics-00051,linas-ceramics,2026-03-13,platform,refund,refunds,-15.77,Customer Refunds,returned items
@@ -322,6 +323,7 @@ amara-prints-00082,amara-prints,2026-03-15,platform,platform_fee,platform_fees,-
 amara-prints-00084,amara-prints,2026-03-15,bank,expense,cogs,-104.62,Supplier / Fulfilment,cost of goods
 amara-prints-00085,amara-prints,2026-03-15,bank,expense,shipping,-17.44,Courier,outbound shipping
 amara-prints-00086,amara-prints,2026-03-15,bank,expense,advertising,-23.4,Ad Platform,performance ads
+amara-prints-01175,amara-prints,2026-03-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
 kofi-coffee-00047,kofi-coffee,2026-03-15,platform,refund,refunds,-31.7,Customer Refunds,returned items
 kofi-coffee-00079,kofi-coffee,2026-03-15,platform,sale,sales,771.05,Marketplace Orders,18 orders
 kofi-coffee-00080,kofi-coffee,2026-03-15,platform,platform_fee,platform_fees,-44.72,Marketplace Fees,commission+payment fees @ 5.8%
@@ -449,8 +451,8 @@ kofi-coffee-00113,kofi-coffee,2026-03-20,bank,expense,cogs,-279.85,Supplier / Fu
 kofi-coffee-00114,kofi-coffee,2026-03-20,bank,expense,shipping,-66.28,Courier,outbound shipping
 kofi-coffee-00115,kofi-coffee,2026-03-20,bank,expense,advertising,-62.23,Ad Platform,performance ads
 kofi-coffee-01129,kofi-coffee,2026-03-20,bank,expense,equipment,-640.0,Equipment Lease (Roaster),recurring monthly
-kofi-coffee-01139,kofi-coffee,2026-03-20,platform,payout,payouts,-5381.11,Payout to Bank,release of sales through 2026-03-15
-kofi-coffee-01140,kofi-coffee,2026-03-20,bank,payout,payouts,5381.11,Marketplace Payout,release of sales through 2026-03-15
+kofi-coffee-01145,kofi-coffee,2026-03-20,platform,payout,payouts,-5381.11,Payout to Bank,release of sales through 2026-03-15
+kofi-coffee-01146,kofi-coffee,2026-03-20,bank,payout,payouts,5381.11,Marketplace Payout,release of sales through 2026-03-15
 linas-ceramics-00090,linas-ceramics,2026-03-20,platform,refund,refunds,-17.32,Customer Refunds,returned items
 linas-ceramics-00110,linas-ceramics,2026-03-20,platform,sale,sales,151.89,Marketplace Orders,4 orders
 linas-ceramics-00111,linas-ceramics,2026-03-20,platform,platform_fee,platform_fees,-23.09,Marketplace Fees,commission+payment fees @ 15.2%
@@ -513,8 +515,8 @@ amara-prints-00130,amara-prints,2026-03-23,platform,platform_fee,platform_fees,-
 amara-prints-00132,amara-prints,2026-03-23,bank,expense,cogs,-125.78,Supplier / Fulfilment,cost of goods
 amara-prints-00133,amara-prints,2026-03-23,bank,expense,shipping,-20.96,Courier,outbound shipping
 amara-prints-00134,amara-prints,2026-03-23,bank,expense,advertising,-19.71,Ad Platform,performance ads
-amara-prints-01177,amara-prints,2026-03-23,platform,payout,payouts,-3419.82,Payout to Bank,release of sales through 2026-03-13
-amara-prints-01178,amara-prints,2026-03-23,bank,payout,payouts,3419.82,Marketplace Payout,release of sales through 2026-03-13
+amara-prints-01183,amara-prints,2026-03-23,platform,payout,payouts,-3419.82,Payout to Bank,release of sales through 2026-03-13
+amara-prints-01184,amara-prints,2026-03-23,bank,payout,payouts,3419.82,Marketplace Payout,release of sales through 2026-03-13
 kofi-coffee-00081,kofi-coffee,2026-03-23,platform,refund,refunds,-16.71,Customer Refunds,returned items
 kofi-coffee-00087,kofi-coffee,2026-03-23,platform,refund,refunds,-21.42,Customer Refunds,returned items
 kofi-coffee-00127,kofi-coffee,2026-03-23,platform,sale,sales,1062.27,Marketplace Orders,27 orders
@@ -622,8 +624,8 @@ kofi-coffee-00154,kofi-coffee,2026-03-27,bank,expense,cogs,-337.96,Supplier / Fu
 kofi-coffee-00155,kofi-coffee,2026-03-27,bank,expense,shipping,-80.04,Courier,outbound shipping
 kofi-coffee-00156,kofi-coffee,2026-03-27,bank,expense,advertising,-73.89,Ad Platform,performance ads
 kofi-coffee-01109,kofi-coffee,2026-03-27,bank,expense,wages,-3900.0,Payroll (3 staff),recurring monthly
-kofi-coffee-01141,kofi-coffee,2026-03-27,platform,payout,payouts,-5650.68,Payout to Bank,release of sales through 2026-03-22
-kofi-coffee-01142,kofi-coffee,2026-03-27,bank,payout,payouts,5650.68,Marketplace Payout,release of sales through 2026-03-22
+kofi-coffee-01147,kofi-coffee,2026-03-27,platform,payout,payouts,-5650.68,Payout to Bank,release of sales through 2026-03-22
+kofi-coffee-01148,kofi-coffee,2026-03-27,bank,payout,payouts,5650.68,Marketplace Payout,release of sales through 2026-03-22
 linas-ceramics-00147,linas-ceramics,2026-03-27,platform,sale,sales,100.19,Marketplace Orders,4 orders
 linas-ceramics-00148,linas-ceramics,2026-03-27,platform,platform_fee,platform_fees,-15.23,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00150,linas-ceramics,2026-03-27,bank,expense,cogs,-31.06,Supplier / Fulfilment,cost of goods
@@ -799,8 +801,8 @@ kofi-coffee-00192,kofi-coffee,2026-04-03,platform,platform_fee,platform_fees,-44
 kofi-coffee-00193,kofi-coffee,2026-04-03,bank,expense,cogs,-290.59,Supplier / Fulfilment,cost of goods
 kofi-coffee-00194,kofi-coffee,2026-04-03,bank,expense,shipping,-68.82,Courier,outbound shipping
 kofi-coffee-00195,kofi-coffee,2026-04-03,bank,expense,advertising,-43.39,Ad Platform,performance ads
-kofi-coffee-01143,kofi-coffee,2026-04-03,platform,payout,payouts,-5443.42,Payout to Bank,release of sales through 2026-03-29
-kofi-coffee-01144,kofi-coffee,2026-04-03,bank,payout,payouts,5443.42,Marketplace Payout,release of sales through 2026-03-29
+kofi-coffee-01149,kofi-coffee,2026-04-03,platform,payout,payouts,-5443.42,Payout to Bank,release of sales through 2026-03-29
+kofi-coffee-01150,kofi-coffee,2026-04-03,bank,payout,payouts,5443.42,Marketplace Payout,release of sales through 2026-03-29
 linas-ceramics-00189,linas-ceramics,2026-04-03,platform,sale,sales,156.81,Marketplace Orders,3 orders
 linas-ceramics-00190,linas-ceramics,2026-04-03,platform,platform_fee,platform_fees,-23.84,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00192,linas-ceramics,2026-04-03,bank,expense,cogs,-48.61,Supplier / Fulfilment,cost of goods
@@ -864,8 +866,8 @@ amara-prints-00215,amara-prints,2026-04-06,bank,expense,cogs,-171.22,Supplier / 
 amara-prints-00216,amara-prints,2026-04-06,bank,expense,shipping,-28.54,Courier,outbound shipping
 amara-prints-00217,amara-prints,2026-04-06,bank,expense,advertising,-40.66,Ad Platform,performance ads
 amara-prints-01150,amara-prints,2026-04-06,bank,expense,software,-89.0,Shopify Plus,recurring monthly
-amara-prints-01179,amara-prints,2026-04-06,platform,payout,payouts,-4091.8,Payout to Bank,release of sales through 2026-03-27
-amara-prints-01180,amara-prints,2026-04-06,bank,payout,payouts,4091.8,Marketplace Payout,release of sales through 2026-03-27
+amara-prints-01185,amara-prints,2026-04-06,platform,payout,payouts,-4091.8,Payout to Bank,release of sales through 2026-03-27
+amara-prints-01186,amara-prints,2026-04-06,bank,payout,payouts,4091.8,Marketplace Payout,release of sales through 2026-03-27
 kofi-coffee-00207,kofi-coffee,2026-04-06,platform,sale,sales,1034.39,Marketplace Orders,24 orders
 kofi-coffee-00208,kofi-coffee,2026-04-06,platform,platform_fee,platform_fees,-59.99,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00209,kofi-coffee,2026-04-06,bank,expense,cogs,-393.07,Supplier / Fulfilment,cost of goods
@@ -972,8 +974,8 @@ kofi-coffee-00230,kofi-coffee,2026-04-10,platform,platform_fee,platform_fees,-46
 kofi-coffee-00232,kofi-coffee,2026-04-10,bank,expense,cogs,-303.65,Supplier / Fulfilment,cost of goods
 kofi-coffee-00233,kofi-coffee,2026-04-10,bank,expense,shipping,-71.92,Courier,outbound shipping
 kofi-coffee-01116,kofi-coffee,2026-04-10,bank,expense,utilities,-410.0,Utilities (Energy),recurring monthly
-kofi-coffee-01145,kofi-coffee,2026-04-10,platform,payout,payouts,-5150.27,Payout to Bank,release of sales through 2026-04-05
-kofi-coffee-01146,kofi-coffee,2026-04-10,bank,payout,payouts,5150.27,Marketplace Payout,release of sales through 2026-04-05
+kofi-coffee-01151,kofi-coffee,2026-04-10,platform,payout,payouts,-5150.27,Payout to Bank,release of sales through 2026-04-05
+kofi-coffee-01152,kofi-coffee,2026-04-10,bank,payout,payouts,5150.27,Marketplace Payout,release of sales through 2026-04-05
 linas-ceramics-00197,linas-ceramics,2026-04-10,platform,refund,refunds,-10.3,Customer Refunds,returned items
 linas-ceramics-00231,linas-ceramics,2026-04-10,platform,sale,sales,133.92,Marketplace Orders,3 orders
 linas-ceramics-00232,linas-ceramics,2026-04-10,platform,platform_fee,platform_fees,-20.36,Marketplace Fees,commission+payment fees @ 15.2%
@@ -1017,6 +1019,7 @@ kofi-coffee-00240,kofi-coffee,2026-04-12,platform,platform_fee,platform_fees,-35
 kofi-coffee-00242,kofi-coffee,2026-04-12,bank,expense,cogs,-234.81,Supplier / Fulfilment,cost of goods
 kofi-coffee-00243,kofi-coffee,2026-04-12,bank,expense,shipping,-55.61,Courier,outbound shipping
 kofi-coffee-00244,kofi-coffee,2026-04-12,bank,expense,advertising,-55.8,Ad Platform,performance ads
+kofi-coffee-01136,kofi-coffee,2026-04-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
 linas-ceramics-00220,linas-ceramics,2026-04-12,platform,refund,refunds,-4.98,Customer Refunds,returned items
 linas-ceramics-00242,linas-ceramics,2026-04-12,platform,sale,sales,108.93,Marketplace Orders,2 orders
 linas-ceramics-00243,linas-ceramics,2026-04-12,platform,platform_fee,platform_fees,-16.56,Marketplace Fees,commission+payment fees @ 15.2%
@@ -1082,6 +1085,7 @@ amara-prints-00267,amara-prints,2026-04-15,platform,platform_fee,platform_fees,-
 amara-prints-00269,amara-prints,2026-04-15,bank,expense,cogs,-131.56,Supplier / Fulfilment,cost of goods
 amara-prints-00270,amara-prints,2026-04-15,bank,expense,shipping,-21.93,Courier,outbound shipping
 amara-prints-00271,amara-prints,2026-04-15,bank,expense,advertising,-35.05,Ad Platform,performance ads
+amara-prints-01176,amara-prints,2026-04-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
 kofi-coffee-00257,kofi-coffee,2026-04-15,platform,sale,sales,620.63,Marketplace Orders,14 orders
 kofi-coffee-00258,kofi-coffee,2026-04-15,platform,platform_fee,platform_fees,-36.0,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00261,kofi-coffee,2026-04-15,bank,expense,cogs,-235.84,Supplier / Fulfilment,cost of goods
@@ -1129,8 +1133,8 @@ kofi-coffee-00269,kofi-coffee,2026-04-17,platform,platform_fee,platform_fees,-59
 kofi-coffee-00270,kofi-coffee,2026-04-17,bank,expense,cogs,-388.19,Supplier / Fulfilment,cost of goods
 kofi-coffee-00271,kofi-coffee,2026-04-17,bank,expense,shipping,-91.94,Courier,outbound shipping
 kofi-coffee-00272,kofi-coffee,2026-04-17,bank,expense,advertising,-86.91,Ad Platform,performance ads
-kofi-coffee-01147,kofi-coffee,2026-04-17,platform,payout,payouts,-5493.96,Payout to Bank,release of sales through 2026-04-12
-kofi-coffee-01148,kofi-coffee,2026-04-17,bank,payout,payouts,5493.96,Marketplace Payout,release of sales through 2026-04-12
+kofi-coffee-01153,kofi-coffee,2026-04-17,platform,payout,payouts,-5493.96,Payout to Bank,release of sales through 2026-04-12
+kofi-coffee-01154,kofi-coffee,2026-04-17,bank,payout,payouts,5493.96,Marketplace Payout,release of sales through 2026-04-12
 linas-ceramics-00272,linas-ceramics,2026-04-17,platform,sale,sales,138.73,Marketplace Orders,3 orders
 linas-ceramics-00273,linas-ceramics,2026-04-17,platform,platform_fee,platform_fees,-21.09,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00274,linas-ceramics,2026-04-17,bank,expense,cogs,-43.01,Supplier / Fulfilment,cost of goods
@@ -1198,8 +1202,8 @@ amara-prints-00297,amara-prints,2026-04-20,platform,platform_fee,platform_fees,-
 amara-prints-00299,amara-prints,2026-04-20,bank,expense,cogs,-180.11,Supplier / Fulfilment,cost of goods
 amara-prints-00300,amara-prints,2026-04-20,bank,expense,shipping,-30.02,Courier,outbound shipping
 amara-prints-00301,amara-prints,2026-04-20,bank,expense,advertising,-41.87,Ad Platform,performance ads
-amara-prints-01181,amara-prints,2026-04-20,platform,payout,payouts,-4075.57,Payout to Bank,release of sales through 2026-04-10
-amara-prints-01182,amara-prints,2026-04-20,bank,payout,payouts,4075.57,Marketplace Payout,release of sales through 2026-04-10
+amara-prints-01187,amara-prints,2026-04-20,platform,payout,payouts,-4075.57,Payout to Bank,release of sales through 2026-04-10
+amara-prints-01188,amara-prints,2026-04-20,bank,payout,payouts,4075.57,Marketplace Payout,release of sales through 2026-04-10
 kofi-coffee-00285,kofi-coffee,2026-04-20,platform,sale,sales,1017.3,Marketplace Orders,20 orders
 kofi-coffee-00286,kofi-coffee,2026-04-20,platform,platform_fee,platform_fees,-59.0,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00288,kofi-coffee,2026-04-20,bank,expense,cogs,-386.57,Supplier / Fulfilment,cost of goods
@@ -1309,8 +1313,8 @@ kofi-coffee-00309,kofi-coffee,2026-04-24,platform,platform_fee,platform_fees,-59
 kofi-coffee-00311,kofi-coffee,2026-04-24,bank,expense,cogs,-389.85,Supplier / Fulfilment,cost of goods
 kofi-coffee-00312,kofi-coffee,2026-04-24,bank,expense,shipping,-92.33,Courier,outbound shipping
 kofi-coffee-00313,kofi-coffee,2026-04-24,bank,expense,advertising,-93.08,Ad Platform,performance ads
-kofi-coffee-01149,kofi-coffee,2026-04-24,platform,payout,payouts,-4917.99,Payout to Bank,release of sales through 2026-04-19
-kofi-coffee-01150,kofi-coffee,2026-04-24,bank,payout,payouts,4917.99,Marketplace Payout,release of sales through 2026-04-19
+kofi-coffee-01155,kofi-coffee,2026-04-24,platform,payout,payouts,-4917.99,Payout to Bank,release of sales through 2026-04-19
+kofi-coffee-01156,kofi-coffee,2026-04-24,bank,payout,payouts,4917.99,Marketplace Payout,release of sales through 2026-04-19
 linas-ceramics-00314,linas-ceramics,2026-04-24,platform,sale,sales,107.63,Marketplace Orders,2 orders
 linas-ceramics-00315,linas-ceramics,2026-04-24,platform,platform_fee,platform_fees,-16.36,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00317,linas-ceramics,2026-04-24,bank,expense,cogs,-33.37,Supplier / Fulfilment,cost of goods
@@ -1485,8 +1489,8 @@ kofi-coffee-00349,kofi-coffee,2026-05-01,bank,expense,cogs,-302.33,Supplier / Fu
 kofi-coffee-00350,kofi-coffee,2026-05-01,bank,expense,shipping,-71.6,Courier,outbound shipping
 kofi-coffee-00351,kofi-coffee,2026-05-01,bank,expense,advertising,-67.67,Ad Platform,performance ads
 kofi-coffee-01104,kofi-coffee,2026-05-01,bank,expense,rent,-2900.0,Roastery Lease,recurring monthly
-kofi-coffee-01151,kofi-coffee,2026-05-01,platform,payout,payouts,-5053.31,Payout to Bank,release of sales through 2026-04-26
-kofi-coffee-01152,kofi-coffee,2026-05-01,bank,payout,payouts,5053.31,Marketplace Payout,release of sales through 2026-04-26
+kofi-coffee-01157,kofi-coffee,2026-05-01,platform,payout,payouts,-5053.31,Payout to Bank,release of sales through 2026-04-26
+kofi-coffee-01158,kofi-coffee,2026-05-01,bank,payout,payouts,5053.31,Marketplace Payout,release of sales through 2026-04-26
 linas-ceramics-00299,linas-ceramics,2026-05-01,bank,chargeback,chargebacks,-3.4,Card Scheme Chargeback,disputed transaction
 linas-ceramics-00355,linas-ceramics,2026-05-01,platform,sale,sales,174.38,Marketplace Orders,5 orders
 linas-ceramics-00356,linas-ceramics,2026-05-01,platform,platform_fee,platform_fees,-26.51,Marketplace Fees,commission+payment fees @ 15.2%
@@ -1555,8 +1559,8 @@ amara-prints-00375,amara-prints,2026-05-04,platform,platform_fee,platform_fees,-
 amara-prints-00378,amara-prints,2026-05-04,bank,expense,cogs,-156.56,Supplier / Fulfilment,cost of goods
 amara-prints-00379,amara-prints,2026-05-04,bank,expense,shipping,-26.09,Courier,outbound shipping
 amara-prints-00380,amara-prints,2026-05-04,bank,expense,advertising,-33.62,Ad Platform,performance ads
-amara-prints-01183,amara-prints,2026-05-04,platform,payout,payouts,-3973.0,Payout to Bank,release of sales through 2026-04-24
-amara-prints-01184,amara-prints,2026-05-04,bank,payout,payouts,3973.0,Marketplace Payout,release of sales through 2026-04-24
+amara-prints-01189,amara-prints,2026-05-04,platform,payout,payouts,-3973.0,Payout to Bank,release of sales through 2026-04-24
+amara-prints-01190,amara-prints,2026-05-04,bank,payout,payouts,3973.0,Marketplace Payout,release of sales through 2026-04-24
 kofi-coffee-00364,kofi-coffee,2026-05-04,platform,sale,sales,1234.61,Marketplace Orders,27 orders
 kofi-coffee-00365,kofi-coffee,2026-05-04,platform,platform_fee,platform_fees,-71.61,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00367,kofi-coffee,2026-05-04,bank,expense,cogs,-469.15,Supplier / Fulfilment,cost of goods
@@ -1658,8 +1662,8 @@ kofi-coffee-00389,kofi-coffee,2026-05-08,platform,platform_fee,platform_fees,-50
 kofi-coffee-00391,kofi-coffee,2026-05-08,bank,expense,cogs,-327.86,Supplier / Fulfilment,cost of goods
 kofi-coffee-00392,kofi-coffee,2026-05-08,bank,expense,shipping,-77.65,Courier,outbound shipping
 kofi-coffee-00393,kofi-coffee,2026-05-08,bank,expense,advertising,-85.85,Ad Platform,performance ads
-kofi-coffee-01153,kofi-coffee,2026-05-08,platform,payout,payouts,-5049.65,Payout to Bank,release of sales through 2026-05-03
-kofi-coffee-01154,kofi-coffee,2026-05-08,bank,payout,payouts,5049.65,Marketplace Payout,release of sales through 2026-05-03
+kofi-coffee-01159,kofi-coffee,2026-05-08,platform,payout,payouts,-5049.65,Payout to Bank,release of sales through 2026-05-03
+kofi-coffee-01160,kofi-coffee,2026-05-08,bank,payout,payouts,5049.65,Marketplace Payout,release of sales through 2026-05-03
 linas-ceramics-00395,linas-ceramics,2026-05-08,platform,sale,sales,148.28,Marketplace Orders,5 orders
 linas-ceramics-00396,linas-ceramics,2026-05-08,platform,platform_fee,platform_fees,-22.54,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00398,linas-ceramics,2026-05-08,bank,expense,cogs,-45.97,Supplier / Fulfilment,cost of goods
@@ -1757,6 +1761,7 @@ kofi-coffee-00413,kofi-coffee,2026-05-12,platform,platform_fee,platform_fees,-56
 kofi-coffee-00415,kofi-coffee,2026-05-12,bank,expense,cogs,-369.53,Supplier / Fulfilment,cost of goods
 kofi-coffee-00416,kofi-coffee,2026-05-12,bank,expense,shipping,-87.52,Courier,outbound shipping
 kofi-coffee-00417,kofi-coffee,2026-05-12,bank,expense,advertising,-86.19,Ad Platform,performance ads
+kofi-coffee-01137,kofi-coffee,2026-05-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
 linas-ceramics-00369,linas-ceramics,2026-05-12,platform,refund,refunds,-13.99,Customer Refunds,returned items
 linas-ceramics-00418,linas-ceramics,2026-05-12,platform,sale,sales,120.36,Marketplace Orders,2 orders
 linas-ceramics-00419,linas-ceramics,2026-05-12,platform,platform_fee,platform_fees,-18.29,Marketplace Fees,commission+payment fees @ 15.2%
@@ -1819,6 +1824,7 @@ amara-prints-00439,amara-prints,2026-05-15,platform,platform_fee,platform_fees,-
 amara-prints-00441,amara-prints,2026-05-15,bank,expense,cogs,-176.43,Supplier / Fulfilment,cost of goods
 amara-prints-00442,amara-prints,2026-05-15,bank,expense,shipping,-29.4,Courier,outbound shipping
 amara-prints-00443,amara-prints,2026-05-15,bank,expense,advertising,-45.52,Ad Platform,performance ads
+amara-prints-01177,amara-prints,2026-05-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
 kofi-coffee-00384,kofi-coffee,2026-05-15,platform,refund,refunds,-19.74,Customer Refunds,returned items
 kofi-coffee-00414,kofi-coffee,2026-05-15,platform,refund,refunds,-22.55,Customer Refunds,returned items
 kofi-coffee-00430,kofi-coffee,2026-05-15,platform,sale,sales,1144.88,Marketplace Orders,29 orders
@@ -1826,8 +1832,8 @@ kofi-coffee-00431,kofi-coffee,2026-05-15,platform,platform_fee,platform_fees,-66
 kofi-coffee-00433,kofi-coffee,2026-05-15,bank,expense,cogs,-435.05,Supplier / Fulfilment,cost of goods
 kofi-coffee-00434,kofi-coffee,2026-05-15,bank,expense,shipping,-103.04,Courier,outbound shipping
 kofi-coffee-00435,kofi-coffee,2026-05-15,bank,expense,advertising,-65.52,Ad Platform,performance ads
-kofi-coffee-01155,kofi-coffee,2026-05-15,platform,payout,payouts,-5824.2,Payout to Bank,release of sales through 2026-05-10
-kofi-coffee-01156,kofi-coffee,2026-05-15,bank,payout,payouts,5824.2,Marketplace Payout,release of sales through 2026-05-10
+kofi-coffee-01161,kofi-coffee,2026-05-15,platform,payout,payouts,-5824.2,Payout to Bank,release of sales through 2026-05-10
+kofi-coffee-01162,kofi-coffee,2026-05-15,bank,payout,payouts,5824.2,Marketplace Payout,release of sales through 2026-05-10
 linas-ceramics-00437,linas-ceramics,2026-05-15,platform,sale,sales,135.52,Marketplace Orders,4 orders
 linas-ceramics-00438,linas-ceramics,2026-05-15,platform,platform_fee,platform_fees,-20.6,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00440,linas-ceramics,2026-05-15,bank,expense,cogs,-42.01,Supplier / Fulfilment,cost of goods
@@ -1893,8 +1899,8 @@ amara-prints-00457,amara-prints,2026-05-18,bank,expense,cogs,-244.71,Supplier / 
 amara-prints-00458,amara-prints,2026-05-18,bank,expense,shipping,-40.79,Courier,outbound shipping
 amara-prints-00459,amara-prints,2026-05-18,bank,expense,advertising,-57.71,Ad Platform,performance ads
 amara-prints-01164,amara-prints,2026-05-18,bank,expense,professional_services,-180.0,Accountant (Steuerberater),recurring monthly
-amara-prints-01185,amara-prints,2026-05-18,platform,payout,payouts,-4200.16,Payout to Bank,release of sales through 2026-05-08
-amara-prints-01186,amara-prints,2026-05-18,bank,payout,payouts,4200.16,Marketplace Payout,release of sales through 2026-05-08
+amara-prints-01191,amara-prints,2026-05-18,platform,payout,payouts,-4200.16,Payout to Bank,release of sales through 2026-05-08
+amara-prints-01192,amara-prints,2026-05-18,bank,payout,payouts,4200.16,Marketplace Payout,release of sales through 2026-05-08
 kofi-coffee-00426,kofi-coffee,2026-05-18,platform,refund,refunds,-21.35,Customer Refunds,returned items
 kofi-coffee-00447,kofi-coffee,2026-05-18,platform,sale,sales,1080.82,Marketplace Orders,35 orders
 kofi-coffee-00448,kofi-coffee,2026-05-18,platform,platform_fee,platform_fees,-62.69,Marketplace Fees,commission+payment fees @ 5.8%
@@ -2000,8 +2006,8 @@ kofi-coffee-00471,kofi-coffee,2026-05-22,platform,platform_fee,platform_fees,-56
 kofi-coffee-00473,kofi-coffee,2026-05-22,bank,expense,cogs,-368.69,Supplier / Fulfilment,cost of goods
 kofi-coffee-00474,kofi-coffee,2026-05-22,bank,expense,shipping,-87.32,Courier,outbound shipping
 kofi-coffee-00475,kofi-coffee,2026-05-22,bank,expense,advertising,-103.72,Ad Platform,performance ads
-kofi-coffee-01157,kofi-coffee,2026-05-22,platform,payout,payouts,-6011.44,Payout to Bank,release of sales through 2026-05-17
-kofi-coffee-01158,kofi-coffee,2026-05-22,bank,payout,payouts,6011.44,Marketplace Payout,release of sales through 2026-05-17
+kofi-coffee-01163,kofi-coffee,2026-05-22,platform,payout,payouts,-6011.44,Payout to Bank,release of sales through 2026-05-17
+kofi-coffee-01164,kofi-coffee,2026-05-22,bank,payout,payouts,6011.44,Marketplace Payout,release of sales through 2026-05-17
 linas-ceramics-00477,linas-ceramics,2026-05-22,platform,sale,sales,134.02,Marketplace Orders,4 orders
 linas-ceramics-00478,linas-ceramics,2026-05-22,platform,platform_fee,platform_fees,-20.37,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00480,linas-ceramics,2026-05-22,bank,expense,cogs,-41.55,Supplier / Fulfilment,cost of goods
@@ -2173,8 +2179,8 @@ kofi-coffee-00512,kofi-coffee,2026-05-29,platform,platform_fee,platform_fees,-56
 kofi-coffee-00514,kofi-coffee,2026-05-29,bank,expense,cogs,-370.23,Supplier / Fulfilment,cost of goods
 kofi-coffee-00515,kofi-coffee,2026-05-29,bank,expense,shipping,-87.69,Courier,outbound shipping
 kofi-coffee-00516,kofi-coffee,2026-05-29,bank,expense,advertising,-65.76,Ad Platform,performance ads
-kofi-coffee-01159,kofi-coffee,2026-05-29,platform,payout,payouts,-5237.93,Payout to Bank,release of sales through 2026-05-24
-kofi-coffee-01160,kofi-coffee,2026-05-29,bank,payout,payouts,5237.93,Marketplace Payout,release of sales through 2026-05-24
+kofi-coffee-01165,kofi-coffee,2026-05-29,platform,payout,payouts,-5237.93,Payout to Bank,release of sales through 2026-05-24
+kofi-coffee-01166,kofi-coffee,2026-05-29,bank,payout,payouts,5237.93,Marketplace Payout,release of sales through 2026-05-24
 linas-ceramics-00479,linas-ceramics,2026-05-29,platform,refund,refunds,-6.65,Customer Refunds,returned items
 linas-ceramics-00497,linas-ceramics,2026-05-29,platform,refund,refunds,-20.65,Customer Refunds,returned items
 linas-ceramics-00518,linas-ceramics,2026-05-29,platform,sale,sales,117.08,Marketplace Orders,4 orders
@@ -2239,8 +2245,8 @@ amara-prints-00539,amara-prints,2026-06-01,bank,expense,cogs,-188.38,Supplier / 
 amara-prints-00540,amara-prints,2026-06-01,bank,expense,shipping,-31.4,Courier,outbound shipping
 amara-prints-00541,amara-prints,2026-06-01,bank,expense,advertising,-33.23,Ad Platform,performance ads
 amara-prints-01139,amara-prints,2026-06-01,bank,expense,rent,-850.0,Studio Rent (Kreuzberg),recurring monthly
-amara-prints-01187,amara-prints,2026-06-01,platform,payout,payouts,-4320.0,Payout to Bank,release of sales through 2026-05-22
-amara-prints-01188,amara-prints,2026-06-01,bank,payout,payouts,4320.0,Marketplace Payout,release of sales through 2026-05-22
+amara-prints-01193,amara-prints,2026-06-01,platform,payout,payouts,-4320.0,Payout to Bank,release of sales through 2026-05-22
+amara-prints-01194,amara-prints,2026-06-01,bank,payout,payouts,4320.0,Marketplace Payout,release of sales through 2026-05-22
 kofi-coffee-00478,kofi-coffee,2026-06-01,platform,refund,refunds,-21.54,Customer Refunds,returned items
 kofi-coffee-00489,kofi-coffee,2026-06-01,platform,refund,refunds,-16.84,Customer Refunds,returned items
 kofi-coffee-00528,kofi-coffee,2026-06-01,platform,sale,sales,975.13,Marketplace Orders,21 orders
@@ -2346,8 +2352,8 @@ kofi-coffee-00550,kofi-coffee,2026-06-05,platform,sale,sales,876.87,Marketplace 
 kofi-coffee-00551,kofi-coffee,2026-06-05,platform,platform_fee,platform_fees,-50.86,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00552,kofi-coffee,2026-06-05,bank,expense,cogs,-333.21,Supplier / Fulfilment,cost of goods
 kofi-coffee-00553,kofi-coffee,2026-06-05,bank,expense,shipping,-78.92,Courier,outbound shipping
-kofi-coffee-01161,kofi-coffee,2026-06-05,platform,payout,payouts,-4529.31,Payout to Bank,release of sales through 2026-05-31
-kofi-coffee-01162,kofi-coffee,2026-06-05,bank,payout,payouts,4529.31,Marketplace Payout,release of sales through 2026-05-31
+kofi-coffee-01167,kofi-coffee,2026-06-05,platform,payout,payouts,-4529.31,Payout to Bank,release of sales through 2026-05-31
+kofi-coffee-01168,kofi-coffee,2026-06-05,bank,payout,payouts,4529.31,Marketplace Payout,release of sales through 2026-05-31
 linas-ceramics-00561,linas-ceramics,2026-06-05,platform,sale,sales,144.21,Marketplace Orders,3 orders
 linas-ceramics-00562,linas-ceramics,2026-06-05,platform,platform_fee,platform_fees,-21.92,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00564,linas-ceramics,2026-06-05,bank,expense,cogs,-44.71,Supplier / Fulfilment,cost of goods
@@ -2520,8 +2526,9 @@ kofi-coffee-00589,kofi-coffee,2026-06-12,platform,platform_fee,platform_fees,-47
 kofi-coffee-00591,kofi-coffee,2026-06-12,bank,expense,cogs,-313.94,Supplier / Fulfilment,cost of goods
 kofi-coffee-00592,kofi-coffee,2026-06-12,bank,expense,shipping,-74.35,Courier,outbound shipping
 kofi-coffee-00593,kofi-coffee,2026-06-12,bank,expense,advertising,-60.67,Ad Platform,performance ads
-kofi-coffee-01163,kofi-coffee,2026-06-12,platform,payout,payouts,-5107.4,Payout to Bank,release of sales through 2026-06-07
-kofi-coffee-01164,kofi-coffee,2026-06-12,bank,payout,payouts,5107.4,Marketplace Payout,release of sales through 2026-06-07
+kofi-coffee-01138,kofi-coffee,2026-06-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
+kofi-coffee-01169,kofi-coffee,2026-06-12,platform,payout,payouts,-5107.4,Payout to Bank,release of sales through 2026-06-07
+kofi-coffee-01170,kofi-coffee,2026-06-12,bank,payout,payouts,5107.4,Marketplace Payout,release of sales through 2026-06-07
 linas-ceramics-00556,linas-ceramics,2026-06-12,platform,refund,refunds,-13.33,Customer Refunds,returned items
 linas-ceramics-00602,linas-ceramics,2026-06-12,platform,sale,sales,156.97,Marketplace Orders,4 orders
 linas-ceramics-00603,linas-ceramics,2026-06-12,platform,platform_fee,platform_fees,-23.86,Marketplace Fees,commission+payment fees @ 15.2%
@@ -2584,8 +2591,9 @@ amara-prints-00622,amara-prints,2026-06-15,platform,platform_fee,platform_fees,-
 amara-prints-00623,amara-prints,2026-06-15,bank,expense,cogs,-136.59,Supplier / Fulfilment,cost of goods
 amara-prints-00624,amara-prints,2026-06-15,bank,expense,shipping,-22.77,Courier,outbound shipping
 amara-prints-00625,amara-prints,2026-06-15,bank,expense,advertising,-24.92,Ad Platform,performance ads
-amara-prints-01189,amara-prints,2026-06-15,platform,payout,payouts,-4121.92,Payout to Bank,release of sales through 2026-06-05
-amara-prints-01190,amara-prints,2026-06-15,bank,payout,payouts,4121.92,Marketplace Payout,release of sales through 2026-06-05
+amara-prints-01178,amara-prints,2026-06-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
+amara-prints-01195,amara-prints,2026-06-15,platform,payout,payouts,-4121.92,Payout to Bank,release of sales through 2026-06-05
+amara-prints-01196,amara-prints,2026-06-15,bank,payout,payouts,4121.92,Marketplace Payout,release of sales through 2026-06-05
 kofi-coffee-00584,kofi-coffee,2026-06-15,platform,refund,refunds,-7.72,Customer Refunds,returned items
 kofi-coffee-00606,kofi-coffee,2026-06-15,platform,sale,sales,1036.16,Marketplace Orders,29 orders
 kofi-coffee-00607,kofi-coffee,2026-06-15,platform,platform_fee,platform_fees,-60.1,Marketplace Fees,commission+payment fees @ 5.8%
@@ -2688,8 +2696,8 @@ kofi-coffee-00628,kofi-coffee,2026-06-19,platform,sale,sales,986.13,Marketplace 
 kofi-coffee-00629,kofi-coffee,2026-06-19,platform,platform_fee,platform_fees,-57.2,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00631,kofi-coffee,2026-06-19,bank,expense,cogs,-374.73,Supplier / Fulfilment,cost of goods
 kofi-coffee-00632,kofi-coffee,2026-06-19,bank,expense,shipping,-88.75,Courier,outbound shipping
-kofi-coffee-01165,kofi-coffee,2026-06-19,platform,payout,payouts,-5187.93,Payout to Bank,release of sales through 2026-06-14
-kofi-coffee-01166,kofi-coffee,2026-06-19,bank,payout,payouts,5187.93,Marketplace Payout,release of sales through 2026-06-14
+kofi-coffee-01171,kofi-coffee,2026-06-19,platform,payout,payouts,-5187.93,Payout to Bank,release of sales through 2026-06-14
+kofi-coffee-01172,kofi-coffee,2026-06-19,bank,payout,payouts,5187.93,Marketplace Payout,release of sales through 2026-06-14
 linas-ceramics-00642,linas-ceramics,2026-06-19,platform,sale,sales,169.31,Marketplace Orders,5 orders
 linas-ceramics-00643,linas-ceramics,2026-06-19,platform,platform_fee,platform_fees,-25.74,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00645,linas-ceramics,2026-06-19,bank,expense,cogs,-52.49,Supplier / Fulfilment,cost of goods
@@ -2859,8 +2867,8 @@ kofi-coffee-00667,kofi-coffee,2026-06-26,platform,platform_fee,platform_fees,-62
 kofi-coffee-00669,kofi-coffee,2026-06-26,bank,expense,cogs,-412.11,Supplier / Fulfilment,cost of goods
 kofi-coffee-00670,kofi-coffee,2026-06-26,bank,expense,shipping,-97.6,Courier,outbound shipping
 kofi-coffee-00671,kofi-coffee,2026-06-26,bank,expense,advertising,-79.49,Ad Platform,performance ads
-kofi-coffee-01167,kofi-coffee,2026-06-26,platform,payout,payouts,-5755.31,Payout to Bank,release of sales through 2026-06-21
-kofi-coffee-01168,kofi-coffee,2026-06-26,bank,payout,payouts,5755.31,Marketplace Payout,release of sales through 2026-06-21
+kofi-coffee-01173,kofi-coffee,2026-06-26,platform,payout,payouts,-5755.31,Payout to Bank,release of sales through 2026-06-21
+kofi-coffee-01174,kofi-coffee,2026-06-26,bank,payout,payouts,5755.31,Marketplace Payout,release of sales through 2026-06-21
 linas-ceramics-00684,linas-ceramics,2026-06-26,platform,sale,sales,106.77,Marketplace Orders,2 orders
 linas-ceramics-00685,linas-ceramics,2026-06-26,platform,platform_fee,platform_fees,-16.23,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00686,linas-ceramics,2026-06-26,bank,expense,cogs,-33.1,Supplier / Fulfilment,cost of goods
@@ -2928,8 +2936,8 @@ amara-prints-00703,amara-prints,2026-06-29,platform,platform_fee,platform_fees,-
 amara-prints-00705,amara-prints,2026-06-29,bank,expense,cogs,-235.58,Supplier / Fulfilment,cost of goods
 amara-prints-00706,amara-prints,2026-06-29,bank,expense,shipping,-39.26,Courier,outbound shipping
 amara-prints-00707,amara-prints,2026-06-29,bank,expense,advertising,-42.35,Ad Platform,performance ads
-amara-prints-01191,amara-prints,2026-06-29,platform,payout,payouts,-4562.9,Payout to Bank,release of sales through 2026-06-19
-amara-prints-01192,amara-prints,2026-06-29,bank,payout,payouts,4562.9,Marketplace Payout,release of sales through 2026-06-19
+amara-prints-01197,amara-prints,2026-06-29,platform,payout,payouts,-4562.9,Payout to Bank,release of sales through 2026-06-19
+amara-prints-01198,amara-prints,2026-06-29,bank,payout,payouts,4562.9,Marketplace Payout,release of sales through 2026-06-19
 kofi-coffee-00684,kofi-coffee,2026-06-29,platform,sale,sales,1235.62,Marketplace Orders,25 orders
 kofi-coffee-00685,kofi-coffee,2026-06-29,platform,platform_fee,platform_fees,-71.67,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00687,kofi-coffee,2026-06-29,bank,expense,cogs,-469.54,Supplier / Fulfilment,cost of goods
@@ -3040,8 +3048,8 @@ kofi-coffee-00707,kofi-coffee,2026-07-03,platform,platform_fee,platform_fees,-50
 kofi-coffee-00708,kofi-coffee,2026-07-03,bank,expense,cogs,-334.09,Supplier / Fulfilment,cost of goods
 kofi-coffee-00709,kofi-coffee,2026-07-03,bank,expense,shipping,-79.13,Courier,outbound shipping
 kofi-coffee-00710,kofi-coffee,2026-07-03,bank,expense,advertising,-84.83,Ad Platform,performance ads
-kofi-coffee-01169,kofi-coffee,2026-07-03,platform,payout,payouts,-5290.31,Payout to Bank,release of sales through 2026-06-28
-kofi-coffee-01170,kofi-coffee,2026-07-03,bank,payout,payouts,5290.31,Marketplace Payout,release of sales through 2026-06-28
+kofi-coffee-01175,kofi-coffee,2026-07-03,platform,payout,payouts,-5290.31,Payout to Bank,release of sales through 2026-06-28
+kofi-coffee-01176,kofi-coffee,2026-07-03,bank,payout,payouts,5290.31,Marketplace Payout,release of sales through 2026-06-28
 linas-ceramics-00724,linas-ceramics,2026-07-03,platform,sale,sales,151.65,Marketplace Orders,4 orders
 linas-ceramics-00725,linas-ceramics,2026-07-03,platform,platform_fee,platform_fees,-23.05,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00726,linas-ceramics,2026-07-03,bank,expense,cogs,-47.01,Supplier / Fulfilment,cost of goods
@@ -3205,8 +3213,8 @@ kofi-coffee-00747,kofi-coffee,2026-07-10,platform,platform_fee,platform_fees,-62
 kofi-coffee-00749,kofi-coffee,2026-07-10,bank,expense,cogs,-409.77,Supplier / Fulfilment,cost of goods
 kofi-coffee-00750,kofi-coffee,2026-07-10,bank,expense,shipping,-97.05,Courier,outbound shipping
 kofi-coffee-01119,kofi-coffee,2026-07-10,bank,expense,utilities,-410.0,Utilities (Energy),recurring monthly
-kofi-coffee-01171,kofi-coffee,2026-07-10,platform,payout,payouts,-5331.09,Payout to Bank,release of sales through 2026-07-05
-kofi-coffee-01172,kofi-coffee,2026-07-10,bank,payout,payouts,5331.09,Marketplace Payout,release of sales through 2026-07-05
+kofi-coffee-01177,kofi-coffee,2026-07-10,platform,payout,payouts,-5331.09,Payout to Bank,release of sales through 2026-07-05
+kofi-coffee-01178,kofi-coffee,2026-07-10,bank,payout,payouts,5331.09,Marketplace Payout,release of sales through 2026-07-05
 linas-ceramics-00747,linas-ceramics,2026-07-10,platform,refund,refunds,-21.94,Customer Refunds,returned items
 linas-ceramics-00762,linas-ceramics,2026-07-10,platform,sale,sales,137.94,Marketplace Orders,3 orders
 linas-ceramics-00763,linas-ceramics,2026-07-10,platform,platform_fee,platform_fees,-20.97,Marketplace Fees,commission+payment fees @ 15.2%
@@ -3258,6 +3266,7 @@ kofi-coffee-00757,kofi-coffee,2026-07-12,platform,platform_fee,platform_fees,-40
 kofi-coffee-00758,kofi-coffee,2026-07-12,bank,expense,cogs,-267.35,Supplier / Fulfilment,cost of goods
 kofi-coffee-00759,kofi-coffee,2026-07-12,bank,expense,shipping,-63.32,Courier,outbound shipping
 kofi-coffee-00760,kofi-coffee,2026-07-12,bank,expense,advertising,-57.09,Ad Platform,performance ads
+kofi-coffee-01139,kofi-coffee,2026-07-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
 linas-ceramics-00772,linas-ceramics,2026-07-12,platform,sale,sales,72.09,Marketplace Orders,2 orders
 linas-ceramics-00773,linas-ceramics,2026-07-12,platform,platform_fee,platform_fees,-10.96,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00775,linas-ceramics,2026-07-12,bank,expense,cogs,-22.35,Supplier / Fulfilment,cost of goods
@@ -3275,8 +3284,8 @@ amara-prints-00788,amara-prints,2026-07-13,platform,platform_fee,platform_fees,-
 amara-prints-00790,amara-prints,2026-07-13,bank,expense,cogs,-240.35,Supplier / Fulfilment,cost of goods
 amara-prints-00791,amara-prints,2026-07-13,bank,expense,shipping,-40.06,Courier,outbound shipping
 amara-prints-00792,amara-prints,2026-07-13,bank,expense,advertising,-45.59,Ad Platform,performance ads
-amara-prints-01193,amara-prints,2026-07-13,platform,payout,payouts,-4316.03,Payout to Bank,release of sales through 2026-07-03
-amara-prints-01194,amara-prints,2026-07-13,bank,payout,payouts,4316.03,Marketplace Payout,release of sales through 2026-07-03
+amara-prints-01199,amara-prints,2026-07-13,platform,payout,payouts,-4316.03,Payout to Bank,release of sales through 2026-07-03
+amara-prints-01200,amara-prints,2026-07-13,bank,payout,payouts,4316.03,Marketplace Payout,release of sales through 2026-07-03
 kofi-coffee-00726,kofi-coffee,2026-07-13,platform,refund,refunds,-4.96,Customer Refunds,returned items
 kofi-coffee-00736,kofi-coffee,2026-07-13,platform,refund,refunds,-16.43,Customer Refunds,returned items
 kofi-coffee-00761,kofi-coffee,2026-07-13,platform,sale,sales,1215.6,Marketplace Orders,27 orders
@@ -3327,7 +3336,8 @@ amara-prints-00801,amara-prints,2026-07-15,platform,platform_fee,platform_fees,-
 amara-prints-00803,amara-prints,2026-07-15,bank,expense,cogs,-159.08,Supplier / Fulfilment,cost of goods
 amara-prints-00804,amara-prints,2026-07-15,bank,expense,shipping,-26.51,Courier,outbound shipping
 amara-prints-00805,amara-prints,2026-07-15,bank,expense,advertising,-37.31,Ad Platform,performance ads
-amara-prints-01175,amara-prints,2026-07-15,bank,expense,tax,-1850.0,VAT Prepayment (Finanzamt),Q2 VAT prepayment
+amara-prints-01179,amara-prints,2026-07-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
+amara-prints-01181,amara-prints,2026-07-15,bank,expense,tax,-1850.0,VAT Prepayment (Finanzamt),Q2 VAT prepayment
 kofi-coffee-00742,kofi-coffee,2026-07-15,platform,refund,refunds,-19.31,Customer Refunds,returned items
 kofi-coffee-00772,kofi-coffee,2026-07-15,platform,sale,sales,876.33,Marketplace Orders,27 orders
 kofi-coffee-00773,kofi-coffee,2026-07-15,platform,platform_fee,platform_fees,-50.83,Marketplace Fees,commission+payment fees @ 5.8%
@@ -3384,8 +3394,8 @@ kofi-coffee-00785,kofi-coffee,2026-07-17,platform,platform_fee,platform_fees,-61
 kofi-coffee-00787,kofi-coffee,2026-07-17,bank,expense,cogs,-403.84,Supplier / Fulfilment,cost of goods
 kofi-coffee-00788,kofi-coffee,2026-07-17,bank,expense,shipping,-95.65,Courier,outbound shipping
 kofi-coffee-00789,kofi-coffee,2026-07-17,bank,expense,advertising,-108.35,Ad Platform,performance ads
-kofi-coffee-01173,kofi-coffee,2026-07-17,platform,payout,payouts,-4843.69,Payout to Bank,release of sales through 2026-07-12
-kofi-coffee-01174,kofi-coffee,2026-07-17,bank,payout,payouts,4843.69,Marketplace Payout,release of sales through 2026-07-12
+kofi-coffee-01179,kofi-coffee,2026-07-17,platform,payout,payouts,-4843.69,Payout to Bank,release of sales through 2026-07-12
+kofi-coffee-01180,kofi-coffee,2026-07-17,bank,payout,payouts,4843.69,Marketplace Payout,release of sales through 2026-07-12
 linas-ceramics-00801,linas-ceramics,2026-07-17,platform,sale,sales,168.08,Marketplace Orders,4 orders
 linas-ceramics-00802,linas-ceramics,2026-07-17,platform,platform_fee,platform_fees,-25.55,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-00804,linas-ceramics,2026-07-17,bank,expense,cogs,-52.1,Supplier / Fulfilment,cost of goods
@@ -3550,8 +3560,8 @@ kofi-coffee-00826,kofi-coffee,2026-07-24,platform,platform_fee,platform_fees,-42
 kofi-coffee-00828,kofi-coffee,2026-07-24,bank,expense,cogs,-278.41,Supplier / Fulfilment,cost of goods
 kofi-coffee-00829,kofi-coffee,2026-07-24,bank,expense,shipping,-65.94,Courier,outbound shipping
 kofi-coffee-00830,kofi-coffee,2026-07-24,bank,expense,advertising,-69.74,Ad Platform,performance ads
-kofi-coffee-01175,kofi-coffee,2026-07-24,platform,payout,payouts,-5977.28,Payout to Bank,release of sales through 2026-07-19
-kofi-coffee-01176,kofi-coffee,2026-07-24,bank,payout,payouts,5977.28,Marketplace Payout,release of sales through 2026-07-19
+kofi-coffee-01181,kofi-coffee,2026-07-24,platform,payout,payouts,-5977.28,Payout to Bank,release of sales through 2026-07-19
+kofi-coffee-01182,kofi-coffee,2026-07-24,bank,payout,payouts,5977.28,Marketplace Payout,release of sales through 2026-07-19
 linas-ceramics-00797,linas-ceramics,2026-07-24,platform,refund,refunds,-10.51,Customer Refunds,returned items
 linas-ceramics-00803,linas-ceramics,2026-07-24,platform,refund,refunds,-12.49,Customer Refunds,returned items
 linas-ceramics-00844,linas-ceramics,2026-07-24,platform,sale,sales,185.96,Marketplace Orders,6 orders
@@ -3614,8 +3624,8 @@ amara-prints-00870,amara-prints,2026-07-27,platform,platform_fee,platform_fees,-
 amara-prints-00872,amara-prints,2026-07-27,bank,expense,cogs,-185.74,Supplier / Fulfilment,cost of goods
 amara-prints-00873,amara-prints,2026-07-27,bank,expense,shipping,-30.96,Courier,outbound shipping
 amara-prints-00874,amara-prints,2026-07-27,bank,expense,advertising,-50.59,Ad Platform,performance ads
-amara-prints-01195,amara-prints,2026-07-27,platform,payout,payouts,-4277.63,Payout to Bank,release of sales through 2026-07-17
-amara-prints-01196,amara-prints,2026-07-27,bank,payout,payouts,4277.63,Marketplace Payout,release of sales through 2026-07-17
+amara-prints-01201,amara-prints,2026-07-27,platform,payout,payouts,-4277.63,Payout to Bank,release of sales through 2026-07-17
+amara-prints-01202,amara-prints,2026-07-27,bank,payout,payouts,4277.63,Marketplace Payout,release of sales through 2026-07-17
 kofi-coffee-00797,kofi-coffee,2026-07-27,platform,refund,refunds,-17.58,Customer Refunds,returned items
 kofi-coffee-00842,kofi-coffee,2026-07-27,platform,sale,sales,999.16,Marketplace Orders,23 orders
 kofi-coffee-00843,kofi-coffee,2026-07-27,platform,platform_fee,platform_fees,-57.95,Marketplace Fees,commission+payment fees @ 5.8%
@@ -3721,8 +3731,8 @@ kofi-coffee-00866,kofi-coffee,2026-07-31,platform,platform_fee,platform_fees,-43
 kofi-coffee-00867,kofi-coffee,2026-07-31,bank,expense,cogs,-286.74,Supplier / Fulfilment,cost of goods
 kofi-coffee-00868,kofi-coffee,2026-07-31,bank,expense,shipping,-67.91,Courier,outbound shipping
 kofi-coffee-00869,kofi-coffee,2026-07-31,bank,expense,advertising,-49.63,Ad Platform,performance ads
-kofi-coffee-01177,kofi-coffee,2026-07-31,platform,payout,payouts,-5287.32,Payout to Bank,release of sales through 2026-07-26
-kofi-coffee-01178,kofi-coffee,2026-07-31,bank,payout,payouts,5287.32,Marketplace Payout,release of sales through 2026-07-26
+kofi-coffee-01183,kofi-coffee,2026-07-31,platform,payout,payouts,-5287.32,Payout to Bank,release of sales through 2026-07-26
+kofi-coffee-01184,kofi-coffee,2026-07-31,bank,payout,payouts,5287.32,Marketplace Payout,release of sales through 2026-07-26
 linas-ceramics-00856,linas-ceramics,2026-07-31,platform,refund,refunds,-15.07,Customer Refunds,returned items
 linas-ceramics-00867,linas-ceramics,2026-07-31,platform,refund,refunds,-9.42,Customer Refunds,returned items
 linas-ceramics-00884,linas-ceramics,2026-07-31,platform,sale,sales,195.84,Marketplace Orders,4 orders
@@ -3896,8 +3906,8 @@ kofi-coffee-00904,kofi-coffee,2026-08-07,platform,platform_fee,platform_fees,-55
 kofi-coffee-00905,kofi-coffee,2026-08-07,bank,expense,cogs,-365.16,Supplier / Fulfilment,cost of goods
 kofi-coffee-00906,kofi-coffee,2026-08-07,bank,expense,shipping,-86.49,Courier,outbound shipping
 kofi-coffee-00907,kofi-coffee,2026-08-07,bank,expense,advertising,-101.54,Ad Platform,performance ads
-kofi-coffee-01179,kofi-coffee,2026-08-07,platform,payout,payouts,-5378.18,Payout to Bank,release of sales through 2026-08-02
-kofi-coffee-01180,kofi-coffee,2026-08-07,bank,payout,payouts,5378.18,Marketplace Payout,release of sales through 2026-08-02
+kofi-coffee-01185,kofi-coffee,2026-08-07,platform,payout,payouts,-5378.18,Payout to Bank,release of sales through 2026-08-02
+kofi-coffee-01186,kofi-coffee,2026-08-07,bank,payout,payouts,5378.18,Marketplace Payout,release of sales through 2026-08-02
 linas-ceramics-00880,linas-ceramics,2026-08-07,bank,chargeback,chargebacks,-3.46,Card Scheme Chargeback,disputed transaction
 linas-ceramics-00926,linas-ceramics,2026-08-07,platform,sale,sales,181.39,Marketplace Orders,5 orders
 linas-ceramics-00927,linas-ceramics,2026-08-07,platform,platform_fee,platform_fees,-27.57,Marketplace Fees,commission+payment fees @ 15.2%
@@ -3961,8 +3971,8 @@ amara-prints-00950,amara-prints,2026-08-10,platform,platform_fee,platform_fees,-
 amara-prints-00952,amara-prints,2026-08-10,bank,expense,cogs,-203.06,Supplier / Fulfilment,cost of goods
 amara-prints-00953,amara-prints,2026-08-10,bank,expense,shipping,-33.84,Courier,outbound shipping
 amara-prints-00954,amara-prints,2026-08-10,bank,expense,advertising,-52.97,Ad Platform,performance ads
-amara-prints-01197,amara-prints,2026-08-10,platform,payout,payouts,-4068.01,Payout to Bank,release of sales through 2026-07-31
-amara-prints-01198,amara-prints,2026-08-10,bank,payout,payouts,4068.01,Marketplace Payout,release of sales through 2026-07-31
+amara-prints-01203,amara-prints,2026-08-10,platform,payout,payouts,-4068.01,Payout to Bank,release of sales through 2026-07-31
+amara-prints-01204,amara-prints,2026-08-10,bank,payout,payouts,4068.01,Marketplace Payout,release of sales through 2026-07-31
 kofi-coffee-00877,kofi-coffee,2026-08-10,platform,refund,refunds,-9.62,Customer Refunds,returned items
 kofi-coffee-00894,kofi-coffee,2026-08-10,platform,refund,refunds,-20.12,Customer Refunds,returned items
 kofi-coffee-00921,kofi-coffee,2026-08-10,platform,sale,sales,1330.09,Marketplace Orders,28 orders
@@ -4024,6 +4034,7 @@ kofi-coffee-00934,kofi-coffee,2026-08-12,platform,platform_fee,platform_fees,-48
 kofi-coffee-00935,kofi-coffee,2026-08-12,bank,expense,cogs,-318.41,Supplier / Fulfilment,cost of goods
 kofi-coffee-00936,kofi-coffee,2026-08-12,bank,expense,shipping,-75.41,Courier,outbound shipping
 kofi-coffee-00937,kofi-coffee,2026-08-12,bank,expense,advertising,-66.8,Ad Platform,performance ads
+kofi-coffee-01140,kofi-coffee,2026-08-12,bank,expense,debt_service,-810.0,Loan Repayment - Rabo SME Loan,recurring monthly
 linas-ceramics-00905,linas-ceramics,2026-08-12,platform,refund,refunds,-15.85,Customer Refunds,returned items
 linas-ceramics-00957,linas-ceramics,2026-08-12,platform,sale,sales,108.54,Marketplace Orders,3 orders
 linas-ceramics-00958,linas-ceramics,2026-08-12,platform,platform_fee,platform_fees,-16.5,Marketplace Fees,commission+payment fees @ 15.2%
@@ -4070,8 +4081,8 @@ kofi-coffee-00945,kofi-coffee,2026-08-14,platform,platform_fee,platform_fees,-62
 kofi-coffee-00947,kofi-coffee,2026-08-14,bank,expense,cogs,-412.09,Supplier / Fulfilment,cost of goods
 kofi-coffee-00948,kofi-coffee,2026-08-14,bank,expense,shipping,-97.6,Courier,outbound shipping
 kofi-coffee-00949,kofi-coffee,2026-08-14,bank,expense,advertising,-69.68,Ad Platform,performance ads
-kofi-coffee-01181,kofi-coffee,2026-08-14,platform,payout,payouts,-5802.17,Payout to Bank,release of sales through 2026-08-09
-kofi-coffee-01182,kofi-coffee,2026-08-14,bank,payout,payouts,5802.17,Marketplace Payout,release of sales through 2026-08-09
+kofi-coffee-01187,kofi-coffee,2026-08-14,platform,payout,payouts,-5802.17,Payout to Bank,release of sales through 2026-08-09
+kofi-coffee-01188,kofi-coffee,2026-08-14,bank,payout,payouts,5802.17,Marketplace Payout,release of sales through 2026-08-09
 linas-ceramics-00921,linas-ceramics,2026-08-14,platform,refund,refunds,-17.48,Customer Refunds,returned items
 linas-ceramics-00968,linas-ceramics,2026-08-14,platform,sale,sales,108.41,Marketplace Orders,4 orders
 linas-ceramics-00969,linas-ceramics,2026-08-14,platform,platform_fee,platform_fees,-16.48,Marketplace Fees,commission+payment fees @ 15.2%
@@ -4090,6 +4101,7 @@ amara-prints-00978,amara-prints,2026-08-15,platform,platform_fee,platform_fees,-
 amara-prints-00981,amara-prints,2026-08-15,bank,expense,cogs,-110.55,Supplier / Fulfilment,cost of goods
 amara-prints-00982,amara-prints,2026-08-15,bank,expense,shipping,-18.42,Courier,outbound shipping
 amara-prints-00983,amara-prints,2026-08-15,bank,expense,advertising,-24.22,Ad Platform,performance ads
+amara-prints-01180,amara-prints,2026-08-15,bank,expense,debt_service,-390.0,Loan Repayment - Sparkasse,recurring monthly
 kofi-coffee-00910,kofi-coffee,2026-08-15,platform,refund,refunds,-21.31,Customer Refunds,returned items
 kofi-coffee-00950,kofi-coffee,2026-08-15,platform,sale,sales,855.02,Marketplace Orders,17 orders
 kofi-coffee-00951,kofi-coffee,2026-08-15,platform,platform_fee,platform_fees,-49.59,Marketplace Fees,commission+payment fees @ 5.8%
@@ -4219,7 +4231,7 @@ amara-prints-01010,amara-prints,2026-08-20,platform,sale,sales,336.05,Marketplac
 amara-prints-01011,amara-prints,2026-08-20,platform,platform_fee,platform_fees,-43.35,Marketplace Fees,commission+payment fees @ 12.9%
 amara-prints-01012,amara-prints,2026-08-20,bank,expense,cogs,-141.14,Supplier / Fulfilment,cost of goods
 amara-prints-01013,amara-prints,2026-08-20,bank,expense,shipping,-23.52,Courier,outbound shipping
-amara-prints-01176,amara-prints,2026-08-20,bank,expense,supplier,-4500.0,Textil Nord GmbH,Q4 stock deposit (40% upfront)
+amara-prints-01182,amara-prints,2026-08-20,bank,expense,supplier,-4500.0,Textil Nord GmbH,Q4 stock deposit (40% upfront)
 kofi-coffee-00979,kofi-coffee,2026-08-20,platform,sale,sales,816.48,Marketplace Orders,23 orders
 kofi-coffee-00980,kofi-coffee,2026-08-20,platform,platform_fee,platform_fees,-47.36,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-00982,kofi-coffee,2026-08-20,bank,expense,cogs,-310.26,Supplier / Fulfilment,cost of goods
@@ -4247,8 +4259,8 @@ kofi-coffee-00986,kofi-coffee,2026-08-21,platform,platform_fee,platform_fees,-49
 kofi-coffee-00988,kofi-coffee,2026-08-21,bank,expense,cogs,-323.36,Supplier / Fulfilment,cost of goods
 kofi-coffee-00989,kofi-coffee,2026-08-21,bank,expense,shipping,-76.59,Courier,outbound shipping
 kofi-coffee-00990,kofi-coffee,2026-08-21,bank,expense,advertising,-50.23,Ad Platform,performance ads
-kofi-coffee-01183,kofi-coffee,2026-08-21,platform,payout,payouts,-6055.71,Payout to Bank,release of sales through 2026-08-16
-kofi-coffee-01184,kofi-coffee,2026-08-21,bank,payout,payouts,6055.71,Marketplace Payout,release of sales through 2026-08-16
+kofi-coffee-01189,kofi-coffee,2026-08-21,platform,payout,payouts,-6055.71,Payout to Bank,release of sales through 2026-08-16
+kofi-coffee-01190,kofi-coffee,2026-08-21,bank,payout,payouts,6055.71,Marketplace Payout,release of sales through 2026-08-16
 linas-ceramics-01012,linas-ceramics,2026-08-21,platform,sale,sales,178.45,Marketplace Orders,5 orders
 linas-ceramics-01013,linas-ceramics,2026-08-21,platform,platform_fee,platform_fees,-27.12,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-01015,linas-ceramics,2026-08-21,bank,expense,cogs,-55.32,Supplier / Fulfilment,cost of goods
@@ -4315,8 +4327,8 @@ amara-prints-01032,amara-prints,2026-08-24,platform,platform_fee,platform_fees,-
 amara-prints-01034,amara-prints,2026-08-24,bank,expense,cogs,-159.34,Supplier / Fulfilment,cost of goods
 amara-prints-01035,amara-prints,2026-08-24,bank,expense,shipping,-26.56,Courier,outbound shipping
 amara-prints-01036,amara-prints,2026-08-24,bank,expense,advertising,-26.96,Ad Platform,performance ads
-amara-prints-01199,amara-prints,2026-08-24,platform,payout,payouts,-4118.96,Payout to Bank,release of sales through 2026-08-14
-amara-prints-01200,amara-prints,2026-08-24,bank,payout,payouts,4118.96,Marketplace Payout,release of sales through 2026-08-14
+amara-prints-01205,amara-prints,2026-08-24,platform,payout,payouts,-4118.96,Payout to Bank,release of sales through 2026-08-14
+amara-prints-01206,amara-prints,2026-08-24,bank,payout,payouts,4118.96,Marketplace Payout,release of sales through 2026-08-14
 kofi-coffee-00981,kofi-coffee,2026-08-24,platform,refund,refunds,-6.7,Customer Refunds,returned items
 kofi-coffee-01003,kofi-coffee,2026-08-24,platform,sale,sales,870.36,Marketplace Orders,23 orders
 kofi-coffee-01004,kofi-coffee,2026-08-24,platform,platform_fee,platform_fees,-50.48,Marketplace Fees,commission+payment fees @ 5.8%
@@ -4425,8 +4437,8 @@ kofi-coffee-01025,kofi-coffee,2026-08-28,platform,platform_fee,platform_fees,-42
 kofi-coffee-01027,kofi-coffee,2026-08-28,bank,expense,cogs,-276.09,Supplier / Fulfilment,cost of goods
 kofi-coffee-01028,kofi-coffee,2026-08-28,bank,expense,shipping,-65.39,Courier,outbound shipping
 kofi-coffee-01029,kofi-coffee,2026-08-28,bank,expense,advertising,-68.22,Ad Platform,performance ads
-kofi-coffee-01185,kofi-coffee,2026-08-28,platform,payout,payouts,-5556.52,Payout to Bank,release of sales through 2026-08-23
-kofi-coffee-01186,kofi-coffee,2026-08-28,bank,payout,payouts,5556.52,Marketplace Payout,release of sales through 2026-08-23
+kofi-coffee-01191,kofi-coffee,2026-08-28,platform,payout,payouts,-5556.52,Payout to Bank,release of sales through 2026-08-23
+kofi-coffee-01192,kofi-coffee,2026-08-28,bank,payout,payouts,5556.52,Marketplace Payout,release of sales through 2026-08-23
 linas-ceramics-01055,linas-ceramics,2026-08-28,platform,sale,sales,152.11,Marketplace Orders,4 orders
 linas-ceramics-01056,linas-ceramics,2026-08-28,platform,platform_fee,platform_fees,-23.12,Marketplace Fees,commission+payment fees @ 15.2%
 linas-ceramics-01058,linas-ceramics,2026-08-28,bank,expense,cogs,-47.15,Supplier / Fulfilment,cost of goods
@@ -4592,8 +4604,8 @@ kofi-coffee-01066,kofi-coffee,2026-09-04,platform,platform_fee,platform_fees,-46
 kofi-coffee-01068,kofi-coffee,2026-09-04,bank,expense,cogs,-307.76,Supplier / Fulfilment,cost of goods
 kofi-coffee-01069,kofi-coffee,2026-09-04,bank,expense,shipping,-72.89,Courier,outbound shipping
 kofi-coffee-01070,kofi-coffee,2026-09-04,bank,expense,advertising,-83.61,Ad Platform,performance ads
-kofi-coffee-01187,kofi-coffee,2026-09-04,platform,payout,payouts,-5308.97,Payout to Bank,release of sales through 2026-08-30
-kofi-coffee-01188,kofi-coffee,2026-09-04,bank,payout,payouts,5308.97,Marketplace Payout,release of sales through 2026-08-30
+kofi-coffee-01193,kofi-coffee,2026-09-04,platform,payout,payouts,-5308.97,Payout to Bank,release of sales through 2026-08-30
+kofi-coffee-01194,kofi-coffee,2026-09-04,bank,payout,payouts,5308.97,Marketplace Payout,release of sales through 2026-08-30
 linas-ceramics-01057,linas-ceramics,2026-09-04,platform,refund,refunds,-10.85,Customer Refunds,returned items
 linas-ceramics-01095,linas-ceramics,2026-09-04,platform,sale,sales,184.53,Marketplace Orders,6 orders
 linas-ceramics-01096,linas-ceramics,2026-09-04,platform,platform_fee,platform_fees,-28.05,Marketplace Fees,commission+payment fees @ 15.2%
@@ -4669,8 +4681,8 @@ amara-prints-01114,amara-prints,2026-09-07,platform,platform_fee,platform_fees,-
 amara-prints-01117,amara-prints,2026-09-07,bank,expense,cogs,-178.95,Supplier / Fulfilment,cost of goods
 amara-prints-01118,amara-prints,2026-09-07,bank,expense,shipping,-29.82,Courier,outbound shipping
 amara-prints-01119,amara-prints,2026-09-07,bank,expense,advertising,-28.5,Ad Platform,performance ads
-amara-prints-01201,amara-prints,2026-09-07,platform,payout,payouts,-4037.63,Payout to Bank,release of sales through 2026-08-28
-amara-prints-01202,amara-prints,2026-09-07,bank,payout,payouts,4037.63,Marketplace Payout,release of sales through 2026-08-28
+amara-prints-01207,amara-prints,2026-09-07,platform,payout,payouts,-4037.63,Payout to Bank,release of sales through 2026-08-28
+amara-prints-01208,amara-prints,2026-09-07,bank,payout,payouts,4037.63,Marketplace Payout,release of sales through 2026-08-28
 kofi-coffee-01082,kofi-coffee,2026-09-07,platform,sale,sales,998.88,Marketplace Orders,25 orders
 kofi-coffee-01083,kofi-coffee,2026-09-07,platform,platform_fee,platform_fees,-57.94,Marketplace Fees,commission+payment fees @ 5.8%
 kofi-coffee-01085,kofi-coffee,2026-09-07,bank,expense,cogs,-379.57,Supplier / Fulfilment,cost of goods

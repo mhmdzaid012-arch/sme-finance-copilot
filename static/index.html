@@ -132,6 +132,17 @@
   .kv .k { color: var(--muted); }
   .kv .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .checks li { margin-bottom: 3px; font-size: 12.5px; }
+  .wi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .wi-grid label { font-size: 12.5px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .wi-grid select, .wi-grid input[type=number] {
+    width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px;
+    font-size: 13px; font-family: inherit; background: #fff;
+  }
+  .wi-box { border: 1px solid var(--line); border-radius: 9px; padding: 10px 11px; background: #fcfcfd; }
+  .wi-box b { font-size: 13px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 5px; }
+  .tier-switch { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-top: 10px; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--line);
     border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -153,6 +164,14 @@
     <h2>Sellers</h2>
     <div id="sellers"></div>
     <div class="panel" style="margin-top:14px">
+      <h2>This session</h2>
+      <div id="tierNow" class="muted">advice only</div>
+      <label class="tier-switch"><input type="checkbox" id="allowActions">
+        Allow the assistant to <b>prepare</b> actions (T2)</label>
+      <div class="muted" style="font-size:11.5px;margin-top:4px">Off by default. Even when on,
+        nothing happens until you press Approve yourself.</div>
+    </div>
+    <div class="panel" style="margin-top:14px">
       <h2>Permission tiers</h2>
       <div id="tiers" class="muted">loading…</div>
     </div>
@@ -167,10 +186,39 @@
     <div class="prompts" id="prompts"></div>
 
     <div class="panel">
+      <h2>What-if simulator</h2>
+      <p class="muted" style="margin:0 0 10px">Change an assumption and compare against today's
+        projection. This only projects - it changes nothing.</p>
+      <div class="wi-grid">
+        <div class="wi-box"><b>Pay a bill later</b>
+          <label style="margin-top:6px">Bill</label><select id="wiBill"></select>
+          <label style="margin-top:6px">Days later</label><input type="number" id="wiDelay" min="0" max="90" value="0">
+          <label class="tier-switch"><input type="checkbox" id="wiSplit"> Split it into two halves</label></div>
+        <div class="wi-box"><b>Cut ad spend</b>
+          <label style="margin-top:6px">Cut by (%)</label><input type="number" id="wiAds" min="0" max="100" value="0">
+          <label style="margin-top:6px">For (days)</label><input type="number" id="wiAdsDays" min="0" max="90" value="30">
+          <label style="margin-top:6px">Sales you expect to lose (%)</label><input type="number" id="wiAdsLoss" min="0" max="100" value="0"></div>
+        <div class="wi-box"><b>Stress test</b>
+          <label style="margin-top:6px">Payouts arrive late by (days)</label><input type="number" id="wiPayout" min="0" max="21" value="0">
+          <label style="margin-top:6px">Sales change (%)</label><input type="number" id="wiSales" min="-50" max="50" value="0">
+          <label style="margin-top:6px">New monthly cost (EUR)</label><input type="number" id="wiCost" min="0" value="0"></div>
+        <div class="wi-box"><b>Take financing</b>
+          <label style="margin-top:6px">Product (ones you qualify for)</label><select id="wiProduct"></select>
+          <label style="margin-top:6px">Amount (EUR)</label><input type="number" id="wiAmount" min="0" value="0">
+          <label style="margin-top:6px">For (days)</label><input type="number" id="wiDays" min="1" max="180" value="30"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button id="wiRun">Run simulation</button>
+        <button class="ghost" id="wiReset">Reset</button>
+      </div>
+      <div id="wiOut"></div>
+    </div>
+
+    <div class="panel">
       <h2>Audit trail</h2>
       <p class="muted" style="margin:0 0 9px">
         Every tool call, permission decision and guardrail hit is appended to a hash-chained log.
-        Editing or removing a record breaks the chain.
+        Editing or removing a record breaks the chain. You only ever see your own session's records.
       </p>
       <button class="ghost" id="verify">Verify chain</button>
       <button class="ghost" id="showlog">Show log</button>
@@ -231,14 +279,23 @@ async function boot() {
   selectSeller(s.sellers[0].seller_id);
 }
 
+async function newSession() {
+  const tier = $('#allowActions').checked ? 'T2_ACTION' : 'T1_RECOMMEND';
+  const sess = await api('/api/session', {
+    method: 'POST', body: JSON.stringify({ seller_id: state.sellerId, granted_tier: tier }),
+  });
+  state.sessionId = sess.session_id;
+  $('#tierNow').innerHTML = tier === 'T2_ACTION'
+    ? '<b style="color:var(--warn)">T2</b> - may prepare actions for your approval'
+    : '<b>T1</b> - advice only (default)';
+}
+
 async function selectSeller(id) {
   state.sellerId = id;
   document.querySelectorAll('.seller').forEach(el =>
     el.classList.toggle('active', el.dataset.id === id));
-  const sess = await api('/api/session', {
-    method: 'POST', body: JSON.stringify({ seller_id: id, granted_tier: 'T2_ACTION' }),
-  });
-  state.sessionId = sess.session_id;
+  await newSession();
+  loadWhatIf();
 
   const seller = state.sellers.find(x => x.seller_id === id);
   $('#chat').innerHTML = '';
@@ -252,6 +309,7 @@ async function selectSeller(id) {
     'What financing could I get?',
     'How is my business doing?',
     'Anything I should worry about?',
+    'What if I pay the supplier 3 weeks late?',
   ].map(p => `<button data-p="${esc(p)}">${esc(p)}</button>`).join('');
   document.querySelectorAll('#prompts button').forEach(b =>
     b.onclick = () => send(b.dataset.p));
@@ -321,12 +379,13 @@ function renderCard(c) {
   if (c.type === 'options') return renderOptions(c.data);
   if (c.type === 'analysis') return renderAnalysis(c.data);
   if (c.type === 'confirmation') return renderConfirmation(c.data);
+  if (c.type === 'whatif') return renderWhatIf(c.data);
   return card('Result', `<pre>${esc(JSON.stringify(c.data, null, 2))}</pre>`);
 }
 
-function chartSVG(series, buffer) {
+function chartSVG(series, buffer, compare) {
   const W = 700, H = 210, PL = 54, PR = 12, PT = 12, PB = 26;
-  const vals = series.map(s => s.balance);
+  const vals = series.map(s => s.balance).concat((compare || []).map(s => s.balance));
   let lo = Math.min(0, ...vals, buffer), hi = Math.max(...vals, buffer);
   const pad = (hi - lo) * 0.1 || 100; lo -= pad; hi += pad;
   const x = i => PL + i * (W - PL - PR) / Math.max(1, series.length - 1);
@@ -360,6 +419,8 @@ function chartSVG(series, buffer) {
       stroke="#d99400" stroke-dasharray="4 3" stroke-width="1.2"/>
     <polygon points="${area}" fill="#1f5fd0" opacity="0.07"/>
     <polyline points="${line}" fill="none" stroke="#1f5fd0" stroke-width="2"/>
+    ${compare ? `<polyline points="${compare.map((s, i) => `${x(i).toFixed(1)},${y(s.balance).toFixed(1)}`).join(' ')}"
+      fill="none" stroke="#16794a" stroke-width="2.4"/>` : ''}
     ${marks}
     <text x="${PL}" y="${H - 8}" font-size="10" fill="#8a93a3">${esc(firstDate)}</text>
     <text x="${W - PR}" y="${H - 8}" font-size="10" fill="#8a93a3"
@@ -499,6 +560,74 @@ function renderAnalysis(a) {
   return card('Financial analysis', html);
 }
 
+function renderWhatIf(r) {
+  const tone = { fixes: 'good', avoids_negative: 'good', improves: 'warning',
+    no_effect: 'info', worsens: 'critical', breaks: 'critical' }[r.verdict] || 'info';
+  const html = `
+    <div class="alert ${tone}"><div class="h">${esc(r.summary_lines[0])}</div>
+      <div class="d">${esc(r.verdict_meaning)}</div></div>
+    ${chartSVG(r.baseline.series, r.safety_buffer, r.scenario.series)}
+    <div class="legend"><span><i style="background:#1f5fd0"></i>today's projection</span>
+      <span><i style="background:#16794a"></i>with your changes</span>
+      <span><i style="background:#d99400"></i>safety buffer</span></div>
+    <div style="margin-top:10px"><b style="font-size:12.5px">What changed</b>
+      <ul class="checks" style="margin:5px 0 0;padding-left:16px">
+      ${r.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>
+    <div style="margin-top:8px">${r.summary_lines.slice(1).map(l =>
+      `<div style="font-size:13px">${esc(l)}</div>`).join('')}</div>
+    ${r.assumptions.length ? `<div style="margin-top:9px"><b style="font-size:12.5px">Assumptions</b>
+      <ul class="checks" style="margin:5px 0 0;padding-left:16px">
+      ${r.assumptions.map(a => `<li class="muted">${esc(a)}</li>`).join('')}</ul></div>` : ''}
+    <p class="muted" style="margin-bottom:0">${esc(r.disclaimer)}</p>`;
+  return card(`What-if · next ${r.horizon_days} days`, html);
+}
+
+async function loadWhatIf() {
+  const o = await api(`/api/seller/${state.sellerId}/whatif/options`);
+  $('#wiBill').innerHTML = '<option value="">- none -</option>' + o.obligations.map(b =>
+    `<option value="${esc(b.counterparty)}">${esc(b.counterparty)} · ${eur(b.amount)} · due ${esc(b.due)}</option>`).join('');
+  $('#wiProduct').innerHTML = '<option value="">- none -</option>' + o.financing_products.map(f =>
+    `<option value="${esc(f.id)}">${esc(f.name)} · arranges in ${f.speed_days}d${f.too_slow ? ' (too slow)' : ''}</option>`).join('');
+  $('#wiAmount').value = Math.round(o.suggested_amount);
+  $('#wiDays').value = o.suggested_days;
+  $('#wiOut').innerHTML = '';
+}
+
+function readWhatIf() {
+  const p = { horizon_days: 90 };
+  const bill = $('#wiBill').value;
+  if (bill && +$('#wiDelay').value > 0) p.delay_obligation = { counterparty: bill, days: +$('#wiDelay').value };
+  if (bill && $('#wiSplit').checked) p.split_obligation = bill;
+  if (+$('#wiAds').value > 0) {
+    p.ads_cut_pct = +$('#wiAds').value; p.ads_cut_days = +$('#wiAdsDays').value;
+    p.ads_sales_impact_pct = +$('#wiAdsLoss').value;
+  }
+  if (+$('#wiPayout').value > 0) p.payout_delay_days = +$('#wiPayout').value;
+  if (+$('#wiSales').value !== 0) p.sales_change_pct = +$('#wiSales').value;
+  if (+$('#wiCost').value > 0) p.extra_monthly_cost = +$('#wiCost').value;
+  if ($('#wiProduct').value) p.financing = {
+    product_id: $('#wiProduct').value, amount: +$('#wiAmount').value, days_needed: +$('#wiDays').value };
+  return p;
+}
+
+$('#wiRun').onclick = async () => {
+  const out = $('#wiOut');
+  out.innerHTML = '<div style="margin-top:10px"><span class="spinner"></span></div>';
+  try {
+    const r = await api(`/api/seller/${state.sellerId}/whatif`, {
+      method: 'POST', body: JSON.stringify(readWhatIf()) });
+    out.innerHTML = ''; out.appendChild(renderWhatIf(r));
+  } catch (e) {
+    out.innerHTML = `<div class="alert warning" style="margin-top:10px"><div class="h">Can't simulate that</div>
+      <div class="d">${esc(e.message)}</div></div>`;
+  }
+};
+$('#wiReset').onclick = () => {
+  ['#wiDelay', '#wiAds', '#wiAdsLoss', '#wiPayout', '#wiSales', '#wiCost'].forEach(k => $(k).value = 0);
+  $('#wiAdsDays').value = 30; $('#wiSplit').checked = false; loadWhatIf();
+};
+$('#allowActions').onchange = () => newSession();
+
 function renderConfirmation(d) {
   const el = document.createElement('div');
   el.innerHTML = `
@@ -537,7 +666,7 @@ $('#verify').onclick = async () => {
     <div class="d">${esc(r.reason)} (${r.records} records)</div></div>`;
 };
 $('#showlog').onclick = async () => {
-  const r = await api('/api/audit?limit=40');
+  const r = await api(`/api/audit?session_id=${encodeURIComponent(state.sessionId)}&limit=40`);
   const out = $('#logout');
   out.hidden = false;
   out.textContent = r.records.map(x =>

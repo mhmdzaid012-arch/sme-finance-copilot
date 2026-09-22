@@ -12,7 +12,7 @@
       "region": "EU",
       "months_trading": 26,
       "currency": "EUR",
-      "opening_bank_balance": 9316.57,
+      "opening_bank_balance": 11656.57,
       "opening_balance_date": "2026-03-01",
       "payout_schedule": {
         "cadence_days": 14,
@@ -30,14 +30,16 @@
           "amount": 6800.0,
           "counterparty": "Textil Nord GmbH",
           "category": "supplier",
-          "note": "Q4 blank stock balance - net-30 agreed, production slot is not transferable"
+          "note": "Q4 blank stock balance - net-30 agreed, production slot is not transferable",
+          "inventory_value": 11300.0
         },
         {
           "due": "2026-10-14",
           "amount": 1980.0,
           "counterparty": "VAT Prepayment (Finanzamt)",
           "category": "tax",
-          "note": "Quarterly VAT prepayment"
+          "note": "Quarterly VAT prepayment",
+          "inventory_value": 0.0
         }
       ],
       "released_through": "2026-08-28",
@@ -57,7 +59,7 @@
       "region": "EU",
       "months_trading": 41,
       "currency": "EUR",
-      "opening_bank_balance": 20671.31,
+      "opening_bank_balance": 25531.31,
       "opening_balance_date": "2026-03-01",
       "payout_schedule": {
         "cadence_days": 7,
@@ -75,7 +77,8 @@
           "amount": 18500.0,
           "counterparty": "Green Bean Importer",
           "category": "supplier",
-          "note": "Q4 green coffee container - 7% volume discount if paid on time"
+          "note": "Q4 green coffee container - 7% volume discount if paid on time",
+          "inventory_value": 18500.0
         }
       ],
       "released_through": "2026-08-30",
@@ -113,7 +116,8 @@
           "amount": 1250.0,
           "counterparty": "Clay & Glaze Supplier",
           "category": "supplier",
-          "note": "Bulk clay order for Christmas production"
+          "note": "Bulk clay order for Christmas production",
+          "inventory_value": 1250.0
         }
       ],
       "released_through": "2026-08-24",
@@ -151,7 +155,8 @@
           "amount": 12400.0,
           "counterparty": "Shenzhen Components Ltd",
           "category": "supplier",
-          "note": "Component restock - 50% deposit already paid"
+          "note": "Component restock for Q4, payable on delivery",
+          "inventory_value": 12400.0
         }
       ],
       "released_through": "2026-09-03",

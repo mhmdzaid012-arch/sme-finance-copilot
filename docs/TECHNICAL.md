@@ -1,6 +1,6 @@
 # Technical documentation
 
-SME Finance Copilot — system architecture, core algorithms, security design.
+SME Finance Copilot: system architecture, core algorithms, and security design.
 
 Fintechathon International Track, Topic E. All data is simulated.
 
@@ -8,31 +8,31 @@ Fintechathon International Track, Topic E. All data is simulated.
 
 ## 1. The problem being modelled
 
-An e-commerce micro-seller holds money in two places, and that split is the entire
+An e-commerce micro-seller keeps money in two places, and that split is the whole
 reason this product exists:
 
 ```
-platform balance = sales − platform fees − refunds − payouts
-bank balance      = opening + payouts − expenses − chargebacks
+platform balance = sales - platform fees - refunds - payouts
+bank balance     = opening + payouts - expenses - chargebacks
 ```
 
-Sales accrue into the **platform balance** and reach the **bank balance** only on the
-marketplace's payout schedule, after a hold period, minus a rolling reserve. A seller
-can be profitable every month and still miss a supplier payment, because profit and
-liquidity are separated by the payout mechanics.
+Sales go into the **platform balance**. They reach the **bank balance** only on the
+marketplace's payout schedule, after a hold period and minus a rolling reserve. A
+seller can have cash left over every month and still miss a supplier payment, because
+the payout mechanics sit between earning money and being able to spend it.
 
-Most consumer budgeting tools model a single account and therefore cannot represent
-this at all. Modelling the two ledgers explicitly is what lets the copilot say *"you
-have €5,007 you have already earned and cannot spend, and that is why you are short"*.
+Most consumer budgeting tools model a single account, so they can't represent this at
+all. Modelling both ledgers explicitly is what lets the copilot say *"you have money
+you've already earned and can't spend, and that's why you're short"*.
 
 ### Why this niche
 
-Transaction-shaped finances make realistic sandbox data tractable, cash-flow alerts
-have genuine causes (payout holds, seasonal peaks, chargebacks), and the financing
-products that actually serve these businesses — revenue-based finance, marketplace
-factoring, microfinance — map cleanly onto rule-based eligibility criteria. The
-segment is also materially underbanked, which is where the product has social value
-as well as commercial logic.
+The finances of these sellers are transaction-shaped (orders, fees, refunds, payouts),
+which makes realistic sandbox data tractable. The cash-flow alerts have real causes:
+payout holds, seasonal stock purchases, chargebacks. The financing products that
+actually serve these businesses (revenue-based finance, marketplace factoring,
+microfinance) map cleanly onto rule-based eligibility criteria. The segment is also
+underbanked, so the product has social value as well as commercial logic.
 
 ---
 
@@ -46,7 +46,7 @@ browser ──► FastAPI (app/main.py) ──► Agent (app/agent.py) ──►
                                           └── security/audit.py
 ```
 
-Every turn follows one pipeline, in both modes:
+Every turn follows the same pipeline in both modes:
 
 ```
 input guardrails → scope check → plan → tool dispatch → output guardrails → reply
@@ -54,34 +54,28 @@ input guardrails → scope check → plan → tool dispatch → output guardrail
                               permission check + audit per call
 ```
 
-### Layers
-
 | Layer | Responsibility | Why it is separate |
 |---|---|---|
-| `store.py` | Sandbox ledger access, derived metrics, recurring-payment detection | The only module touching data on disk, so the sandbox could be swapped for a permissioned read-only feed without changing any tool |
-| `tools/*` | All financial reasoning | Deterministic and unit-testable; no model involvement |
-| `agent.py` | Planning, guardrail pipeline, narrative | The only place a model appears |
+| `store.py` | Sandbox ledger access, derived metrics, recurring-payment detection | The only module that reads data from disk, so the sandbox could be swapped for a permissioned read-only feed without touching any tool |
+| `tools/*` | All financial reasoning | Deterministic and unit-testable, with no model involved |
+| `agent.py` | Planning, the guardrail pipeline, the narrative | The only place a model appears |
 | `security/*` | Tiers, injection defence, audit | Enforced around dispatch, so no tool can be reached without passing through it |
+| `facts.py` | Every figure quoted outside the code | Keeps the documents and the deck in step with the system (section 8) |
 
-### Two execution modes
-
-The agent runs with a language model (`ANTHROPIC_API_KEY` present) or with a
-deterministic intent router. In both cases **the tools compute every figure**. The
-model's role is limited to choosing tools and phrasing results.
-
-This is a deliberate reliability boundary. A model that hallucinates a balance in a
-financial product is not a cosmetic defect. It also means the demo is reproducible
-without credentials, and that an API outage degrades phrasing rather than correctness
-(`run_llm` falls back to the offline path and says so).
+The agent runs with a language model (when `ANTHROPIC_API_KEY` is present) or with a
+deterministic intent router. **In both cases the tools compute every figure.** The
+model only chooses tools and phrases the results. This is a deliberate reliability
+boundary: a financial product must not invent a balance. It also means the demo can be
+reproduced without credentials, and that an API outage affects the phrasing rather
+than the numbers.
 
 ---
 
 ## 3. Core algorithm: cash-flow forecasting
 
-`app/tools/forecast.py`. Rule-based and deterministic — not a learned model. Every euro
-traces to one of five named components, which is what makes the output defensible to a
-seller and auditable by a reviewer. An opaque model would score worse on
-explainability and could not be justified in a compliance review.
+`app/tools/forecast.py`. The forecaster is rule-based and deterministic, not a learned
+model. Every euro can be traced to a named component, which is what makes the output
+defensible to a seller and auditable by a reviewer.
 
 ### 3.1 Projected sales
 
@@ -89,98 +83,103 @@ explainability and could not be justified in a compliance review.
 sales(d) = weekday_baseline[weekday(d)] × growth^(days_ahead / 28) × seasonality(month)
 ```
 
-- **Weekday baseline** — mean gross sales per weekday over a 56-day window,
-  *de-seasonalised* first so the seasonality multiplier is not applied twice.
-- **Growth** — trailing 28 days versus the prior 28 days, **clamped to [0.80, 1.30]**.
-  Unclamped ratio extrapolation is the classic way a naive forecaster produces
-  nonsense from a good fortnight.
-- **Seasonality** — documented multiplicative monthly factors (Q4 uplift, August lull),
-  damped per category. Constants live in `app/config.py:SEASONALITY`.
+- **Weekday baseline:** mean gross sales per weekday over a 56-day window. The window
+  is de-seasonalised first, so seasonality isn't applied twice.
+- **Growth:** the trailing 28 days against the prior 28, **clamped to [0.80, 1.30]** so
+  a single good fortnight can't run away.
+- **Seasonality:** documented monthly factors, damped per category (`config.SEASONALITY`).
 
 ### 3.2 Payout releases
 
-The mechanism that matters most. A pipeline of net accrual per sale-date is maintained:
+A pipeline of net accrual per sale date is maintained. On each scheduled payout date,
+the platform releases everything sold on or before `payout_date − hold_days`:
 
 ```
-net_accrual(d) = gross_sales(d) × (1 − fee_rate − refund_rate)
-```
-
-On each scheduled payout date, everything with a sale-date on or before
-`payout_date − hold_days` is released:
-
-```
-payout = released × (1 − reserve_pct) + reserve_held_from_previous_payout
+payout       = released × (1 − reserve_pct) + reserve_held_from_previous_payout
 reserve_held = released × reserve_pct
 ```
 
-The rolling reserve is modelled as **rolling**: withheld on one payout, released on the
-next. Treating it as a permanent haircut — the intuitive but wrong reading — makes
-every seller look structurally insolvent, because it silently removes 2–8% of all
-revenue forever. This was caught during development by the unit economics not
-reconciling, and is now covered by `test_rolling_reserve_does_not_leak_cash`.
+The rolling reserve is modelled as **rolling**: it is withheld on one payout and
+released on the next. If you treat it as a permanent deduction, every seller looks
+insolvent. We caught this during development because the unit economics stopped
+reconciling (`test_rolling_reserve_does_not_leak_cash`).
 
-The pipeline is seeded from **actual history**, not from state written by the data
-generator. `payout_state()` replays the payout schedule across the real ledger to
-recover which sale-dates have already been released and how much reserve is held. This
-is what makes the forecaster valid for an arbitrary `as_of` — and therefore
-backtestable at all.
+The pipeline starts from **actual history** (`payout_state()` replays the schedule
+over the real ledger), not from state written by the data generator. This is what
+lets the forecaster start from any date, and therefore what makes it backtestable.
 
-### 3.3–3.5 Outflows
+### 3.3 Outflows
 
-- **Variable costs** — COGS, shipping and advertising as a measured share of sales over
-  the 56-day window, incurred on the sale date.
-- **Recurring fixed costs** — detected from history by grouping bank outflows on
-  `(counterparty, category)` and keeping groups with ≥3 occurrences whose inter-payment
-  gaps have a standard deviation ≤4 days. Per-order variable categories are excluded so
-  they are never double-counted against the sales-linked projection.
-- **Scheduled obligations** — declared future bills from the seller's profile.
+- **Variable costs:** COGS, shipping and advertising, as a measured share of sales.
+- **Pre-bought stock:** when a scheduled bill buys stock (`inventory_value`), that stock
+  covers per-order product costs until it runs out, so the same goods are never paid
+  for twice. The goods arrive on the originally agreed date: negotiating to *pay*
+  later doesn't delay the *delivery*. An earlier version charged for stock twice, and
+  that turned a timing problem into what looked like a permanent loss.
+- **Recurring fixed costs:** payments that repeat on a stable schedule, detected from
+  history (at least 3 occurrences, with the gaps between them varying by 4 days or
+  less). This includes loan repayments, which appear in the ledger of every seller
+  who declares debt service.
+- **Scheduled obligations:** future bills the seller has declared.
 
-### 3.6 Risk findings
+### 3.4 Risk findings
 
-The daily walk yields the balance path, from which:
+The daily walk produces the balance path, and from it: the lowest point and its date,
+the first date the balance goes negative, the amount needed to stay above the safety
+buffer, **how long** the money is needed (`suggested_bridge_days`), and **how long
+there is to arrange it** (`days_until_first_shortfall`).
 
-- `trough_balance` / `trough_date`
-- `goes_negative`, `first_negative_date`
-- `shortfall_to_buffer` — the amount needed to hold the safety buffer throughout
-- `suggested_bridge_days` — **how long** the money is needed for
-- `days_until_first_shortfall` — **how long there is to arrange it**
-- `primary_drivers` — attributed across the whole drawdown
+**These two time quantities are different, and mixing them up is a real bug.** An
+early version used "days needed" as the deadline for arranging finance, which ranked a
+1-day merchant cash advance above a microloan costing a fraction as much. They are now
+separate inputs to the financing engine.
 
-**The two time quantities are distinct and conflating them is a real bug.** An early
-version used "days needed" as the arranging deadline, which ranked a 1-day merchant
-cash advance above a microloan at a fifth of the cost. They are now separate inputs to
-the financing engine.
+**Driver attribution** adds up everything paid from today to the lowest point, instead
+of looking only at a fixed window before it. The payment that causes a low point often
+lands well before the low point itself.
 
-**Driver attribution** aggregates events from today to the trough, not a trailing
-window. Amara's trough is on 18 October but its cause is a payment on 25 September; a
-14-day lookback blamed the ordinary bills that happened to land near the low point.
+### 3.5 Scenario support
 
-### 3.7 Measured accuracy
+`forecast_cashflow(ctx, horizon, scenario)` also takes an optional `Scenario`: bills
+moved or split, ad spend cut, sales changed, payouts delayed, a new monthly cost, or
+financing inflows and repayments. `Scenario()` with no changes reproduces the baseline
+exactly (`test_empty_scenario_reproduces_the_baseline_exactly`).
 
-`backtest()` forecasts from a past date and compares against the actual ledger.
+### 3.6 Measured accuracy
 
-| Seller | 30d | 45d | 60d |
-|---|---:|---:|---:|
-| amara-prints | 3.8% | 2.8% | 1.7% |
-| kofi-coffee | 0.9% | 0.8% | 2.4% |
-| linas-ceramics | 2.7% | 0.9% | 1.4% |
-| techfix-parts | 2.0% | 4.5% | 6.5% |
+There are two measurements, because either one alone would mislead.
 
-Adjusted absolute error as a percentage of monthly revenue. **Mean 2.5%, worst 6.5%.**
-Regenerate with `python scripts/generate_evidence.py`; the bound is asserted by
-`test_backtest_accuracy_within_declared_bounds`.
+**Consistency check.** `backtest()` forecasts from a past date and compares the result
+with the actual ledger. Across 4 sellers and 30/45/60-day horizons, the mean absolute
+error is **3.1%** of monthly revenue, and the worst case is **6.5%**. But the ledger was
+generated by the same process the forecaster assumes: the same seasonality and the
+same payout schedule. So this shows the model behaves as designed. **It is not
+evidence of real-world accuracy**, and we don't present it as such.
 
-Error is normalised against **monthly revenue**, not closing balance. Percentage-of-
-balance flatters large-balance sellers and punishes small ones: Amara's €421 miss is
-13.2% of her €3,180 balance but 3.8% of her monthly revenue, and the latter is the fair
-basis for comparing forecast quality across businesses of different sizes.
+**Stress test.** `scripts/stress_test.py` regenerates the sandbox with assumptions the
+forecaster doesn't know, then backtests again:
 
-`adjusted_error` excludes one-off payments that were neither recurring nor declared
-when the forecast was made. This is disclosed, not hidden, because it is the method's
-principal limitation: Amara's raw 30-day error is €4,921, of which €4,500 is a single
-undeclared supplier deposit. **A rule-based forecaster cannot see lumpy commitments the
-seller has not told it about** — which is precisely why the product asks sellers to
-declare known upcoming bills, and why the alert copy nudges toward that.
+| Scenario | Mean error | Worst |
+|---|---:|---:|
+| Same process the forecaster assumes | 3.1% | 6.5% |
+| Daily sales twice as noisy | 4.4% | 9.5% |
+| A seasonal pattern the forecaster doesn't know | 8.3% | 16.8% |
+| Marketplace payouts arrive 0-3 days late at random | 19.4% | 47.9% |
+| All three at once | 26.6% | 46.4% |
+
+Late payouts are by far the largest sensitivity. One delayed payout moves an entire
+payment across the date being measured. This is the method's main weakness, and it is
+the reason the what-if simulator has a *payouts arrive late* setting (section 6):
+sellers can test it on their own projection instead of trusting a single number.
+
+The error is measured against **monthly revenue**, not the closing balance. Measuring
+against the balance flatters sellers with large balances and punishes small ones.
+
+Unforecastable payments are reported separately, not absorbed into the error. For
+Amara, a 30-day backtest has a raw error of EUR 4,921, of which EUR 4,500 is a single
+supplier deposit that was never declared. **A rule-based forecaster can't see a lumpy
+commitment that nobody told it about.** That is why the product asks sellers to
+declare their upcoming bills.
 
 ---
 
@@ -190,176 +189,169 @@ declare known upcoming bills, and why the alert copy nudges toward that.
 
 ### 4.1 Per-criterion evaluation
 
-A product is never "a 72% match". Each applicable criterion produces a complete,
-checkable row: what was required, the seller's actual value, and the verdict.
-
-```
-min_monthly_revenue · max_monthly_revenue · min_months_trading
-max_debt_to_revenue · max_refund_rate · max_chargeback_rate
-regions · countries · categories_included / excluded
-min_amount · max_amount · max_multiple_of_monthly_revenue
-requires_platform_balance
-```
-
-A product is eligible only if **every** criterion passes. Products failing one or two
-become **near-misses**, returned with the gap quantified and, where knowable, the
-remedy — for example *"existing debt is €8,200 above this lender's ceiling; paying down
-that much would qualify"*. A rejection that explains itself is a better product than a
-silent filter, and it is what makes the tool useful to a seller who does not yet
-qualify for anything.
+A product is never "a 72% match". Every criterion produces a complete, checkable row:
+what was required, the seller's actual value, and the verdict. A product is eligible
+only if **every** criterion passes. Products that fail one or two criteria are
+reported as **near-misses**, with the gap measured and, where it can be known, what
+would fix it.
 
 ### 4.2 True cost of capital
 
-Four pricing conventions are normalised into one comparable shape. Two figures are
-returned, and the distinction is the substantive part:
+Two figures are returned:
 
-- `total_cost` — cost over the product's own natural term.
-- `cost_for_period` — cost of holding the money for the days actually needed.
-
-Ranking on `total_cost` is a trap: a 4-month bridge "costs less" than a 36-month loan
-purely because it is shorter. `cost_for_period` is computed by structure:
+- `total_cost`: the cost over the product's own natural term.
+- `cost_for_period`: the cost of holding the money for the days actually needed.
 
 | Structure | `cost_for_period` | Rationale |
 |---|---|---|
-| Revolving / overdraft | `amount × apr × days/365` | Interest accrues only on the drawn balance; short use is the product's purpose |
+| Revolving / overdraft | `amount × apr × days/365` | Interest is charged only on what is drawn |
 | Factoring / trade credit | `amount × fee_30 × days/30` | Priced per 30 days outstanding |
-| Committed term loan | full-term cost | You commit to the whole facility. Pro-rating would make a 36-month subsidised microloan look like the cheapest way to cover a 30-day gap, which is not a real option |
-| Revenue share | full cost | **A fixed factor rate cannot be reduced by repaying early** |
-| Grant | 0, plus co-funding disclosed | Non-repayable |
+| Committed term loan | full-term cost | You commit to the whole facility |
+| Revenue share | full cost | A fixed factor rate can't be reduced by repaying early |
+| Grant | 0, with co-funding disclosed | Non-repayable, and excluded for working capital |
 
-For committed-term products an `if_repaid_early` figure is still disclosed separately
-(clamped so it can never exceed the full-term cost), alongside the reminder that the
-seller is committing to the full facility to obtain it.
+### 4.3 Ranking and timing
 
-Revenue-share products also report `effective_apr`, which **rises the faster they are
-repaid** — the single most under-disclosed fact about revenue-based finance. A merchant
-cash advance is kept in the catalog deliberately so the copilot can show what the fast
-option really costs: for Amara it is €2,530 against €299, an effective ~71% APR.
+The ranking sorts by `(too_slow, cost_for_period, speed_days)`, where
+`too_slow = speed_days > days_until_needed`. A slow product is flagged and kept, not
+hidden: it simply can't be the first line of defence this time.
 
-### 4.3 Ranking
+### 4.4 Verification by simulation
 
-```
-sort by (too_slow, cost_for_period, speed_days)
-too_slow = speed_days > days_until_needed
-```
+Before anything is recommended, `verify_financing_options()` runs every candidate that
+can arrive in time through the what-if simulator. The simulation uses the date the
+money actually arrives and the product's real repayment schedule. Only products that
+keep the seller out of the red are recommended. This caught a real flaw: ranking by
+cost alone had recommended a product whose monthly repayments opened a new shortfall
+the following month.
 
-A facility that cannot be arranged before the money is due is worthless at any price,
-so lead time gates the ranking rather than merely influencing it — but such products
-are **flagged and retained**, with the note that they are worth arranging before the
-next peak. Products whose funds are ring-fenced (equipment, capex, project grants) are
-moved to a separate `excluded_wrong_purpose` bucket for working-capital requests
-rather than ranked low, since they are not options at all.
+The expensive fast option is kept in the catalog on purpose, so the copilot can show
+what it really costs. For Amara, the merchant cash advance costs EUR 1,844, against
+EUR 218 for the recommended bridge, and even then it doesn't keep her out of the red.
 
 ---
 
 ## 5. Business analysis
 
-`app/tools/analysis.py`. Translation, not calculation.
+`app/tools/analysis.py`.
 
 ```
-contribution_margin = 1 − (variable_costs + platform_fees + refunds) / sales
-estimated_monthly_net = revenue × contribution_margin − fixed_costs
-breakeven_revenue = fixed_costs / contribution_margin
-cash_trapped_days = platform_balance / daily_sales
+contribution_margin   = 1 − (variable costs + platform fees + refunds) / sales
+monthly_cash_surplus  = revenue × contribution_margin − regular monthly payments
+breakeven_revenue     = regular monthly payments / contribution_margin
+cash_trapped_days     = platform_balance / daily sales
 ```
 
-Observations are generated conditionally and sorted by severity, so the seller gets the
-two or three numbers that could change a decision — not a wall of ratios. Peer
-comparison uses p25/median/p75 bands per category from `data/benchmarks.json`, which
-are **synthetic and labelled as such in every response**.
-
-The most product-defining output is `cash_trapped_days`: Amara has 13.7 days of sales
-earned but unspendable. Almost nothing in the market shows a seller that number.
+`monthly_cash_surplus` is **cash left over after all regular payments, including loan
+repayments**. It is deliberately *not* called profit, because repaying a loan's
+principal is a cash outflow but not an accounting expense. Peer comparison uses
+p25/median/p75 bands from `data/benchmarks.json`, which are **synthetic and labelled
+as such in every response**.
 
 ---
 
-## 6. Security design
+## 6. What-if simulator
 
-Full self-assessment and known-risk list: **[SECURITY.md](SECURITY.md)**. Summary:
+`app/tools/whatif.py`. It runs the baseline and a changed scenario side by side, then
+explains the difference. It is a T1 tool: it projects, and it never changes anything.
 
-### Permission tiers
+A seller can pay a bill later or split it, cut ad spend (optionally assuming some lost
+sales), change sales across the period, delay every payout, add a new monthly cost, or
+take a specific financing product. It works from the web panel, or in plain English
+through the agent ("what if I pay the supplier 3 weeks late?").
+
+Three honesty rules are built in:
+
+1. **Money can't arrive before the product can be arranged.** Financing lands on
+   `today + speed_days`, with its real repayment schedule.
+2. **Only products the seller actually qualifies for can be simulated.** Anything else
+   is refused, with the criteria that failed.
+3. **Assumptions are stated.** Cutting ads loses no sales unless the seller says so,
+   and the reply says that plainly. When sales fall, the reply also explains a
+   counter-intuitive effect: the low point can briefly look better, because fewer
+   orders means paying less right now while the lost income arrives later as smaller
+   payouts. Such a scenario should be judged on the ending balance.
+
+Every result uses one vocabulary, judged against the same safety buffer the financing
+matcher uses, so the two tools can't disagree: *fixes*, *avoids negative*, *improves*,
+*no effect*, *worsens*, *breaks* (`test_matcher_and_simulator_agree_on_timing`).
+
+---
+
+## 7. Security design
+
+Full self-assessment and known-risk list: **[SECURITY.md](SECURITY.md)**.
 
 | Tier | Scope | Enforcement |
 |---|---|---|
 | `T0_READ` | Read simulated data | Registry lookup |
-| `T1_RECOMMEND` | Analysis, forecasts, matches, alerts. No side effects | **Session default** |
+| `T1_RECOMMEND` | Analysis, forecasts, matches, alerts, what-ifs. No side effects | **Session default**, in the API and the UI |
 | `T2_ACTION` | Real-world consequences | Staged only; human confirmation required |
 
-A tool absent from `TOOL_REGISTRY` cannot be dispatched at all.
+A T2 call doesn't act. It returns a `pending_confirmation` token that is
+server-generated, single-use, expires after 600 seconds, and is bound to a SHA-256
+hash of the exact details the user was shown. `confirm_action` is **not in the agent's
+tool registry**, so a fully prompt-injected model has no way to approve its own
+action. Confirmation decisions are audited inside `confirm_action` itself, so no code
+path can execute an action without recording the decision.
 
-### Why the agent cannot self-approve
+**Prompt injection.** The threat that matters here is *indirect* injection through
+fields the seller doesn't control, and the sandbox contains a real planted attack.
+Detection covers English, Chinese, Arabic, German, French and Spanish. It also undoes
+simple disguises (full-width letters, zero-width characters, and letters split apart
+like "I-g-n-o-r-e"). False positives are tested in the same six languages. Pattern
+matching raises the cost of an attack but doesn't solve it. The permission model is
+what bounds the damage.
 
-A T2 call does not act. It returns a `pending_confirmation` with a plain-language
-consequence and a token that is **server-generated, single-use, expiring (600s), and
-bound to a SHA-256 of the exact payload shown to the user** — so a payload mutated
-between staging and approval is rejected.
-
-`confirm_action` is **not in the agent tool registry**. A fully prompt-injected model
-has no capability with which to approve its own action. This is the difference between
-"we told the model not to" and "the model cannot", and it is asserted by
-`test_agent_has_no_capability_to_confirm_its_own_actions`.
-
-Confirmation decisions are audited inside `confirm_action` itself rather than by
-callers, so no code path can execute an action without recording the decision.
-
-### Prompt injection
-
-The threat that matters here is **indirect** injection: a financial copilot reads
-customer order notes, refund reasons and counterparty names, none of which the seller
-controls. The sandbox ledger therefore contains a **real planted attack** in an order
-note, so the defence is demonstrated against actual data.
-
-Three layers: `scan_text` (11 pattern families, higher severity when the text arrives
-in *data* rather than user input, since a customer note has no business addressing the
-model); `wrap_untrusted` (redacts instruction-like spans, then fences the remainder in
-an explicit untrusted-data block — redacting rather than dropping the row so the seller
-can still see a suspicious note exists); and `check_output` (blocks claims of approval,
-guarantees, certainty, or account numbers in output).
-
-Pattern matching is explicitly **not** presented as a solution to prompt injection. It
-raises the cost of an attack. The architectural control is what bounds the damage.
-
-Guardrails are also tested for false positives: `test_benign_finance_questions_are_not_flagged`
-asserts that ordinary questions pass, because a guardrail that fires on real usage gets
-switched off in production.
-
-### Audit log
-
-Append-only JSONL where each record carries the SHA-256 of its predecessor. Editing,
-reordering, inserting or deleting any record breaks the chain, detectable by
-`verify_chain()` using only the file's own contents. Tokens are redacted and long
-values truncated. The log doubles as the required execution evidence.
+**Audit log.** An append-only log in which each record holds the SHA-256 of the one
+before it, and `verify_chain()` detects edits and deletions. **Each session can read
+only its own records.** The full log contains every seller's activity, so exposing it
+on request would leak one seller's financial questions to another.
 
 ---
 
-## 7. Reproducibility
+## 8. Keeping the system, the documents and the deck consistent
 
-Everything is deterministic. `scripts/generate_data.py` uses fixed per-seller seeds; the
-dataset is pinned to `as_of = 2026-09-10`; offline mode involves no sampling.
+The numbers quoted in documents drift from the system unless something forces them
+to match. That already happened once in this project: the deck said one monthly
+figure and the tool said another. So:
+
+- `app/facts.py` computes every figure quoted outside the code.
+- `scripts/generate_evidence.py` writes those figures to `docs/evidence/facts.json`.
+- `scripts/build_deck.js` reads every number in the deck from `facts.json`, and no
+  euro amount is typed into the deck by hand.
+- `tests/test_consistency.py` checks that `facts.json` matches the live system, that
+  each document quotes the live figures, that previously published wrong figures
+  never reappear, and that the data doesn't contradict itself (declared loan
+  repayments exist in the ledger, claimed deposits were actually paid, stock purchases
+  are marked as stock).
+
+A stale number is a failing test.
+
+---
+
+## 9. Reproducibility
+
+Everything is deterministic: fixed seeds, a pinned `as_of = 2026-09-10`, and no sampling
+in offline mode.
 
 ```bash
-python scripts/generate_data.py       # 4,782 transactions, 4 sellers
-python scripts/generate_evidence.py   # 13 scenarios, 61 audit records, 12 backtests
-pytest -q                             # 132 tests
+python scripts/generate_data.py       # 4 sellers, 4,794 transactions
+python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
+pytest -q                             # 195 tests
 ```
 
-Test coverage by area: forecasting mechanics and measured accuracy (27), financing cost
-maths and eligibility reasoning (30), security — tiers, injection, audit integrity (29),
-agent pipeline and HTTP API (46).
+## 10. Known limitations
 
-## 8. Known limitations
+These are covered briefly here and expanded in [SECURITY.md](SECURITY.md).
 
-Stated here in brief; expanded with likelihood, impact and remediation in
-[SECURITY.md](SECURITY.md).
-
-1. **Undeclared one-off payments are unforecastable.** The dominant source of forecast
-   error. Mitigated by asking sellers to declare known bills, not solved.
-2. **Rule-based forecasting cannot anticipate structural breaks** — a marketplace
-   changing its payout terms, a category collapsing, a supplier failing.
-3. **Eligibility matching is not underwriting.** Real lenders use bureau data,
-   affordability models and manual review. Matching against published criteria will
-   both over- and under-predict real decisions.
-4. **Synthetic benchmarks.** Peer bands are constructed, not measured, and are labelled
-   as such in every response that uses them.
-5. **Pattern-based injection defence is incomplete** by nature.
-6. **Demo-grade session handling.** In-process sessions, no authentication.
+1. **Late payouts and undeclared one-off bills** are the largest sources of forecast
+   error (see the stress test). The what-if simulator exposes the first, and declaring
+   bills addresses the second. Neither is solved.
+2. **Rule-based forecasting can't anticipate structural breaks**, such as a
+   marketplace changing its terms or a supplier failing.
+3. **Eligibility matching is not underwriting.**
+4. **Synthetic benchmarks and a synthetic catalog.**
+5. **Pattern-based injection defence is incomplete by nature.**
+6. **Demo-grade sessions**, with no user authentication.
+7. **LLM mode hasn't been exercised against the live API** in this sandbox.

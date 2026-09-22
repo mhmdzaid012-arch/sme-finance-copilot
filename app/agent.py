@@ -41,6 +41,7 @@ from .tools.alerts import generate_alerts
 from .tools.analysis import analyse_business
 from .tools.financing import match_financing
 from .tools.forecast import forecast_cashflow
+from .tools.whatif import WhatIfError, simulate, verify_financing_options
 
 SYSTEM_PROMPT = """You are the SME Finance Copilot, an assistant for owners of small \
 online retail businesses. You help with three things only: cash-flow management, \
@@ -120,6 +121,30 @@ TOOL_SCHEMAS = [
         },
     },
     {
+        "name": "simulate_whatif",
+        "description": ("Project the bank balance under changed assumptions and "
+                        "compare with the baseline. Changes nothing."),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "delay_obligation": {"type": "object", "properties": {
+                    "counterparty": {"type": "string"}, "days": {"type": "integer"}}},
+                "split_obligation": {"type": "string"},
+                "ads_cut_pct": {"type": "number"},
+                "ads_cut_days": {"type": "integer"},
+                "ads_sales_impact_pct": {"type": "number"},
+                "sales_change_pct": {"type": "number"},
+                "payout_delay_days": {"type": "integer"},
+                "extra_monthly_cost": {"type": "number"},
+                "financing": {"type": "object", "properties": {
+                    "product_id": {"type": "string"}, "amount": {"type": "number"},
+                    "days_needed": {"type": "integer"}}},
+                "horizon_days": {"type": "integer"},
+            },
+            "required": [],
+        },
+    },
+    {
         "name": "submit_financing_application",
         "description": ("Stage a financing application. This does NOT submit "
                         "anything - it returns a confirmation request for the human "
@@ -177,6 +202,16 @@ def dispatch(session: Session, tool: str, params: dict, mode: str) -> tuple[dict
         result = generate_alerts(ctx, fc)
         card = {"type": "alerts", "data": {**result, "forecast": fc}}
 
+    elif tool == "simulate_whatif":
+        try:
+            result = simulate(ctx, params)
+        except WhatIfError as exc:
+            audit.log_event(session.session_id, session.seller_id, "tool_call",
+                            tool=tool, decision="invalid_scenario", params=params,
+                            summary=str(exc), mode=mode)
+            return {"error": str(exc), "status": "invalid"}, None
+        card = {"type": "whatif", "data": result}
+
     elif tool == "match_financing":
         result = match_financing(
             ctx,
@@ -207,6 +242,8 @@ def _summarise(tool: str, result: dict) -> str:
                 f"EUR {result['requested_amount']}")
     if tool == "generate_alerts":
         return f"{result['alert_counts']}; highest={result['highest_severity']}"
+    if tool == "simulate_whatif":
+        return f"verdict={result['verdict']}; changes={result['changes']}"
     if tool == "analyse_business":
         h = result["headline_metrics"]
         return (f"net EUR {h['estimated_monthly_net']}/mo; "
@@ -245,8 +282,12 @@ def collect_untrusted_notes(session: Session, limit: int = 40) -> tuple[list[str
 # ---------------------------------------------------------------------------
 
 INTENTS = [
-    # Listed first so "apply for financing" resolves to the action intent
-    # rather than the browsing intent when both match.
+    # "What if I take the cheapest option" must simulate, not apply, so this
+    # is listed - and checked - first.
+    ("whatif", ("what if", "what-if", "whatif", "simulate", "scenario",
+                "what happens if", "what would happen")),
+    # Listed before financing so "apply for financing" resolves to the action
+    # intent rather than the browsing intent when both match.
     ("apply", ("apply", "submit", "go ahead", "proceed", "sign me up",
                "take the", "get the loan", "accept the")),
     ("cashflow", ("cash", "runway", "run out", "shortfall", "forecast", "short",
@@ -261,6 +302,73 @@ INTENTS = [
     ("alerts", ("alert", "warn", "risk", "problem", "worry", "what should i do",
                 "urgent")),
 ]
+
+
+def parse_whatif(message: str, ctx) -> dict:
+    """
+    Best-effort extraction of a what-if from plain English. Anything it cannot
+    read is left unset; the UI panel is the precise way to ask.
+    """
+    import re
+    text = (message or "").lower()
+    params: dict = {}
+
+    def days_in(fragment: str, default: int) -> int:
+        m = re.search(r"(\d+)\s*(day|week|month)", fragment)
+        if not m:
+            return default
+        n = int(m.group(1))
+        return n * {"day": 1, "week": 7, "month": 30}[m.group(2)]
+
+    obligations = ctx.profile.get("scheduled_obligations", [])
+    target = None
+    for o in obligations:
+        first_word = o["counterparty"].split()[0].lower()
+        if first_word in text:
+            target = o
+    if target is None and any(w in text for w in ("supplier", "bill", "invoice", "stock")):
+        suppliers = [o for o in obligations if o["category"] == "supplier"] or obligations
+        target = max(suppliers, key=lambda o: o["amount"]) if suppliers else None
+
+    if target and any(w in text for w in ("late", "later", "delay", "postpone", "push", "defer")):
+        params["delay_obligation"] = {"counterparty": target["counterparty"],
+                                      "days": days_in(text, 30)}
+    if target and "split" in text:
+        params["split_obligation"] = target["counterparty"]
+
+    if re.search(r"(pause|stop|cut|reduce|turn off).{0,20}\bads?\b|\bads?\b.{0,20}(pause|stop|cut|off)", text):
+        pct = re.search(r"(\d+)\s*%", text)
+        params["ads_cut_pct"] = float(pct.group(1)) if pct else 100.0
+        params["ads_cut_days"] = days_in(text, 30)
+
+    m = re.search(r"payouts?.{0,25}?(\d+)\s*days?\s*(late|later|delayed)", text)
+    if m:
+        params["payout_delay_days"] = int(m.group(1))
+
+    m = re.search(r"sales.{0,15}(drop|fall|down|decrease|rise|grow|up|increase)\D{0,10}(\d+)\s*%", text)
+    if m:
+        sign = -1 if m.group(1) in ("drop", "fall", "down", "decrease") else 1
+        params["sales_change_pct"] = sign * float(m.group(2))
+
+    m = re.search(r"(hire|salary|new cost|extra cost|rent).{0,30}?(?:eur|€)?\s*(\d[\d,]*)", text)
+    if m:
+        params["extra_monthly_cost"] = float(m.group(2).replace(",", ""))
+
+    if any(w in text for w in ("take", "borrow", "loan", "financ", "bridge")):
+        fc = forecast_cashflow(ctx, 60)["findings"]
+        amount = fc["suggested_bridge_amount"]
+        if amount:
+            match = match_financing(ctx, amount, "working_capital",
+                                    fc["suggested_bridge_days"] or 30,
+                                    fc["days_until_first_shortfall"])
+            named = next((e for e in match["eligible"]
+                          if e["name"].split()[0].lower() in text), None)
+            in_time = [e for e in match["eligible"] if not e["too_slow"]]
+            choice = named or (in_time[0] if in_time else None)
+            if choice:
+                params["financing"] = {"product_id": choice["id"], "amount": amount,
+                                       "days_needed": fc["suggested_bridge_days"] or 30}
+    return params
 
 
 def detect_intent(message: str) -> str:
@@ -349,6 +457,26 @@ def run_offline(session: Session, message: str) -> dict:
                 f"about {_fmt(paid[0]['cost'])}."
             )
 
+    if intent == "whatif":
+        params = parse_whatif(message, ctx)
+        if not params:
+            lines.append(
+                "I can simulate: paying a bill later or splitting it, cutting ads, "
+                "sales rising or falling, payouts arriving late, a new monthly cost, "
+                "or taking a specific financing product. Try \"what if I pay the "
+                "supplier 30 days late?\" - or use the What-if panel below for full "
+                "control."
+            )
+        else:
+            result = do("simulate_whatif", dict(params, horizon_days=90))
+            if result.get("status") == "invalid":
+                lines.append(f"I couldn't simulate that: {result['error']}")
+            else:
+                lines.append("Scenario: " + "; ".join(result["changes"]) + ".")
+                lines.extend(result["summary_lines"])
+                for a in result["assumptions"]:
+                    lines.append(f"Assumption: {a}")
+
     if intent == "financing":
         fc = do("forecast_cashflow", {"horizon_days": 60})
         f = fc["findings"]
@@ -361,11 +489,15 @@ def run_offline(session: Session, message: str) -> dict:
         })
         lines.append(mt["summary"])
         in_time = [e for e in mt["eligible"] if not e["too_slow"]]
+        verified = {v["id"]: v for v in (verify_financing_options(
+            ctx, in_time, amount, f["suggested_bridge_days"] or 30) if amount else [])}
         for e in in_time[:3]:
+            v = verified.get(e["id"])
+            check = f" Simulated with its repayments: {v['verdict_text']}" if v else ""
             lines.append(
                 f"- {e['name']} ({e['provider']}): "
                 f"{_fmt(e['cost']['cost_for_period'])} for the period, arranges in "
-                f"~{e['speed_days']} day(s). {e['cost']['explanation']}"
+                f"~{e['speed_days']} day(s). {e['cost']['explanation']}{check}"
             )
         slow = [e for e in mt["eligible"] if e["too_slow"]]
         if slow:
@@ -396,7 +528,11 @@ def run_offline(session: Session, message: str) -> dict:
             "days_needed": f["suggested_bridge_days"] or None,
             "days_until_needed": f["days_until_first_shortfall"],
         })
-        viable = [e for e in mt["eligible"] if not e["too_slow"]]
+        in_time = [e for e in mt["eligible"] if not e["too_slow"]]
+        verified = verify_financing_options(
+            ctx, in_time, amount, f["suggested_bridge_days"] or 30) if in_time else []
+        good = {v["id"] for v in verified if v["verdict"] in ("fixes", "avoids_negative")}
+        viable = [e for v in verified for e in in_time if e["id"] == v["id"] and v["id"] in good]
         if not viable:
             lines.append(
                 "There is nothing I can put forward: no product matches this "
@@ -428,14 +564,17 @@ def run_offline(session: Session, message: str) -> dict:
                     "there is nothing for me to call."
                 )
 
-    # Surface any injection attempts found in the seller's own data.
+    # Surface any injection attempts found in the seller's own data - once per
+    # session, so the warning informs rather than becomes noise.
     _, inj = collect_untrusted_notes(session)
-    if inj:
+    if inj and not getattr(session, "injection_reported", False):
+        session.injection_reported = True
         kinds = sorted({i["kind"] for i in inj})
+        notes = len({i["txn_id"] for i in inj})
         lines.append(
-            f"Security note: {len(inj)} suspicious instruction-like pattern(s) "
-            f"({', '.join(kinds)}) were found in customer-supplied notes on your "
-            f"account and were redacted before processing. Nothing was acted on."
+            f"Security note: {notes} customer-supplied note(s) on your account contain "
+            f"text aimed at the assistant ({', '.join(kinds)}). They were redacted before "
+            f"processing and nothing was acted on."
         )
         audit.log_event(session.session_id, session.seller_id,
                         "guardrail_indirect_injection", decision="redacted",

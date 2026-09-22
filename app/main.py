@@ -12,7 +12,7 @@ from __future__ import annotations
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -32,6 +32,7 @@ from .tools.alerts import generate_alerts
 from .tools.analysis import analyse_business
 from .tools.financing import match_financing
 from .tools.forecast import backtest, forecast_cashflow
+from .tools.whatif import WhatIfError, simulate, whatif_options
 
 app = FastAPI(
     title="SME Finance Copilot",
@@ -172,6 +173,28 @@ def seller_financing(seller_id: str, req: FinancingRequest) -> dict:
     )
 
 
+@app.get("/api/seller/{seller_id}/whatif/options")
+def seller_whatif_options(seller_id: str) -> dict:
+    try:
+        ctx = get_seller(seller_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Unknown seller")
+    return whatif_options(ctx)
+
+
+@app.post("/api/seller/{seller_id}/whatif")
+def seller_whatif(seller_id: str, params: dict) -> dict:
+    """Side-by-side projection under changed assumptions. Changes nothing."""
+    try:
+        ctx = get_seller(seller_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Unknown seller")
+    try:
+        return simulate(ctx, params)
+    except WhatIfError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @app.get("/api/seller/{seller_id}/backtest")
 def seller_backtest(seller_id: str, horizon_days: int = 30) -> dict:
     """Forecast accuracy check against actual history."""
@@ -236,10 +259,21 @@ def confirm(req: ConfirmRequest) -> dict:
 # ---------------------------------------------------------------------------
 
 @app.get("/api/audit")
-def audit_log(session_id: str | None = None, limit: int = 200) -> dict:
+def audit_log(session_id: str = Query(..., min_length=1), limit: int = 200) -> dict:
+    """
+    A caller sees only its own session's records.
+
+    The full log holds every seller's activity; exposing it to anyone who asks
+    would leak one seller's financial questions to another. The session id is
+    random and returned only to the client that created the session, so it acts
+    as the (demo-grade) credential here - see risk R5 in docs/SECURITY.md.
+    """
+    _session(session_id)  # 404 for unknown sessions rather than an empty list
+    chain = audit.verify_chain()
     return {
-        "records": audit.read_log(limit=limit, session_id=session_id),
-        "chain": audit.verify_chain(),
+        "records": audit.read_log(limit=min(max(limit, 1), 500), session_id=session_id),
+        # Integrity status only - no other session's content.
+        "chain": {"valid": chain["valid"], "reason": chain["reason"]},
     }
 
 

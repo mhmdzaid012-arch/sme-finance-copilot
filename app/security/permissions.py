@@ -84,6 +84,9 @@ TOOL_REGISTRY: dict[str, ToolPermission] = {
     "generate_alerts": ToolPermission(
         "generate_alerts", T1_RECOMMEND,
         "Turn a forecast into ranked alerts and mitigations."),
+    "simulate_whatif": ToolPermission(
+        "simulate_whatif", T1_RECOMMEND,
+        "Project the balance under changed assumptions. Changes nothing."),
     "submit_financing_application": ToolPermission(
         "submit_financing_application", T2_ACTION,
         "Submit a financing application to a provider.",

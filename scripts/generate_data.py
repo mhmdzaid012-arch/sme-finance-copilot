@@ -69,6 +69,10 @@ class Obligation:
     counterparty: str
     category: str
     note: str = ""
+    # Value of stock received when this bill is paid. Pre-bought stock is then
+    # drawn down against per-order product cost as it sells, so the forecast
+    # does not charge for the same goods twice.
+    inventory_value: float = 0.0
 
 
 @dataclass
@@ -139,6 +143,7 @@ SELLERS: list[SellerConfig] = [
             {"counterparty": "Klaviyo", "category": "software", "amount": 60.0, "cadence": "monthly", "day": 12},
             {"counterparty": "Accountant (Steuerberater)", "category": "professional_services", "amount": 180.0, "cadence": "monthly", "day": 18},
             {"counterparty": "Business Insurance", "category": "insurance", "amount": 74.0, "cadence": "monthly", "day": 8},
+            {"counterparty": "Loan Repayment - Sparkasse", "category": "debt_service", "amount": 390.0, "cadence": "monthly", "day": 15},
         ],
         payout=PayoutSchedule(cadence_days=14, anchor=date(2026, 3, 9), hold_days=10, reserve_pct=0.05),
         existing_debt=4100.0,
@@ -147,7 +152,8 @@ SELLERS: list[SellerConfig] = [
         safety_buffer=1500.0,
         obligations=[
             Obligation(due="2026-09-25", amount=6800.0, counterparty="Textil Nord GmbH", category="supplier",
-                       note="Q4 blank stock balance - net-30 agreed, production slot is not transferable"),
+                       note="Q4 blank stock balance - net-30 agreed, production slot is not transferable",
+                       inventory_value=11300.0),
             Obligation(due="2026-10-14", amount=1980.0, counterparty="VAT Prepayment (Finanzamt)", category="tax",
                        note="Quarterly VAT prepayment"),
         ],
@@ -189,6 +195,7 @@ SELLERS: list[SellerConfig] = [
             {"counterparty": "Utilities (Energy)", "category": "utilities", "amount": 410.0, "cadence": "monthly", "day": 10},
             {"counterparty": "Shopify Plus", "category": "software", "amount": 89.0, "cadence": "monthly", "day": 6},
             {"counterparty": "Equipment Lease (Roaster)", "category": "equipment", "amount": 640.0, "cadence": "monthly", "day": 20},
+            {"counterparty": "Loan Repayment - Rabo SME Loan", "category": "debt_service", "amount": 810.0, "cadence": "monthly", "day": 12},
         ],
         payout=PayoutSchedule(cadence_days=7, anchor=date(2026, 3, 6), hold_days=5, reserve_pct=0.02),
         existing_debt=12400.0,
@@ -197,7 +204,8 @@ SELLERS: list[SellerConfig] = [
         safety_buffer=6000.0,
         obligations=[
             Obligation(due="2026-10-05", amount=18500.0, counterparty="Green Bean Importer",
-                       category="supplier", note="Q4 green coffee container - 7% volume discount if paid on time"),
+                       category="supplier", note="Q4 green coffee container - 7% volume discount if paid on time",
+                       inventory_value=18500.0),
         ],
         seed=1002,
         persona_note=(
@@ -236,7 +244,8 @@ SELLERS: list[SellerConfig] = [
         safety_buffer=800.0,
         obligations=[
             Obligation(due="2026-10-02", amount=1250.0, counterparty="Clay & Glaze Supplier",
-                       category="supplier", note="Bulk clay order for Christmas production"),
+                       category="supplier", note="Bulk clay order for Christmas production",
+                       inventory_value=1250.0),
         ],
         one_offs=[
             OneOff(on="2026-04-22", amount=2800.0, counterparty="Kiln Supplier",
@@ -283,7 +292,8 @@ SELLERS: list[SellerConfig] = [
         safety_buffer=9000.0,
         obligations=[
             Obligation(due="2026-09-29", amount=12400.0, counterparty="Shenzhen Components Ltd",
-                       category="supplier", note="Component restock - 50% deposit already paid"),
+                       category="supplier", note="Component restock for Q4, payable on delivery",
+                       inventory_value=12400.0),
         ],
         seed=1004,
         persona_note=(

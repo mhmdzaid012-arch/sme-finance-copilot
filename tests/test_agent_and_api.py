@@ -236,11 +236,70 @@ def test_full_confirmation_flow_over_http():
     assert replay["status"] == "rejected"
 
 
-def test_audit_endpoint_exposes_a_valid_chain():
-    client.post("/api/session", json={"seller_id": "kofi-coffee"})
-    r = client.get("/api/audit?limit=50").json()
-    assert r["chain"]["valid"] is True
-    assert r["records"]
+def _new_session(seller="amara-prints", tier="T1_RECOMMEND"):
+    return client.post("/api/session", json={
+        "seller_id": seller, "granted_tier": tier}).json()["session_id"]
+
+
+def test_audit_requires_a_session():
+    """The full log holds every seller's activity; it must never be dumped."""
+    assert client.get("/api/audit").status_code == 422
+    assert client.get("/api/audit?session_id=sess-doesnotexist").status_code == 404
+
+
+def test_audit_shows_only_the_callers_own_records():
+    a = _new_session("amara-prints")
+    b = _new_session("kofi-coffee")
+    client.post("/api/chat", json={"session_id": a, "message": "How is my business doing?"})
+    client.post("/api/chat", json={"session_id": b, "message": "How is my business doing?"})
+
+    ra = client.get(f"/api/audit?session_id={a}").json()
+    assert ra["records"]
+    assert {r["session_id"] for r in ra["records"]} == {a}
+    assert {r["seller_id"] for r in ra["records"]} == {"amara-prints"}
+    # Only integrity status comes back, not a count or content of other sessions.
+    assert set(ra["chain"]) == {"valid", "reason"}
+    assert ra["chain"]["valid"] is True
+
+
+def test_whatif_endpoint_and_errors():
+    ok = client.post("/api/seller/amara-prints/whatif",
+                     json={"delay_obligation": {"counterparty": "Textil Nord GmbH", "days": 21}})
+    assert ok.status_code == 200
+    assert ok.json()["verdict"]
+    bad = client.post("/api/seller/amara-prints/whatif", json={})
+    assert bad.status_code == 400
+    opts = client.get("/api/seller/amara-prints/whatif/options").json()
+    assert opts["obligations"]
+
+
+def test_offline_agent_understands_plain_english_what_ifs():
+    from app.agent import parse_whatif
+    from app.store import get_seller
+    ctx = get_seller("amara-prints")
+    assert parse_whatif("what if I pay the supplier 3 weeks late", ctx) == {
+        "delay_obligation": {"counterparty": "Textil Nord GmbH", "days": 21}}
+    assert parse_whatif("what if payouts are 4 days late", ctx) == {"payout_delay_days": 4}
+    assert parse_whatif("what if sales drop 20%", ctx) == {"sales_change_pct": -20.0}
+    r = run_turn(perm.Session("t-wi", "amara-prints"), "what if I pause ads for 2 weeks")
+    assert "simulate_whatif" in r["tool_calls"]
+    assert "whatif" in {c["type"] for c in r["cards"]}
+
+
+def test_ui_starts_every_session_advice_only():
+    """The interface must not quietly grant action permission."""
+    html = client.get("/").text
+    assert "'T2_ACTION' : 'T1_RECOMMEND'" in html        # tier follows the switch
+    assert 'id="allowActions">' in html                  # switch present...
+    assert 'id="allowActions" checked' not in html       # ...and off by default
+
+
+def test_security_note_is_shown_once_per_session():
+    s = perm.Session("t-once", "amara-prints")
+    first = run_turn(s, "How is my business doing?")["reply"]
+    second = run_turn(s, "Can I afford my supplier payment?")["reply"]
+    assert "Security note" in first
+    assert "Security note" not in second
 
 
 def test_security_tiers_endpoint_states_the_enforcement_property():

@@ -127,19 +127,22 @@ def analyse_business(ctx: SellerContext) -> dict:
     if est_monthly_net > 0:
         observations.append({
             "severity": "good",
-            "headline": f"The business makes about EUR {est_monthly_net:,.0f} a month",
+            "headline": (f"About EUR {est_monthly_net:,.0f} a month is left over after "
+                         f"all regular payments"),
             "detail": (
                 f"Every EUR 100 of sales leaves EUR {contribution_margin * 100:.0f} after "
                 f"product, shipping, ads, platform fees and refunds. That covers "
-                f"EUR {fixed_monthly:,.0f} of monthly fixed costs and leaves about "
-                f"EUR {est_monthly_net:,.0f}. Break-even is around "
+                f"EUR {fixed_monthly:,.0f} of regular monthly payments (including any "
+                f"loan repayments) and leaves about EUR {est_monthly_net:,.0f}. This is "
+                f"cash left over, not accounting profit. Break-even is around "
                 f"EUR {breakeven_revenue:,.0f} of monthly sales."
             ),
         })
     else:
         observations.append({
             "severity": "critical",
-            "headline": f"The business is losing about EUR {abs(est_monthly_net):,.0f} a month",
+            "headline": (f"The business is short by about EUR {abs(est_monthly_net):,.0f} "
+                         f"a month after regular payments"),
             "detail": (
                 f"Contribution margin of {contribution_margin * 100:.0f}% on "
                 f"EUR {m['avg_monthly_revenue']:,.0f} of sales generates "
@@ -236,8 +239,8 @@ def analyse_business(ctx: SellerContext) -> dict:
         f"{trend_word} {abs(mom_pct):.0f}% on the previous 30 days "
         f"(EUR {rev_prev:,.0f}). Contribution margin is "
         f"{contribution_margin * 100:.0f}%, fixed costs are about "
-        f"EUR {fixed_monthly:,.0f}/month, so the business is running at roughly "
-        f"EUR {est_monthly_net:+,.0f}/month. There is EUR {m['bank_balance']:,.0f} in "
+        f"EUR {fixed_monthly:,.0f}/month including loan repayments, leaving roughly "
+        f"EUR {est_monthly_net:+,.0f}/month of cash. There is EUR {m['bank_balance']:,.0f} in "
         f"the bank and EUR {m['platform_balance']:,.0f} still held in the payout queue."
     )
 
@@ -257,6 +260,9 @@ def analyse_business(ctx: SellerContext) -> dict:
             "contribution_margin": round(contribution_margin, 4),
             "fixed_costs_monthly": round(fixed_monthly, 2),
             "estimated_monthly_net": round(est_monthly_net, 2),
+            # Same figure under its precise name: cash left after all regular
+            # payments including loan principal. Not accounting profit.
+            "monthly_cash_surplus": round(est_monthly_net, 2),
             "breakeven_monthly_revenue": (
                 round(breakeven_revenue, 2) if breakeven_revenue else None),
             "bank_balance": m["bank_balance"],

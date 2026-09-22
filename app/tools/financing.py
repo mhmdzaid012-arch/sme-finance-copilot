@@ -417,9 +417,9 @@ def match_financing(ctx: SellerContext, amount: float | None = None,
         entry["too_slow"] = is_too_slow(entry)
         if entry["too_slow"]:
             entry["timing_warning"] = (
-                f"Typically takes ~{entry['speed_days']} days to arrange, but the "
-                f"money is needed in {days_until_needed} days. Worth putting in "
-                f"place for next time rather than relying on it now."
+                f"Takes about {entry['speed_days']} days to arrange, but your balance "
+                f"drops below your safety buffer in {days_until_needed} days. It cannot "
+                f"be the first line of defence this time."
             )
 
     eligible.sort(key=lambda e: (e["too_slow"], e["cost"]["cost_for_period"], e["speed_days"]))

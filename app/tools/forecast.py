@@ -23,6 +23,7 @@ balance path, plus where and why it breaks.
 from __future__ import annotations
 
 import statistics
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from .. import config
@@ -145,8 +146,32 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
     return released_through, round(held_reserve, 2)
 
 
-def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60) -> dict:
+@dataclass
+class Scenario:
+    """
+    Adjustments applied on top of the baseline projection, for what-if
+    simulation. Every field defaults to "no change", so `Scenario()` reproduces
+    the baseline exactly - which is asserted by the test suite.
+
+    Built by app/tools/whatif.py; the forecaster only applies it.
+    """
+
+    obligation_shifts: dict[str, int] = field(default_factory=dict)  # counterparty -> days later
+    obligation_splits: set[str] = field(default_factory=set)  # half on due date, half 30 days later
+    ads_cut_pct: float = 0.0  # 0..1 reduction in ad spend
+    ads_cut_days: int = 0  # ...for the first N days of the horizon
+    ads_sales_impact_pct: float = 0.0  # 0..1 sales lost while ads are cut (user's assumption)
+    sales_change_pct: float = 0.0  # -1..1 change in sales across the whole horizon
+    payout_delay_days: int = 0  # every future payout lands this many days late
+    extra_monthly_cost: float = 0.0  # new recurring cost, charged on the 1st of each month
+    extra_events: list[dict] = field(default_factory=list)  # {date, amount(+in/-out), counterparty, category}
+    revenue_share: dict | None = None  # {start, share, total, counterparty}
+
+
+def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
+                      scenario: Scenario | None = None) -> dict:
     """Project the bank balance forward and locate the risks."""
+    sc = scenario or Scenario()
     horizon_days = max(7, min(180, int(horizon_days)))
     horizon_end = ctx.as_of + timedelta(days=horizon_days)
     category = ctx.profile["category"]
@@ -166,8 +191,11 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60) -> dict:
     for i in range(1, horizon_days + 1):
         d = ctx.as_of + timedelta(days=i)
         g = growth ** (i / config.TREND_WINDOW_DAYS)
+        mult = 1.0 + sc.sales_change_pct
+        if i <= sc.ads_cut_days:
+            mult *= 1.0 - sc.ads_sales_impact_pct
         projected_sales[d] = round(
-            baseline[d.weekday()] * g * _seasonal(d, category), 2
+            baseline[d.weekday()] * g * _seasonal(d, category) * max(0.0, mult), 2
         )
 
     # --- 2. payout pipeline ------------------------------------------------
@@ -197,7 +225,11 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60) -> dict:
         if release <= 0:
             continue
         remaining = {k: v for k, v in remaining.items() if k > cutoff}
-        payout_events[pd] = round(release * (1 - reserve) + held_reserve, 2)
+        # A delayed payout releases the same money, just later.
+        landing = pd + timedelta(days=max(0, sc.payout_delay_days))
+        if landing <= horizon_end:
+            payout_events[landing] = round(
+                payout_events.get(landing, 0.0) + release * (1 - reserve) + held_reserve, 2)
         held_reserve = release * reserve
 
     # --- 3/4/5. outflows ---------------------------------------------------
@@ -219,42 +251,117 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60) -> dict:
             next_date += timedelta(days=cadence)
 
     obligation_events: list[dict] = []
+    stock_arrivals: dict[date, float] = {}
     for o in ctx.profile.get("scheduled_obligations", []):
-        od = date.fromisoformat(o["due"])
-        if ctx.as_of < od <= horizon_end:
-            obligation_events.append({
-                "date": od,
-                "amount": float(o["amount"]),
-                "counterparty": o["counterparty"],
-                "category": o["category"],
-                "source": "scheduled_obligation",
-                "note": o.get("note", ""),
-            })
+        original_due = date.fromisoformat(o["due"])
+        od = original_due + timedelta(
+            days=max(0, sc.obligation_shifts.get(o["counterparty"], 0)))
+        amount = float(o["amount"])
+        parts = [(od, amount)]
+        if o["counterparty"] in sc.obligation_splits:
+            parts = [(od, amount / 2), (od + timedelta(days=30), amount / 2)]
+        # Goods arrive on the originally agreed date. Negotiating to *pay*
+        # later does not delay the delivery, so the stock is not shifted.
+        inv = float(o.get("inventory_value", 0.0) or 0.0)
+        if inv > 0 and ctx.as_of < original_due <= horizon_end:
+            stock_arrivals[original_due] = stock_arrivals.get(original_due, 0.0) + inv
+        for pdate, pamount in parts:
+            if ctx.as_of < pdate <= horizon_end:
+                obligation_events.append({
+                    "date": pdate,
+                    "amount": pamount,
+                    "counterparty": o["counterparty"],
+                    "category": o["category"],
+                    "source": "scheduled_obligation",
+                    "note": o.get("note", ""),
+                })
+
+    # --- scenario-only events -------------------------------------------------
+    scenario_outflows: list[dict] = []
+    scenario_inflows: dict[date, float] = {}
+    if sc.extra_monthly_cost > 0:
+        y, mth = ctx.as_of.year, ctx.as_of.month
+        while True:
+            mth += 1
+            if mth > 12:
+                mth, y = 1, y + 1
+            first = date(y, mth, 1)
+            if first > horizon_end:
+                break
+            scenario_outflows.append({
+                "date": first, "amount": float(sc.extra_monthly_cost),
+                "counterparty": "New monthly cost (what-if)", "category": "scenario",
+                "source": "scenario"})
+    for ev in sc.extra_events:
+        ed = ev["date"] if isinstance(ev["date"], date) else date.fromisoformat(ev["date"])
+        if not (ctx.as_of < ed <= horizon_end):
+            continue
+        if ev["amount"] >= 0:
+            scenario_inflows[ed] = scenario_inflows.get(ed, 0.0) + float(ev["amount"])
+        else:
+            scenario_outflows.append({
+                "date": ed, "amount": -float(ev["amount"]),
+                "counterparty": ev.get("counterparty", "What-if payment"),
+                "category": ev.get("category", "scenario"), "source": "scenario"})
 
     # --- daily walk --------------------------------------------------------
     balance = m["bank_balance"]
     buffer_level = m["safety_buffer"]
     series: list[dict] = []
     events_by_date: dict[date, list[dict]] = {}
-    for ev in recurring_events + obligation_events:
+    for ev in recurring_events + obligation_events + scenario_outflows:
         events_by_date.setdefault(ev["date"], []).append(ev)
 
+    rs = sc.revenue_share
+    rs_remaining = float(rs["total"]) if rs else 0.0
+    rs_start = (date.fromisoformat(rs["start"]) if rs and isinstance(rs["start"], str)
+                else (rs["start"] if rs else None))
+
+    stock_on_hand = 0.0
+    stock_used_total = 0.0
     for i in range(1, horizon_days + 1):
         d = ctx.as_of + timedelta(days=i)
         gross = projected_sales[d]
         inflow = payout_events.get(d, 0.0)
+        inflow_other = scenario_inflows.get(d, 0.0)
 
-        variable = gross * (var_rates["cogs"] + var_rates["shipping"] + var_rates["advertising"])
+        ads_rate = var_rates["advertising"]
+        if i <= sc.ads_cut_days:
+            ads_rate *= 1.0 - sc.ads_cut_pct
+
+        # Pre-bought stock covers per-order product cost until it is used up,
+        # so the same goods are not paid for twice.
+        stock_on_hand += stock_arrivals.get(d, 0.0)
+        cogs_cash = gross * var_rates["cogs"]
+        from_stock = min(stock_on_hand, cogs_cash)
+        stock_on_hand -= from_stock
+        stock_used_total += from_stock
+        cogs_cash -= from_stock
+
+        variable = cogs_cash + gross * (var_rates["shipping"] + ads_rate)
         chargebacks = gross * chargeback_rate
+
+        # Revenue-based finance is collected as a share of each day's sales.
+        if rs and rs_remaining > 0 and d > rs_start:
+            take = min(rs_remaining, gross * float(rs["share"]))
+            rs_remaining -= take
+            if take > 0:
+                events_by_date.setdefault(d, []).append({
+                    "date": d, "amount": take,
+                    "counterparty": rs.get("counterparty", "Revenue-share repayment"),
+                    "category": "financing_repayment", "source": "scenario"})
+
         fixed = sum(e["amount"] for e in events_by_date.get(d, []))
         outflow = variable + chargebacks + fixed
 
-        balance += inflow - outflow
+        balance += inflow + inflow_other - outflow
         series.append({
             "date": d.isoformat(),
             "projected_sales": round(gross, 2),
             "inflow_payout": round(inflow, 2),
+            "inflow_other": round(inflow_other, 2),
             "outflow_variable": round(variable + chargebacks, 2),
+            "cogs_covered_by_stock": round(from_stock, 2),
             "outflow_fixed": round(fixed, 2),
             "balance": round(balance, 2),
             "events": [
@@ -348,6 +455,8 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60) -> dict:
             "shortfall_to_buffer": shortfall_to_buffer,
             "suggested_bridge_amount": round(shortfall_to_buffer, 2),
             "suggested_bridge_days": bridge_days,
+            "stock_drawn_down": round(stock_used_total, 2),
+            "stock_remaining_at_horizon": round(stock_on_hand, 2),
             "primary_drivers": drivers,
         },
     }

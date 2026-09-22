@@ -21,6 +21,16 @@ from datetime import date
 
 from ..store import SellerContext
 from .financing import match_financing
+from .whatif import WhatIfError, simulate, verify_financing_options
+
+
+def _tested(ctx: SellerContext, params: dict, horizon: int) -> str | None:
+    """Run a what-if and return its one-line verdict, so an alert states a
+    simulated result rather than a claim."""
+    try:
+        return simulate(ctx, dict(params, horizon_days=horizon))["summary_lines"][0]
+    except WhatIfError:
+        return None
 
 SEVERITY_ORDER = {"critical": 0, "warning": 1, "info": 2}
 
@@ -120,10 +130,20 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                     f"{top['counterparty']} at {_fmt_eur(top['amount'])}"
                 ),
                 "detail": (
-                    f"This single obligation accounts for the majority of the "
-                    f"{_fmt_eur(gap)} gap. Moving its date, splitting it into two "
-                    f"instalments, or financing just this invoice would resolve most "
-                    f"of the problem without a general-purpose facility."
+                    f"This single obligation is the biggest cause of the "
+                    f"{_fmt_eur(gap)} gap."
+                    + (lambda t30, tsplit: (
+                        f" Tested: paying it 30 days later - {t30.lower()}"
+                        if t30 else "")
+                       + (f" Splitting it into two instalments - {tsplit.lower()}"
+                          if tsplit else ""))(
+                        _tested(ctx, {"delay_obligation": {"counterparty": top["counterparty"], "days": 30}},
+                                forecast["horizon_days"])
+                        if any(o["counterparty"] == top["counterparty"]
+                               for o in ctx.profile.get("scheduled_obligations", [])) else None,
+                        _tested(ctx, {"split_obligation": top["counterparty"]}, forecast["horizon_days"])
+                        if any(o["counterparty"] == top["counterparty"]
+                               for o in ctx.profile.get("scheduled_obligations", [])) else None)
                 ),
                 "amount_needed": round(top["amount"], 2),
                 "days_needed": duration,
@@ -221,21 +241,43 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 ctx, amount=gap, purpose="working_capital",
                 days_needed=duration, days_until_needed=lead_days,
             )
-            viable = [e for e in match["eligible"] if not e["too_slow"]]
-            for i, option in enumerate(viable[:2]):
+            in_time = [e for e in match["eligible"] if not e["too_slow"]]
+            # Every candidate is simulated end to end - arrival date and
+            # repayments included - before it is recommended. Cheap on paper is
+            # not enough: the repayments must not open a new hole later.
+            verified = verify_financing_options(ctx, in_time, gap, duration or 30)
+            solves = [v for v in verified if v["verdict"] in ("fixes", "avoids_negative")]
+            by_id = {e["id"]: e for e in in_time}
+            for i, v in enumerate(solves[:2]):
+                option = by_id[v["id"]]
                 mitigations.append({
                     "rank": 4 + i,
                     "type": "financing",
                     "action": f"Finance the gap: {option['name']}",
                     "detail": (
-                        f"{option['cost']['explanation']} "
-                        f"Arranges in about {option['speed_days']} day(s), which fits "
-                        f"the {lead_days}-day window."
+                        f"{option['cost']['explanation']} Arranges in about "
+                        f"{option['speed_days']} day(s). Simulated with its real "
+                        f"repayments: {v['verdict_text']}"
                     ),
-                    "cost": option["cost"]["cost_for_period"],
+                    "cost": v["cost"],
                     "product_id": option["id"],
+                    "verified_verdict": v["verdict"],
                 })
-            if not viable and match["eligible"]:
+            rejected = [v for v in verified if v["verdict"] not in ("fixes", "avoids_negative")]
+            if in_time and not solves:
+                mitigations.append({
+                    "rank": 4,
+                    "type": "financing",
+                    "action": "No in-time financing fully solves this",
+                    "detail": (
+                        "Every product that can arrive in time was simulated with its real "
+                        "repayments, and none keeps the balance out of the red. "
+                        + (f"Closest: {rejected[0]['name']} - {rejected[0]['verdict_text']}"
+                           if rejected else "")
+                    ),
+                    "cost": 0.0,
+                })
+            if not in_time and match["eligible"]:
                 mitigations.append({
                     "rank": 4,
                     "type": "financing",

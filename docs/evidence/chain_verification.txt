@@ -1,7 +1,7 @@
 Audit log hash-chain verification
 =================================
 
-Records:  61
+Records:  79
 Valid:    True
 Reason:   Chain intact.
 
@@ -16,10 +16,10 @@ Event counts
 ------------
   action_confirmation                3
   action_staged                      2
-  guardrail_indirect_injection       6
-  guardrail_input_injection          1
+  guardrail_indirect_injection       9
+  guardrail_input_injection          2
   guardrail_scope                    1
-  tool_call                          19
+  tool_call                          23
   tool_denied                        1
-  turn_end                           14
-  turn_start                         14
+  turn_end                           19
+  turn_start                         19

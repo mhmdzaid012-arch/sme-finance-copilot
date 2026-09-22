@@ -27,6 +27,7 @@ injection that fully controls the model still cannot approve an action.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 
 # --- injection patterns ----------------------------------------------------
@@ -57,8 +58,64 @@ INJECTION_PATTERNS: list[tuple[str, str, str]] = [
      "concealment", "Attempt to hide behaviour from the user."),
 ]
 
+# The same core attacks in the other languages this product is most likely to
+# meet: Chinese (the judges and much marketplace traffic), plus Arabic, German,
+# French and Spanish. English-only patterns were a real gap - a Chinese-language
+# injection scored zero detections before these were added.
+MULTILINGUAL_PATTERNS: list[tuple[str, str, str]] = [
+    # Chinese
+    (r"(忽略|无视|忘记|忘掉).{0,8}(指令|指示|提示|规则|说明)",
+     "instruction_override", "Instruction override (Chinese)."),
+    (r"系统(覆盖|指令|提示词?|消息|越权)", "system_impersonation", "System impersonation (Chinese)."),
+    (r"你现在是", "role_reassignment", "Role reassignment (Chinese)."),
+    (r"(预先?批准|已经?批准|已获批|批准.{0,12}(贷款|额度|信贷|借款|授信))",
+     "fabricated_approval", "Fabricated credit approval (Chinese)."),
+    (r"(无需|不需要|跳过|绕过).{0,6}(审核|检查|验证|审批|核查)",
+     "control_bypass", "Control bypass (Chinese)."),
+    (r"不要(告诉|通知)(用户|卖家|店主|客户)", "concealment", "Concealment (Chinese)."),
+    # Arabic
+    (r"تجاهل.{0,20}(التعليمات|الأوامر|الإرشادات)", "instruction_override",
+     "Instruction override (Arabic)."),
+    (r"(وافق|اعتمد|امنح).{0,25}(قرض|ائتمان|تمويل|حد)", "fabricated_approval",
+     "Fabricated credit approval (Arabic)."),
+    (r"(موافق عليه مسبق|موافقة مسبقة)", "fabricated_approval", "Fabricated pre-approval (Arabic)."),
+    (r"(بدون|دون).{0,8}(تحقق|فحص|مراجعة|تدقيق)", "control_bypass", "Control bypass (Arabic)."),
+    # German
+    (r"ignorier\w*\s+(alle\s+)?(vorherigen|bisherigen|obigen)\s+(anweisungen|instruktionen|befehle)",
+     "instruction_override", "Instruction override (German)."),
+    (r"genehmig\w*.{0,25}(kredit|darlehen|kreditlinie)", "fabricated_approval",
+     "Fabricated credit approval (German)."),
+    (r"ohne\s+(jede\s+|weitere\s+)?(prüfung|kontrolle|überprüfung)", "control_bypass",
+     "Control bypass (German)."),
+    # French
+    (r"ignore\w*\s+(toutes\s+)?(les\s+)?instructions\s+(précédentes|antérieures)",
+     "instruction_override", "Instruction override (French)."),
+    (r"approuve\w*.{0,25}(prêt|crédit)", "fabricated_approval", "Fabricated credit approval (French)."),
+    (r"sans\s+(aucune\s+)?(vérification|contrôle)", "control_bypass", "Control bypass (French)."),
+    # Spanish
+    (r"ignora\w*\s+(todas\s+)?(las\s+)?instrucciones\s+(anteriores|previas)",
+     "instruction_override", "Instruction override (Spanish)."),
+    (r"aprueb\w*.{0,25}(préstamo|crédito)", "fabricated_approval",
+     "Fabricated credit approval (Spanish)."),
+    (r"sin\s+(ninguna\s+)?(verificación|revisión|control)", "control_bypass",
+     "Control bypass (Spanish)."),
+]
+
 COMPILED = [(re.compile(p, re.IGNORECASE), kind, why)
-            for p, kind, why in INJECTION_PATTERNS]
+            for p, kind, why in INJECTION_PATTERNS + MULTILINGUAL_PATTERNS]
+
+_ZERO_WIDTH = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff"), None)
+_SPACED_LETTERS = re.compile(r"(?:\b\w[\s\-\.\*_·|/]){3,}\w\b")
+
+
+def normalise(text: str) -> str:
+    """
+    Undo the cheap disguises: full-width characters, zero-width characters, and
+    letters split apart ("I-g-n-o-r-e", "i g n o r e"). The normalised copy is
+    scanned in addition to the original, never shown to anyone.
+    """
+    t = unicodedata.normalize("NFKC", text or "").translate(_ZERO_WIDTH)
+    return _SPACED_LETTERS.sub(lambda m: re.sub(r"[\s\-\.\*_·|/]", "", m.group(0)), t)
 
 # --- scope -----------------------------------------------------------------
 # The copilot answers questions about this seller's finances. Anything else is
@@ -125,14 +182,19 @@ def scan_text(text: str, source: str = "user_input") -> list[Finding]:
     if not text:
         return []
     findings: list[Finding] = []
-    for rx, kind, why in COMPILED:
-        match = rx.search(text)
-        if match:
-            severity = "critical" if source != "user_input" else "warning"
-            findings.append(Finding(
-                kind=kind, pattern=rx.pattern, matched=match.group(0),
-                why=why, severity=severity,
-            ))
+    seen: set[str] = set()
+    severity = "critical" if source != "user_input" else "warning"
+    for candidate in (text, normalise(text)):
+        for rx, kind, why in COMPILED:
+            if rx.pattern in seen:
+                continue
+            match = rx.search(candidate)
+            if match:
+                seen.add(rx.pattern)
+                findings.append(Finding(
+                    kind=kind, pattern=rx.pattern, matched=match.group(0),
+                    why=why, severity=severity,
+                ))
     return findings
 
 
@@ -168,6 +230,10 @@ def wrap_untrusted(label: str, content: str) -> tuple[str, list[Finding]]:
     cleaned = content or ""
     for rx, _kind, _why in COMPILED:
         cleaned = rx.sub("[REDACTED: instruction-like text removed]", cleaned)
+    # A disguised attack is only visible after normalisation, so it cannot be
+    # cut out of the original precisely - withhold the whole field instead.
+    if findings and cleaned == (content or ""):
+        cleaned = "[REDACTED: disguised instruction-like text removed]"
 
     fenced = (
         f"<untrusted_data source=\"{label}\">\n"
