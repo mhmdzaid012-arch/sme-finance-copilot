@@ -14,7 +14,9 @@ const path = require("path");
 const pptxgen = require("pptxgenjs");
 
 const FACTS_FILE = path.join(__dirname, "..", "docs", "evidence", "facts.json");
+const MARKET_FILE = path.join(__dirname, "..", "data", "market.json");
 const F = JSON.parse(fs.readFileSync(FACTS_FILE, "utf8"));
+const MK = JSON.parse(fs.readFileSync(MARKET_FILE, "utf8"));
 const H = F.hero;
 const L = F.lina;
 const A = F.accuracy;
@@ -28,6 +30,24 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
   "August", "September", "October", "November", "December"];
 const day = (iso) => { const [, m, d] = iso.split("-").map(Number); return `${d} ${MONTHS[m - 1]}`; };
 const stress = (key) => A.stress.results.find((r) => r.key === key);
+
+// ---- market figures: read from data/market.json, never typed by hand ---------
+const mk = (key) => {
+  const e = MK.measured[key] || MK.derived[key];
+  if (!e) throw new Error(`market.json has no figure '${key}'`);
+  return e.value;
+};
+const mkPct = (key) => mk(key) + "%";
+const compact = (n) => {
+  if (n >= 1e12) return (n / 1e12).toFixed(1).replace(/\.0$/, "") + " trillion";
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "m";
+  if (n >= 1e3) return (n / 1e3).toFixed(0) + "k";
+  return String(n);
+};
+const mkSource = (key) => {
+  const e = MK.measured[key] || MK.derived[key];
+  return e.source ? MK.sources[e.source].publisher : "derived in data/market.json";
+};
 
 // ---- palette & type ---------------------------------------------------------
 const INK = "16323A", TEAL = "028090", SEA = "00A896", MINT = "02C39A";
@@ -104,10 +124,11 @@ const VERDICT_LABEL = { fixes: "fixes it", avoids_negative: "stays out of the re
 {
   const s = darkSlide();
   text(s, "SME Finance Copilot", { x: M, y: 2.25, w: 9.4, h: 1.0, fontFace: HEAD, fontSize: 46, bold: true, color: WHITE });
-  text(s, "An AI finance copilot for e-commerce micro-sellers", { x: M, y: 3.28, w: 9.6, h: 0.5, fontSize: 19, color: MINT });
+  text(s, "An AI finance copilot for small businesses whose money arrives late", { x: M, y: 3.28, w: 9.6, h: 0.5, fontSize: 19, color: MINT });
+  text(s, "Starting with e-commerce micro-sellers, where the problem is sharpest", { x: M, y: 3.68, w: 9.6, h: 0.3, fontSize: 12, color: "8FB3B8" });
   text(s, "Small online shops miss supplier payments while their money sits in a marketplace " +
     "payout queue. This finds the gap, tests the real options, and cannot act without you.",
-    { x: M, y: 3.95, w: 8.6, h: 1.0, fontSize: 13.5, color: "BFD4D6", lineSpacing: 20 });
+    { x: M, y: 4.12, w: 8.6, h: 1.0, fontSize: 13.5, color: "BFD4D6", lineSpacing: 20 });
   text(s, "Fintechathon 2026  ·  International Track  ·  Topic E", { x: M, y: 6.2, w: 8, h: 0.35, fontSize: 12, bold: true, color: SEA, charSpacing: 1.2 });
   text(s, "Theme: AI as a Financial Participant  ·  All data simulated", { x: M, y: 6.56, w: 8, h: 0.35, fontSize: 11, color: MUTED });
   s.addShape(pres.ShapeType.ellipse, { x: 10.15, y: 2.05, w: 2.5, h: 2.5, fill: { color: TEAL, transparency: 55 }, line: { color: TEAL, width: 0 } });
@@ -146,26 +167,76 @@ const VERDICT_LABEL = { fixes: "fixes it", avoids_negative: "stays out of the re
     "repayment, which is a cash outflow but not an accounting expense - so it is not called profit.");
 }
 
-/* 3. Why this niche -------------------------------------------------------- */
+/* 3. Why SMEs, and why we start here --------------------------------------- */
 {
-  const s = lightSlide("Why e-commerce micro-sellers", "Focus");
+  const s = lightSlide("Why small businesses, and why we start with online sellers", "Focus");
+  text(s, `${mkPct("eu_sme_share_of_enterprises")} of EU enterprises are SMEs, ${mkPct("eu_micro_share_of_smes")} of them micro. ` +
+    `They carry ${mkPct("eu_sme_employment_share")} of employment and ${mkPct("eu_sme_value_added_share")} of value added, ` +
+    "and almost none of them has a finance function.",
+  { x: M, y: 1.68, w: 11.5, h: 0.6, fontSize: 13.5, color: MUTED, lineSpacing: 18 });
   const rows = [
-    ["1", "The pain is structural, not occasional", "Every marketplace holds funds. The squeeze comes back at every seasonal stock purchase, for every seller, by design."],
-    ["2", "Underbanked by traditional lenders", "Short trading history and no collateral. The fast money they're offered is often a merchant cash advance with a very high effective rate."],
-    ["3", "Their data is transaction-shaped", "Orders, fees, refunds, payouts. That makes realistic modelling possible, and so an honest demo."],
+    ["1", "The gap is advice, not just credit",
+      "A company with a CFO knows the squeeze is coming and arranges for it in advance. A micro-business finds out when a payment bounces. That asymmetry is what an AI participant can actually close."],
+    ["2", "Online sellers are the sharpest version of it",
+      "Every marketplace holds funds by design, so the squeeze returns at every stock purchase. And the data is transaction-shaped - orders, fees, refunds, payouts - which makes honest modelling possible today, not after a data partnership."],
+    ["3", "The engine is not about e-commerce",
+      "A payout queue, card settlement and 60-day invoice terms are one mechanic to the forecaster: money earned and not yet received. A clinic waiting on insurers or a contractor on payment terms runs through the same two-ledger model."],
   ];
-  let y = 1.95;
+  let y = 2.42;
   rows.forEach(([n, t, d]) => {
-    card(s, { x: M, y, w: W - 2 * M, h: 1.28 });
-    iconCircle(s, M + 0.4, y + 0.38, n, TEAL);
-    text(s, t, { x: M + 1.15, y: y + 0.22, w: 10.6, h: 0.38, fontFace: HEAD, fontSize: 17, bold: true });
-    text(s, d, { x: M + 1.15, y: y + 0.63, w: 10.6, h: 0.5, color: MUTED, lineSpacing: 17 });
-    y += 1.5;
+    card(s, { x: M, y, w: W - 2 * M, h: 1.3 });
+    iconCircle(s, M + 0.4, y + 0.39, n, TEAL);
+    text(s, t, { x: M + 1.15, y: y + 0.2, w: 10.6, h: 0.38, fontFace: HEAD, fontSize: 17, bold: true });
+    text(s, d, { x: M + 1.15, y: y + 0.6, w: 10.6, h: 0.62, fontSize: 12, color: MUTED, lineSpacing: 16 });
+    y += 1.46;
   });
-  text(s, "Positioning: an independent advisor on the seller's side, not a lender selling its own product.",
-    { x: M, y: 6.5, w: W - 2 * M, h: 0.4, fontSize: 12.5, italic: true, color: TEAL });
-  s.addNotes("The concept is not new - lenders like Wayflyer or Shopify Capital serve this market. " +
-    "They sell their own product. We compare everyone, recommend free options first, and test every option by simulation.");
+  text(s, `Source: ${mkSource("eu_smes")}, ${MK.sources[MK.measured.eu_smes.source].name}.`,
+    { x: M, y: 6.82, w: W - 2 * M, h: 0.3, fontSize: 9.5, color: MUTED });
+  s.addNotes("Answer to 'why SMEs': the credit gap is well known, the advice gap is not, and the advice gap is the one " +
+    "an AI can close at near-zero marginal cost. Online sellers are a wedge, not the market.");
+}
+
+/* 3b. Market ---------------------------------------------------------------- */
+{
+  const s = lightSlide("A wedge inside a very large gap", "Market");
+  text(s, "We are deliberately narrow at the start and deliberately explicit about where it goes.",
+    { x: M, y: 1.68, w: 11.5, h: 0.4, fontSize: 13.5, color: MUTED });
+
+  const rings = [
+    ["Start here", `${compact(mk("beachhead_sellers"))} EU micro-enterprises selling online`,
+      "One clear pain, one data shape, and a product that works on day one. Estimated from the EU micro-enterprise count and the online-sales rate Eurostat measures for the size class above.", "E8F8F3"],
+    ["Same engine", `${compact(mk("adjacent_smes"))} EU micro-enterprises paid on a delay`,
+      "Card settlement, invoice terms, platform payouts. Reaching them is a data-source problem, not a new forecaster.", "E6F4F4"],
+    ["Same problem, bigger", `USD ${compact(mk("msme_finance_gap_usd"))} unmet MSME financing need`,
+      "Across 119 emerging and developing economies, where micro-businesses are the majority of employment and the least served.", SAND],
+  ];
+  let x = M;
+  rings.forEach(([kicker, headline, body, fill]) => {
+    card(s, { x, y: 2.25, w: 3.86, h: 2.75, fill });
+    text(s, kicker.toUpperCase(), { x: x + 0.3, y: 2.45, w: 3.3, h: 0.25, fontSize: 9.5, bold: true, color: TEAL, charSpacing: 1.3 });
+    text(s, headline, { x: x + 0.3, y: 2.75, w: 3.3, h: 0.95, fontFace: HEAD, fontSize: 19, bold: true, lineSpacing: 24 });
+    text(s, body, { x: x + 0.3, y: 3.78, w: 3.3, h: 1.1, fontSize: 11, color: MUTED, lineSpacing: 15 });
+    x += 4.04;
+  });
+
+  card(s, { x: M, y: 5.2, w: 6.2, h: 1.42, fill: "FDF5E6" });
+  text(s, "How it makes money", { x: M + 0.32, y: 5.36, w: 5.5, h: 0.3, fontSize: 11, bold: true, color: WARN });
+  text(s, [
+    { text: "The distributor pays, not the lender. ", options: { bold: true } },
+    { text: `A bank, marketplace or accounting platform offers it to its businesses. At EUR ${mk("price_per_seller_month_eur")} per business per month, ` +
+        `${mkPct("som_capture_pct")} of the starting segment is about EUR ${compact(mk("som_annual_revenue_eur"))} a year. Those two numbers are assumptions, and they are labelled as assumptions in the file they come from.` },
+  ], { x: M + 0.32, y: 5.66, w: 5.55, h: 0.9, fontSize: 11, lineSpacing: 15 });
+
+  card(s, { x: 7.1, y: 5.2, w: 5.5, h: 1.42, fill: "FDECEA" });
+  text(s, "What we refuse to charge for", { x: 7.42, y: 5.36, w: 5.0, h: 0.3, fontSize: 11, bold: true, color: CRIT });
+  text(s, "No referral fee from lenders. The moment placement can be bought, the ranking is for sale and the advice is worth nothing. It is also the only way a tool can honestly say: don't borrow, ask for an early payout instead.",
+    { x: 7.42, y: 5.66, w: 4.9, h: 0.9, fontSize: 11, color: "6B1B14", lineSpacing: 15 });
+
+  text(s, `Sources: ${MK.sources.ec_sme_report_2025_2026.publisher}, ${MK.sources.eurostat_ecommerce_2023.publisher}, ${MK.sources.worldbank_sme_finance.publisher}. Every figure, measured or derived, is listed with its method in data/market.json.`,
+    { x: M, y: 6.75, w: W - 2 * M, h: 0.35, fontSize: 9.5, color: MUTED });
+  s.addNotes("If asked which numbers are real: the enterprise counts and the financing gap are published by the European Commission, " +
+    "Eurostat and the World Bank. The beachhead is an estimate because Eurostat does not survey businesses under ten people, and the " +
+    "price point is an assumption. All three are labelled as such in the repository.");
 }
 
 /* 4. Two ledgers --------------------------------------------------------- */
@@ -401,6 +472,45 @@ const VERDICT_LABEL = { fixes: "fixes it", avoids_negative: "stays out of the re
     { x: 9.15, y: 5.65, w: 3.2, h: 0.9, fontSize: 10.5, color: "6B5200", lineSpacing: 14 });
   text(s, `${F.counts.tests} tests  ·  ${F.counts.transactions.toLocaleString("en-US")} simulated transactions  ·  stress test reproducible from the repository`,
     { x: M, y: 6.3, w: 7.9, h: 0.35, fontSize: 11.5, bold: true, color: TEAL });
+}
+
+/* 12b. Relevance to an inclusive-finance institution ------------------------- */
+{
+  const s = lightSlide("Who deploys this, and why they would", "Relevance");
+  text(s, "A micro-business will not buy a finance tool. It will use the one inside the bank or marketplace it already has. " +
+    "So the question that matters is what an institution gains by putting this in front of its businesses.",
+  { x: M, y: 1.68, w: 11.5, h: 0.6, fontSize: 13.5, color: MUTED, lineSpacing: 18 });
+
+  card(s, { x: M, y: 2.4, w: 4.35, h: 3.5, fill: "E6F4F4" });
+  text(s, "THE SCALE IS ALREADY THERE", { x: M + 0.3, y: 2.6, w: 3.8, h: 0.25, fontSize: 9.5, bold: true, color: TEAL, charSpacing: 1.3 });
+  stat(s, { x: M + 0.3, y: 2.95, w: 3.75, size: 32, value: compact(mk("webank_micro_enterprises")), label: "small and micro enterprises served by WeBank, end of 2025" });
+  stat(s, { x: M + 0.3, y: 4.25, w: 3.75, size: 32, value: compact(mk("webank_individual_customers")), label: "individual customers, same date" });
+  text(s, [
+    { text: "WeBank's own stated aim: ", options: { bold: true } },
+    { text: `"${MK.quotes.webank_mission.text}"`, options: { italic: true } },
+  ], { x: M + 0.3, y: 5.3, w: 3.75, h: 0.55, fontSize: 9.5, color: MUTED, lineSpacing: 12 });
+
+  const gains = [
+    ["Fewer bad loans", "The copilot puts the free options first and simulates repayments before recommending any product. A business that should not borrow is told so, in its own numbers."],
+    ["Advisory at the cost of a tool call", "Giving a micro-business a relationship manager does not scale. Giving it a forecast, an explained rejection and a simulator does."],
+    ["An AI a supervisor can inspect", "Permission tiers, human-only confirmation, and a hash-chained record of every decision. That is what makes an AI participant deployable rather than interesting."],
+  ];
+  let gy = 2.4;
+  gains.forEach(([t, d], i) => {
+    card(s, { x: 5.55, y: gy, w: 7.05, h: 1.1 });
+    iconCircle(s, 5.85, gy + 0.29, String(i + 1), SEA);
+    text(s, t, { x: 6.55, y: gy + 0.16, w: 5.8, h: 0.34, fontFace: HEAD, fontSize: 16, bold: true });
+    text(s, d, { x: 6.55, y: gy + 0.52, w: 5.85, h: 0.5, fontSize: 11, color: MUTED, lineSpacing: 14 });
+    gy += 1.2;
+  });
+
+  card(s, { x: M, y: 6.05, w: W - 2 * M, h: 0.95, fill: "E8F8F3" });
+  text(s, [
+    { text: "The mechanic travels: ", options: { bold: true } },
+    { text: "a payout hold is a payout hold in Shenzhen, Jakarta or Berlin. What changes between markets is the product catalog and the currency, and both are data files, not code." },
+  ], { x: M + 0.35, y: 6.24, w: 11.4, h: 0.6, fontSize: 12.5, lineSpacing: 17 });
+  s.addNotes("WeBank figures are WeBank's own, from its March 2026 release, and are in data/market.json with the link. " +
+    "The point is distribution: we are an advisory layer an institution can deploy, not a lender competing with one.");
 }
 
 /* 13. Scoring --------------------------------------------------------------- */

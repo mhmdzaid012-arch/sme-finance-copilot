@@ -250,7 +250,7 @@ recommended after simulation.
 ### R11 - LLM mode not exercised against the live API
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 195 tests and the whole evidence pack run in offline mode, because no API key is
+All 200 tests and the whole evidence pack run in offline mode, because no API key is
 available in this sandbox. The LLM path is implemented and falls back to offline mode
 on any API failure, but its phrasing and tool choices haven't been observed live.
 *Mitigation before relying on it:* run the evidence scenarios with a key and review the

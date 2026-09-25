@@ -1,8 +1,14 @@
 # SME Finance Copilot
 
-An AI finance copilot for **e-commerce micro-sellers**, the small online shops that
-make money every month and still can't make a supplier payment, because their cash is
-sitting in a marketplace payout queue.
+An AI finance copilot for **small businesses whose money arrives late** - the ones that
+make money every month and still can't make a supplier payment, because their cash has
+been earned and not yet received.
+
+It starts with **e-commerce micro-sellers**, where that gap is sharpest and the data is
+transaction-shaped, but the engine models a general mechanic: a marketplace payout queue,
+card settlement and 60-day invoice terms are the same thing to the forecaster. Market
+sizing, with every figure's source and every assumption labelled, is in
+[`data/market.json`](data/market.json).
 
 Built for the WeBank Fintechathon International Track, Topic E (SME Finance Copilot).
 Theme: *AI as a Financial Participant*.
@@ -30,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 195 tests
+pytest -q                              # 200 tests
 ```
 
 ---
@@ -201,7 +207,7 @@ scripts/
   stress_test.py         accuracy when assumptions are broken
   build_deck.js          pitch deck, built from facts.json
 static/index.html    single-file UI, no external dependencies
-tests/               195 tests
+tests/               200 tests
 ```
 
 ## API

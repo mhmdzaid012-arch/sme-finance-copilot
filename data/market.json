@@ -1,0 +1,132 @@
+{
+  "_comment": "Single source of truth for every market claim. Same discipline as docs/evidence/facts.json: nothing in the deck or the documents may state a market figure that is not in this file. Each entry is either measured (published by a named institution) or derived (computed here from measured entries, with the method written out).",
+  "compiled_on": "2026-09-25",
+  "sources": {
+    "ec_sme_report_2025_2026": {
+      "name": "Annual Report on European SMEs 2025/2026, SME Performance Review",
+      "publisher": "European Commission",
+      "url": "https://single-market-economy.ec.europa.eu/document/download/f4c44ab6-ff6a-4999-b1a6-d9360fdb9078_en?filename=Annual+Report+on+European+SMEs+2025-2026.pdf",
+      "reference_year": 2025,
+      "note": "Coverage was expanded this edition, raising the SME count from about 26 million to about 34 million. Not comparable with earlier editions."
+    },
+    "worldbank_sme_finance": {
+      "name": "SME Finance topic page",
+      "publisher": "World Bank Group",
+      "url": "https://www.worldbank.org/en/topic/smefinance",
+      "reference_year": 2026
+    },
+    "eurostat_ecommerce_2023": {
+      "name": "EU enterprises' online sales reach new heights in 2023",
+      "publisher": "Eurostat",
+      "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20250227-2",
+      "reference_year": 2023,
+      "note": "The survey covers enterprises with 10 or more employees. Micro-enterprises (0-9) are not measured."
+    },
+    "ec_late_payment": {
+      "name": "Late payment, Internal Market, Industry, Entrepreneurship and SMEs",
+      "publisher": "European Commission",
+      "url": "https://single-market-economy.ec.europa.eu/smes/challenges-and-resilience/late-payment_en",
+      "reference_year": 2026
+    },
+    "webank_2026_release": {
+      "name": "WeBank Wins Four Awards from The Asian Banker",
+      "publisher": "WeBank, via PR Newswire",
+      "url": "https://www.prnewswire.com/apac/news-releases/webank-wins-four-awards-from-the-asian-banker-gaining-international-recognition-for-its-digital-inclusive-finance-practices-302714473.html",
+      "reference_year": 2025,
+      "note": "Figures are as of the end of 2025, stated by WeBank."
+    }
+  },
+  "measured": {
+    "eu_smes": {
+      "value": 34000000, "unit": "enterprises", "source": "ec_sme_report_2025_2026",
+      "label": "SMEs in the EU-27"
+    },
+    "eu_micro_enterprises": {
+      "value": 32200000, "unit": "enterprises", "source": "ec_sme_report_2025_2026",
+      "label": "of them micro (0-9 people)"
+    },
+    "eu_micro_share_of_smes": {
+      "value": 94.5, "unit": "percent", "source": "ec_sme_report_2025_2026",
+      "label": "share of EU SMEs that are micro"
+    },
+    "eu_sme_share_of_enterprises": {
+      "value": 99.8, "unit": "percent", "source": "ec_sme_report_2025_2026",
+      "label": "share of all EU enterprises that are SMEs"
+    },
+    "eu_sme_employment_share": {
+      "value": 63.7, "unit": "percent", "source": "ec_sme_report_2025_2026",
+      "label": "share of EU employment"
+    },
+    "eu_sme_value_added_share": {
+      "value": 51.7, "unit": "percent", "source": "ec_sme_report_2025_2026",
+      "label": "share of EU value added"
+    },
+    "msme_finance_gap_usd": {
+      "value": 5700000000000, "unit": "USD", "source": "worldbank_sme_finance",
+      "label": "unmet MSME financing need across 119 emerging and developing economies"
+    },
+    "eu_enterprises_selling_online_pct": {
+      "value": 23.8, "unit": "percent", "source": "eurostat_ecommerce_2023",
+      "label": "EU enterprises making e-commerce sales"
+    },
+    "eu_small_enterprises_selling_online_pct": {
+      "value": 21.9, "unit": "percent", "source": "eurostat_ecommerce_2023",
+      "label": "small enterprises (10-49) making e-commerce sales"
+    },
+    "webank_individual_customers": {
+      "value": 430000000, "unit": "customers", "source": "webank_2026_release",
+      "label": "individual customers served by WeBank"
+    },
+    "webank_micro_enterprises": {
+      "value": 7000000, "unit": "enterprises", "source": "webank_2026_release",
+      "label": "small and micro enterprises served by WeBank"
+    }
+  },
+  "quotes": {
+    "ec_late_payment": {
+      "text": "Each year across Europe thousands of small and medium-sized enterprises (SMEs) go bankrupt waiting for their invoices to be paid.",
+      "source": "ec_late_payment"
+    },
+    "webank_mission": {
+      "text": "strives to provide more convenient financial services to micro-, small- and medium-sized enterprises (MSMEs) and the general public",
+      "source": "webank_2026_release"
+    }
+  },
+  "derived": {
+    "beachhead_sellers": {
+      "value": 7000000, "unit": "enterprises",
+      "label": "EU micro-enterprises selling online",
+      "method": "32.2m EU micro-enterprises x the 21.9% online-sales rate Eurostat measures for small enterprises, rounded down to one significant figure.",
+      "caveat": "An estimate, not a measurement: Eurostat does not survey enterprises under 10 employees, so the rate is borrowed from the size class above."
+    },
+    "adjacent_smes": {
+      "value": 32200000, "unit": "enterprises",
+      "label": "EU micro-enterprises paid on a delay of some kind",
+      "method": "All EU micro-enterprises. A marketplace payout queue, card settlement and invoice terms are the same mechanic to the forecaster: money earned and not yet received.",
+      "caveat": "Upper bound for the adjacent market. Not every micro-enterprise has a material timing gap."
+    },
+    "price_per_seller_month_eur": {
+      "value": 8, "unit": "EUR",
+      "label": "assumed price per business per month, paid by the distributor",
+      "method": "Illustrative B2B2C price point: what a bank, marketplace or accounting platform pays to offer this to one business.",
+      "caveat": "Assumption. No customer has been charged anything."
+    },
+    "som_capture_pct": {
+      "value": 1, "unit": "percent",
+      "label": "share of the beachhead assumed reachable",
+      "method": "Deliberately conservative: one business in a hundred inside the beachhead.",
+      "caveat": "Assumption."
+    },
+    "som_annual_revenue_eur": {
+      "value": 6720000, "unit": "EUR",
+      "label": "annual revenue at 1% of the beachhead",
+      "method": "7,000,000 x 1% x EUR 8 x 12 months.",
+      "caveat": "Follows from the two assumptions above. Shown as arithmetic, not as a forecast."
+    }
+  },
+  "business_model": {
+    "we_charge": "The distributor that benefits from a better-informed business: a bank, a marketplace, or an accounting platform, per business served per month.",
+    "we_refuse": "Referral or commission from lenders. The moment a lender pays for placement, the ranking is for sale and the advice is worthless.",
+    "why_it_holds": "Our incentive is that the business makes a good decision, including the decision not to borrow. A lender-funded model cannot say 'ask for an early payout instead'."
+  }
+}

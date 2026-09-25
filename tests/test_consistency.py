@@ -161,6 +161,56 @@ def test_accuracy_is_never_described_as_real_world_without_the_stress_result():
             assert "stress" in text.lower(), f"{doc} quotes accuracy without the stress test"
 
 
+# ---------------------------------------------------------------------------
+# Market claims are held to the same standard as product claims
+# ---------------------------------------------------------------------------
+
+MARKET_PATH = config.ROOT / "data" / "market.json"
+
+
+@pytest.fixture(scope="module")
+def market() -> dict:
+    return json.loads(MARKET_PATH.read_text(encoding="utf-8"))
+
+
+def test_every_measured_market_figure_names_a_real_source(market):
+    for key, entry in market["measured"].items():
+        src = market["sources"].get(entry.get("source"))
+        assert src, f"{key} cites no source"
+        assert src["url"].startswith("https://"), f"{key} source has no link"
+        assert src["publisher"] and src["reference_year"], key
+
+
+def test_every_derived_market_figure_shows_its_method_and_its_caveat(market):
+    """A number we computed ourselves may never look like a published one."""
+    for key, entry in market["derived"].items():
+        assert entry.get("method"), f"{key} does not say how it was computed"
+        assert entry.get("caveat"), f"{key} does not say what it assumes"
+        assert "source" not in entry, f"{key} is derived but claims a source"
+
+
+def test_the_revenue_arithmetic_on_the_market_slide_is_correct(market):
+    d = market["derived"]
+    expected = (d["beachhead_sellers"]["value"] * d["som_capture_pct"]["value"] / 100
+                * d["price_per_seller_month_eur"]["value"] * 12)
+    assert d["som_annual_revenue_eur"]["value"] == pytest.approx(expected)
+
+
+def test_the_beachhead_estimate_does_not_exceed_what_it_is_derived_from(market):
+    m, d = market["measured"], market["derived"]
+    ceiling = m["eu_micro_enterprises"]["value"] * m["eu_small_enterprises_selling_online_pct"]["value"] / 100
+    assert d["beachhead_sellers"]["value"] <= ceiling
+    assert d["adjacent_smes"]["value"] <= m["eu_smes"]["value"]
+
+
+def test_the_deck_takes_every_market_figure_from_the_market_file():
+    """No market number may be typed into the deck by hand either."""
+    src = DECK_SCRIPT.read_text(encoding="utf-8")
+    assert "market.json" in src
+    typed = re.findall(r'["\'`][^"\'`\n]*\b\d[\d.,]*\s?(?:million|billion|trillion|m EU|%\s)', src)
+    assert not typed, f"hand-typed market figures in the deck: {typed[:5]}"
+
+
 def test_lina_is_never_promised_a_grant_for_working_capital(stored_facts):
     """Grants are excluded for working capital; no document may say otherwise."""
     grants = set(stored_facts["lina"]["excluded_wrong_purpose"])
