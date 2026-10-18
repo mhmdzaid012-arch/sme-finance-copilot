@@ -135,6 +135,8 @@ from app.security.guardrails import check_output  # noqa: E402
 @pytest.mark.parametrize("text", [
     "Approval is not guaranteed.", "Approval isn't guaranteed.",
     "Approval cannot be guaranteed.", "The loan must be personally guaranteed.",
+    "A lender decides on this. Nothing here is approved or guaranteed.",
+    "A lender makes the decision, and nothing is guaranteed.",
 ])
 def test_honest_disclaimers_are_not_blocked(text):
     # The live LLM run had a correct reply withheld for exactly this wording.

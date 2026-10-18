@@ -256,7 +256,7 @@ recommended after simulation.
 ### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 230 tests and the evidence pack run in offline mode so that they need no key and
+All 232 tests and the evidence pack run in offline mode so that they need no key and
 always give the same answer. LLM mode was run against the live API on 18 October 2026
 (`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
 scenarios, all answered in LLM mode with no fallback; both injection attempts were
@@ -266,7 +266,10 @@ executed nothing. That run found one real defect: the output guardrail withheld 
 correct reply because it said approval "is not guaranteed". The rule now lets a
 negated claim through and still blocks the claim itself, with tests for both.
 *Residual:* model behaviour can drift between runs and model versions. Re-run the
-script before every demo and review the transcript.
+script before every demo and review the transcript. The negation rule also opens a
+narrow gap: a claim preceded by a negation word within 30 characters passes, so an
+odd sentence like "not only is it guaranteed" would not be caught. The system prompt
+forbids such claims, and no wording can make anything execute without the human.
 
 ### R12 - Growth estimate double-counts seasonality
 **Likelihood** certain for some start dates · **Impact** medium · **Residual** medium

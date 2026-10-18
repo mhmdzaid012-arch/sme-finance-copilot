@@ -251,7 +251,7 @@ def wrap_untrusted(label: str, content: str) -> tuple[str, list[Finding]]:
 # live LLM run on 18 Oct 2026 had a correct reply withheld for saying exactly that.
 _NEGATION_WINDOW = re.compile(
     r"(?:\bnot\b|n't\b|\bnever\b|\bno\b|\bcannot\b|\bnothing\b|\bpersonally\b|\bpersonal\b)"
-    r"[^.!?,;:\n]{0,15}$", re.IGNORECASE)
+    r"[^.!?,;:\n]{0,30}$", re.IGNORECASE)
 
 
 def _is_negated_or_collateral(text: str, start: int) -> bool:

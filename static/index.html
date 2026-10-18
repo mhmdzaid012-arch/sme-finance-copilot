@@ -239,6 +239,18 @@ function esc(s) {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Minimal formatting for model replies: escape FIRST, then allow only bold,
+// headings and list lines. No links, no HTML from the model ever reaches the page.
+function fmt(p) {
+  return esc(p).split('\n').map(line => {
+    let l = line.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    if (/^#{1,4}\s+/.test(l)) return '<b>' + l.replace(/^#{1,4}\s+/, '') + '</b>';
+    if (/^\s*[-*]\s+/.test(l)) return '&bull;&nbsp;' + l.replace(/^\s*[-*]\s+/, '');
+    if (/^&gt;\s?/.test(l)) return l.replace(/^&gt;\s?/, '');
+    return l;
+  }).join('<br>');
+}
+
 async function api(path, opts) {
   const r = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
@@ -338,7 +350,7 @@ async function send(text) {
       method: 'POST', body: JSON.stringify({ session_id: state.sessionId, message: msg }),
     });
     const body = pending.querySelector('.bubble');
-    body.innerHTML = r.reply.split('\n\n').map(p => `<p>${esc(p)}</p>`).join('');
+    body.innerHTML = r.reply.split('\n\n').map(p => `<p>${fmt(p)}</p>`).join('');
     if (r.guardrail && r.guardrail.blocked) {
       body.innerHTML += `<div class="alert critical" style="margin-top:10px">
         <div class="h">Guardrail triggered: ${esc(r.guardrail.reason)}</div>
