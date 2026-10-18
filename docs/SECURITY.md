@@ -262,6 +262,19 @@ on any API failure, but its phrasing and tool choices haven't been observed live
 *Mitigation before relying on it:* run the evidence scenarios with a key and review the
 transcripts.
 
+### R12 - Growth estimate double-counts seasonality
+**Likelihood** certain for some start dates · **Impact** medium · **Residual** medium
+
+Found in our own October review. The growth rate is measured on raw sales, which
+already contain the seasonal step, and the seasonal factor is then applied again.
+For a forecast that starts in November this over-projects sales by roughly 30% at
+day 60; for a January start it errs the other way. The hero scenario starts in
+September, where the effect is small, but the error is real.
+*Controls:* growth is clamped, and every forecast publishes its growth assumption.
+*Fix:* de-seasonalise the history before measuring growth. Deferred until after
+submission because it moves every published figure, and we chose to disclose it
+rather than change the numbers two days before the deadline.
+
 ---
 
 ## 7. Summary
