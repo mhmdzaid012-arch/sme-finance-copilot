@@ -180,23 +180,47 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
     mitigations: list[dict] = []
     if gap > 0:
         # 1. Free levers first.
+        # Bringing a payout forward only helps if it would otherwise land AFTER
+        # the balance first dips below the buffer. A payout that already lands
+        # before the dip is counted in the forecast, so asking for it earlier
+        # changes nothing - offering it would be advice that cannot work.
+        first_dip = f["first_below_buffer_date"]
         next_payout = next(
-            (p for p in forecast["payout_events"]
-             if lead_days is None or p["date"] >= forecast["as_of"]),
+            (p for p in forecast["payout_events"] if first_dip and p["date"] > first_dip),
             None,
         )
         if next_payout:
+            buffer = forecast["safety_buffer"]
+            before = [d for d in forecast["series"]
+                      if first_dip <= d["date"] < next_payout["date"]]
+            early_deficit = max((buffer - d["balance"] for d in before), default=0.0)
+            still_short_after = any(d["balance"] < buffer for d in forecast["series"]
+                                    if d["date"] >= next_payout["date"])
+            if next_payout["amount"] >= early_deficit:
+                effect = (f"Received before {first_dip}, it covers the dip below your "
+                          f"buffer until {next_payout['date']}")
+            else:
+                effect = (f"Received before {first_dip}, it covers "
+                          f"{_fmt_eur(next_payout['amount'])} of the "
+                          f"{_fmt_eur(early_deficit)} you are short before {next_payout['date']}")
+            effect += (", but it does not close the later gap on its own, because that "
+                       "payout is already counted in this forecast."
+                       if still_short_after else ".")
             mitigations.append({
                 "rank": 1,
                 "type": "free",
                 "action": "Request an early or expedited payout",
                 "detail": (
-                    f"Your next scheduled payout is {_fmt_eur(next_payout['amount'])} on "
-                    f"{next_payout['date']}. Most marketplaces will bring a payout "
-                    f"forward on request, sometimes for a small flat fee. This is the "
-                    f"cheapest option because it is your own money."
+                    f"Your next payout after the squeeze starts is "
+                    f"{_fmt_eur(next_payout['amount'])} on {next_payout['date']}. Most "
+                    f"marketplaces will bring a payout forward on request, sometimes for "
+                    f"a small flat fee. {effect} It is the cheapest lever because it is "
+                    f"your own money."
                 ),
                 "cost": 0.0,
+                "payout_date": next_payout["date"],
+                "covers_whole_gap": not still_short_after
+                and next_payout["amount"] >= early_deficit,
             })
 
         ads_90 = m["expense_breakdown_90d"].get("advertising", 0.0)

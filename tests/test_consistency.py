@@ -191,16 +191,25 @@ def test_every_derived_market_figure_shows_its_method_and_its_caveat(market):
 
 def test_the_revenue_arithmetic_on_the_market_slide_is_correct(market):
     d = market["derived"]
-    expected = (d["beachhead_sellers"]["value"] * d["som_capture_pct"]["value"] / 100
+    expected = (d["deployment_active_sellers"]["value"]
                 * d["price_per_seller_month_eur"]["value"] * 12)
-    assert d["som_annual_revenue_eur"]["value"] == pytest.approx(expected)
+    assert d["deployment_annual_revenue_eur"]["value"] == pytest.approx(expected)
 
 
-def test_the_beachhead_estimate_does_not_exceed_what_it_is_derived_from(market):
+def test_no_derived_enterprise_count_exceeds_the_measured_population(market):
     m, d = market["measured"], market["derived"]
-    ceiling = m["eu_micro_enterprises"]["value"] * m["eu_small_enterprises_selling_online_pct"]["value"] / 100
-    assert d["beachhead_sellers"]["value"] <= ceiling
+    for key, entry in d.items():
+        if entry["unit"] in ("enterprises", "businesses"):
+            assert entry["value"] <= m["eu_micro_enterprises"]["value"], key
     assert d["adjacent_smes"]["value"] <= m["eu_smes"]["value"]
+
+
+def test_the_extrapolated_beachhead_is_not_reintroduced(market):
+    """Eurostat does not survey firms under 10 employees, so a micro-enterprise
+    'selling online' count cannot be derived from its rates. Keep it out."""
+    assert "beachhead_sellers" not in market["derived"]
+    deck = DECK_SCRIPT.read_text(encoding="utf-8")
+    assert "beachhead_sellers" not in deck and "som_capture_pct" not in deck
 
 
 def test_the_deck_takes_every_market_figure_from_the_market_file():

@@ -165,6 +165,19 @@ TOOL_SCHEMAS = [
 # Tool dispatch
 # ---------------------------------------------------------------------------
 
+HORIZON_MIN, HORIZON_MAX = 7, 180
+
+
+def _horizon(params: dict, default: int = 60) -> int:
+    """Clamp a model-supplied horizon. In LLM mode the model chooses tool
+    arguments, so a negative or absurd horizon must not reach the forecaster."""
+    try:
+        h = int(params.get("horizon_days", default))
+    except (TypeError, ValueError):
+        h = default
+    return min(max(h, HORIZON_MIN), HORIZON_MAX)
+
+
 def dispatch(session: Session, tool: str, params: dict, mode: str) -> tuple[dict, dict | None]:
     """
     Execute one tool call under permission control, with audit either way.
@@ -194,11 +207,11 @@ def dispatch(session: Session, tool: str, params: dict, mode: str) -> tuple[dict
         card = {"type": "analysis", "data": result}
 
     elif tool == "forecast_cashflow":
-        result = forecast_cashflow(ctx, int(params.get("horizon_days", 60)))
+        result = forecast_cashflow(ctx, _horizon(params))
         card = {"type": "forecast", "data": result}
 
     elif tool == "generate_alerts":
-        fc = forecast_cashflow(ctx, int(params.get("horizon_days", 60)))
+        fc = forecast_cashflow(ctx, _horizon(params))
         result = generate_alerts(ctx, fc)
         card = {"type": "alerts", "data": {**result, "forecast": fc}}
 
@@ -448,7 +461,7 @@ def run_offline(session: Session, message: str) -> dict:
         if free:
             lines.append(
                 "Before borrowing, try these: "
-                + "; ".join(m["action"].lower() for m in free[:3]) + "."
+                + "; ".join(m["action"][:1].lower() + m["action"][1:] for m in free[:3]) + "."
             )
         if paid and paid[0].get("product_id"):
             lines.append(

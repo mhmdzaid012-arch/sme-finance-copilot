@@ -338,7 +338,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 200 tests
+pytest -q                             # 219 tests
 ```
 
 ## 10. Known limitations

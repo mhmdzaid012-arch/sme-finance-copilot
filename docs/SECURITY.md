@@ -208,8 +208,14 @@ catch the claims that matter most.
 
 Sessions live in process memory. The random session id acts as the credential, and
 seller endpoints are unauthenticated because every seller is fictional.
+*Controls added in October:* `/api/chat` is rate-limited per session (20 messages per
+minute), so a paid API key cannot be drained through the demo; forecast and backtest
+horizons are bounded (7-180 and 7-90 days) on the API and clamped when the model
+chooses them; every page and API response carries a strict Content-Security-Policy,
+`X-Frame-Options: DENY`, `nosniff` and `no-referrer`.
 *Production needs:* authenticated users, per-seller authorisation on every route, a
-shared expiring session store, CSRF protection on `/api/confirm`, and rate limiting.
+shared expiring session store, CSRF protection on `/api/confirm`, and a rate limit
+shared across processes and keyed on the user rather than the session.
 
 ### R6 - Data egress in LLM mode
 **Likelihood** certain when enabled · **Impact** medium · **Residual** medium
@@ -250,7 +256,7 @@ recommended after simulation.
 ### R11 - LLM mode not exercised against the live API
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 200 tests and the whole evidence pack run in offline mode, because no API key is
+All 219 tests and the whole evidence pack run in offline mode, because no API key is
 available in this sandbox. The LLM path is implemented and falls back to offline mode
 on any API failure, but its phrasing and tool choices haven't been observed live.
 *Mitigation before relying on it:* run the evidence scenarios with a key and review the

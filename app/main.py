@@ -9,10 +9,12 @@ and no tool that maps to it. See app/security/permissions.py.
 
 from __future__ import annotations
 
+import time
 import uuid
+from collections import deque
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -44,6 +46,51 @@ app = FastAPI(
 )
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+
+# Input bounds. A forecast outside this window is not meaningful (and a negative
+# or enormous horizon used to be accepted and returned nonsense percentages).
+HORIZON_MIN, HORIZON_MAX, BACKTEST_MAX = 7, 180, 90
+
+# Per-session chat rate limit. In LLM mode every turn costs money on the
+# operator's API key, so an unthrottled endpoint is a cost-abuse risk.
+CHAT_MAX_TURNS, CHAT_WINDOW_SECONDS = 20, 60.0
+_CHAT_TURNS: dict[str, deque] = {}
+
+SECURITY_HEADERS = {
+    # The UI is one self-contained file: no third-party scripts, styles or frames.
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+        "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    ),
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    response = await call_next(request)
+    for k, v in SECURITY_HEADERS.items():
+        # FastAPI's interactive /docs page loads its UI from a CDN, so it keeps
+        # the framework defaults; every page we serve gets the strict policy.
+        if k == "Content-Security-Policy" and request.url.path in ("/docs", "/redoc"):
+            continue
+        response.headers.setdefault(k, v)
+    return response
+
+
+def _check_chat_rate(session_id: str) -> None:
+    now = time.monotonic()
+    turns = _CHAT_TURNS.setdefault(session_id, deque())
+    while turns and now - turns[0] > CHAT_WINDOW_SECONDS:
+        turns.popleft()
+    if len(turns) >= CHAT_MAX_TURNS:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Too many messages. Limit is {CHAT_MAX_TURNS} per minute per session.")
+    turns.append(now)
 
 # In-memory session store. Adequate for a single-process sandbox demo and
 # explicitly listed as a known limitation in docs/SECURITY.md: a real
@@ -135,7 +182,7 @@ def seller_detail(seller_id: str) -> dict:
 
 
 @app.get("/api/seller/{seller_id}/forecast")
-def seller_forecast(seller_id: str, horizon_days: int = 60) -> dict:
+def seller_forecast(seller_id: str, horizon_days: int = Query(60, ge=HORIZON_MIN, le=HORIZON_MAX)) -> dict:
     try:
         ctx = get_seller(seller_id)
     except KeyError:
@@ -144,7 +191,7 @@ def seller_forecast(seller_id: str, horizon_days: int = 60) -> dict:
 
 
 @app.get("/api/seller/{seller_id}/alerts")
-def seller_alerts(seller_id: str, horizon_days: int = 60) -> dict:
+def seller_alerts(seller_id: str, horizon_days: int = Query(60, ge=HORIZON_MIN, le=HORIZON_MAX)) -> dict:
     try:
         ctx = get_seller(seller_id)
     except KeyError:
@@ -196,7 +243,7 @@ def seller_whatif(seller_id: str, params: dict) -> dict:
 
 
 @app.get("/api/seller/{seller_id}/backtest")
-def seller_backtest(seller_id: str, horizon_days: int = 30) -> dict:
+def seller_backtest(seller_id: str, horizon_days: int = Query(30, ge=HORIZON_MIN, le=BACKTEST_MAX)) -> dict:
     """Forecast accuracy check against actual history."""
     from datetime import timedelta
     try:
@@ -237,6 +284,7 @@ def create_session(req: SessionRequest) -> dict:
 @app.post("/api/chat")
 def chat(req: ChatRequest) -> dict:
     session = _session(req.session_id)
+    _check_chat_rate(session.session_id)
     return run_turn(session, req.message)
 
 

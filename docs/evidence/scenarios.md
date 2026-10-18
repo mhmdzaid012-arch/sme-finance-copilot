@@ -20,7 +20,7 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 >
 > The main cause is Textil Nord GmbH (EUR 6,800), Studio Rent (Kreuzberg) (EUR 850). To stay above your EUR 1,500 buffer you need about EUR 6,584 for roughly 47 days, and you have 6 days to arrange it.
 >
-> Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask textil nord gmbh for extended terms.
+> Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask Textil Nord GmbH for extended terms.
 >
 > If you do need to finance it, the cheapest option that can arrive in time is Ember Seasonal Bridge at about EUR 218.
 >
@@ -90,7 +90,7 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 > No shortfall, but it gets tight: the balance dips below your EUR 6,000 buffer on 2026-10-06, reaching EUR 5,476 on 2026-10-08.
 >
-> Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask green bean importer for extended terms.
+> Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask Green Bean Importer for extended terms.
 >
 > If you do need to finance it, the cheapest option that can arrive in time is BrightBridge Marketplace Factoring at about EUR 1.
 
@@ -176,7 +176,7 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 >
 > The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 13,378 for roughly 49 days, and you have 7 days to arrange it.
 >
-> Before borrowing, try these: request an early or expedited payout; ask shenzhen components ltd for extended terms.
+> Before borrowing, try these: request an early or expedited payout; ask Shenzhen Components Ltd for extended terms.
 >
 > If you do need to finance it, the cheapest option that can arrive in time is Granary Supplier Payment Terms at about EUR 415.
 

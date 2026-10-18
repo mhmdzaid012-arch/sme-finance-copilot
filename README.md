@@ -36,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 200 tests
+pytest -q                              # 219 tests
 ```
 
 ---
@@ -201,13 +201,16 @@ docs/
   TECHNICAL.md       architecture, algorithms, security design
   SECURITY.md        security self-assessment + known-risk list
   evidence/          sandbox logs, transcripts, backtests, stress test, facts.json
+  deck-assets/       app screenshot and the deck's headline font (Archivo Black, OFL)
 scripts/
   generate_data.py       deterministic dataset generator
   generate_evidence.py   evidence pack + facts.json
   stress_test.py         accuracy when assumptions are broken
-  build_deck.js          pitch deck, built from facts.json
+  build_deck.js          pitch deck, built from facts.json and data/market.json
+                         (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
+                         before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               200 tests
+tests/               219 tests
 ```
 
 ## API
@@ -217,7 +220,7 @@ tests/               200 tests
 | GET | `/api/health` | Status and active mode |
 | GET | `/api/sellers` | Sandbox seller directory |
 | GET | `/api/seller/{id}` | Profile and derived metrics |
-| GET | `/api/seller/{id}/forecast?horizon_days=` | Cash-flow projection |
+| GET | `/api/seller/{id}/forecast?horizon_days=` | Cash-flow projection (7-180 days) |
 | GET | `/api/seller/{id}/alerts` | Alerts and verified mitigations |
 | GET | `/api/seller/{id}/analysis` | Financial analysis |
 | POST | `/api/seller/{id}/financing` | Financing matches |
