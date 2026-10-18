@@ -7,6 +7,24 @@ from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_dotenv(path: Path) -> None:
+    """Read KEY=VALUE lines from a local .env file (git-ignored) into the
+    environment. Values already set in the environment win, so a shell
+    variable or a test override is never replaced by the file."""
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv(ROOT / ".env")
+
 DATA_DIR = ROOT / "data"
 DOCS_DIR = ROOT / "docs"
 EVIDENCE_DIR = DOCS_DIR / "evidence"
@@ -41,7 +59,7 @@ SEASONALITY_DAMPING = {
 #   * "offline" - no key present; a deterministic intent router plans instead.
 # Offline mode exists so the demo, the tests and the judges' run of this repo
 # never depend on a network call or a credential.
-ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-5-20250929")
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 MAX_AGENT_STEPS = 6
 
 

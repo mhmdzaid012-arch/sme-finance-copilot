@@ -42,7 +42,7 @@ LOG_PATH = EVIDENCE / "audit_log.jsonl"
 if LOG_PATH.exists():
     LOG_PATH.unlink()
 os.environ["AUDIT_LOG_PATH"] = str(LOG_PATH)
-os.environ.pop("ANTHROPIC_API_KEY", None)
+os.environ["ANTHROPIC_API_KEY"] = ""  # offline, even if a local .env holds a key
 
 from app import config  # noqa: E402
 from app.agent import run_turn  # noqa: E402

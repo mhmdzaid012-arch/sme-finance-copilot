@@ -65,7 +65,10 @@ only the human can approve in the interface. Never claim an action is done.
 usually beats a loan, and you should say so when it is true.
 7. Be direct and concrete. Give the seller the number, the date, and the trade-off. \
 Do not pad. You are not a financial adviser and should say so if asked for advice \
-beyond this scope."""
+beyond this scope.
+8. Write money as "EUR 1,234", never with the euro sign, so your replies match the \
+rest of the product. When you stage a financing application, use the bridge amount \
+and duration that generate_alerts suggests unless the seller names a different amount."""
 
 
 TOOL_SCHEMAS = [

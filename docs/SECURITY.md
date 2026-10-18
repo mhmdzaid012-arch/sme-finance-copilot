@@ -253,14 +253,20 @@ external anchoring of the chain, rotation and a retention policy.
 borrowing, expensive products are shown with their true cost, and financing is only
 recommended after simulation.
 
-### R11 - LLM mode not exercised against the live API
+### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 219 tests and the whole evidence pack run in offline mode, because no API key is
-available in this sandbox. The LLM path is implemented and falls back to offline mode
-on any API failure, but its phrasing and tool choices haven't been observed live.
-*Mitigation before relying on it:* run the evidence scenarios with a key and review the
-transcripts.
+All 230 tests and the evidence pack run in offline mode so that they need no key and
+always give the same answer. LLM mode was run against the live API on 18 October 2026
+(`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
+scenarios, all answered in LLM mode with no fallback; both injection attempts were
+refused; the advice-only session refused to stage an application even when the user
+said "I approve"; the action-tier session staged it for human confirmation and
+executed nothing. That run found one real defect: the output guardrail withheld a
+correct reply because it said approval "is not guaranteed". The rule now lets a
+negated claim through and still blocks the claim itself, with tests for both.
+*Residual:* model behaviour can drift between runs and model versions. Re-run the
+script before every demo and review the transcript.
 
 ### R12 - Growth estimate double-counts seasonality
 **Likelihood** certain for some start dates · **Impact** medium · **Residual** medium

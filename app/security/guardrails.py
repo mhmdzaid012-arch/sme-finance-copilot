@@ -245,16 +245,31 @@ def wrap_untrusted(label: str, content: str) -> tuple[str, list[Finding]]:
     return fenced, findings
 
 
+# A claim preceded by a negation is the honest disclaimer we want ("approval is
+# not guaranteed"), and "personally guaranteed" describes a loan's collateral,
+# not an outcome. Both were blocked by the first version of these rules: the
+# live LLM run on 18 Oct 2026 had a correct reply withheld for saying exactly that.
+_NEGATION_WINDOW = re.compile(
+    r"(?:\bnot\b|n't\b|\bnever\b|\bno\b|\bcannot\b|\bnothing\b|\bpersonally\b|\bpersonal\b)"
+    r"[^.!?,;:\n]{0,15}$", re.IGNORECASE)
+
+
+def _is_negated_or_collateral(text: str, start: int) -> bool:
+    return bool(_NEGATION_WINDOW.search(text[max(0, start - 40):start]))
+
+
 def check_output(text: str) -> list[Finding]:
     """Domain-specific output checks before anything reaches the seller."""
     findings: list[Finding] = []
     for rx, kind, why in OUTPUT_RED_FLAGS:
-        match = rx.search(text or "")
-        if match:
+        for match in rx.finditer(text or ""):
+            if _is_negated_or_collateral(text, match.start()):
+                continue
             findings.append(Finding(
                 kind=kind, pattern=rx.pattern, matched=match.group(0),
                 why=why, severity="critical",
             ))
+            break
     for label in find_sensitive(text or ""):
         findings.append(Finding(
             kind="sensitive_data_in_output", pattern=label, matched=label,

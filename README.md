@@ -36,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 219 tests
+pytest -q                              # 230 tests
 ```
 
 ---
@@ -93,7 +93,11 @@ arrange it* is exactly what a generic assistant gets wrong.
 | **LLM mode** | Claude chooses the tools | Claude writes the reply | yes |
 | **Offline mode** | Deterministic intent router | Templates | no |
 
-Set `ANTHROPIC_API_KEY` for LLM mode. Without it, the copilot runs offline.
+Set `ANTHROPIC_API_KEY` for LLM mode, either as an environment variable or in a `.env`
+file next to `README.md` (copy `.env.example`; `.env` is git-ignored). Without it, the
+copilot runs offline. The tests and the evidence pack always run offline, even when a
+key is present. `python scripts/live_llm_check.py` runs eight scenarios against the live
+API and writes the transcript to `docs/evidence/llm_live_run.md`.
 
 **Offline mode is not a stub.** It exists so the repository behaves the same for
 anyone who clones it, with no credential, no network call and no cost. If a model is
@@ -210,7 +214,7 @@ scripts/
                          (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
                          before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               219 tests
+tests/               230 tests
 ```
 
 ## API

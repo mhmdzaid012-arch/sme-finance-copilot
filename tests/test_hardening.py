@@ -105,3 +105,46 @@ def test_supplier_names_keep_their_capitals_in_the_summary():
     reply = client.post("/api/chat", json={"session_id": sid,
                                             "message": "Will I run out of cash?"}).json()["reply"]
     assert "Textil Nord" in reply and "textil nord" not in reply
+
+
+# --- local .env loading ---------------------------------------------------------
+
+def test_dotenv_is_read_but_never_overrides_the_environment(tmp_path, monkeypatch):
+    from app import config
+    env = tmp_path / ".env"
+    env.write_text('# comment\nSMEFC_TEST_A="from file"\nSMEFC_TEST_B=from file\n', encoding="utf-8")
+    monkeypatch.delenv("SMEFC_TEST_A", raising=False)
+    monkeypatch.setenv("SMEFC_TEST_B", "from shell")
+    config._load_dotenv(env)
+    import os
+    assert os.environ["SMEFC_TEST_A"] == "from file"
+    assert os.environ["SMEFC_TEST_B"] == "from shell"
+    monkeypatch.delenv("SMEFC_TEST_A")
+
+
+def test_tests_run_offline_even_with_a_local_key():
+    from app import config
+    assert config.agent_mode() == "offline"
+
+
+# --- output guardrail: honest disclaimers must pass ---------------------------
+
+from app.security.guardrails import check_output  # noqa: E402
+
+
+@pytest.mark.parametrize("text", [
+    "Approval is not guaranteed.", "Approval isn't guaranteed.",
+    "Approval cannot be guaranteed.", "The loan must be personally guaranteed.",
+])
+def test_honest_disclaimers_are_not_blocked(text):
+    # The live LLM run had a correct reply withheld for exactly this wording.
+    assert check_output(text) == []
+
+
+@pytest.mark.parametrize("text", [
+    "You are approved for EUR 5,000.", "This loan is guaranteed.",
+    "No problem, you're approved.", "No worries; this is guaranteed.",
+    "You will definitely get the money.",
+])
+def test_real_approval_claims_are_still_blocked(text):
+    assert check_output(text)

@@ -12,6 +12,9 @@ import pytest
 # never append to the repository's own log.
 _TMP = Path(tempfile.mkdtemp(prefix="smefc-tests-"))
 os.environ["AUDIT_LOG_PATH"] = str(_TMP / "audit.jsonl")
+# Tests always run in offline mode, even when a developer has a .env with a
+# real key next to the code: an empty variable takes precedence over the file.
+os.environ["ANTHROPIC_API_KEY"] = ""
 
 from app.store import get_seller  # noqa: E402
 
