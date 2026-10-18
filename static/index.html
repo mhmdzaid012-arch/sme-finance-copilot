@@ -5,20 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SME Finance Copilot</title>
 <style>
+  /* Cream editorial: the same system as the pitch deck. Cream ground, near-black ink,
+     one orange accent. Motion follows Emil Kowalski's rules: transform/opacity only,
+     ease-out, under 250ms, nothing animated on actions repeated many times a day. */
+  @font-face { font-family: "Archivo Black"; src: url("/static/fonts/ArchivoBlack-Regular.ttf") format("truetype"); font-display: swap; }
   :root {
-    --bg: #f6f7f9;
-    --panel: #ffffff;
-    --ink: #14181f;
-    --muted: #626b7a;
-    --line: #e3e6eb;
-    --accent: #1f5fd0;
-    --accent-soft: #eaf1fd;
-    --ok: #16794a;
-    --warn: #9a6100;
-    --crit: #b3261e;
-    --crit-soft: #fdecea;
-    --warn-soft: #fdf5e6;
-    --ok-soft: #ebf6f0;
+    --bg: #F4EFE6;
+    --panel: #FFFCF6;
+    --ink: #141414;
+    --muted: #5F594F;
+    --line: #E3DACA;
+    --accent: #141414;
+    --accent-soft: #EAE2D3;
+    --orange: #FF5A1F;
+    --orange-ink: #C2410C;
+    --orange-soft: #FDE9DF;
+    --ok: #2F6B3F;
+    --warn: #9A5B00;
+    --crit: #B42318;
+    --crit-soft: #FBE6E2;
+    --warn-soft: #F8EDD8;
+    --ok-soft: #E7EFE4;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --display: "Archivo Black", "Arial Black", Impact, sans-serif;
   }
   * { box-sizing: border-box; }
   body {
@@ -26,131 +35,152 @@
     font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   header {
-    background: var(--panel); border-bottom: 1px solid var(--line);
-    padding: 14px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+    padding: 16px 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   }
-  header h1 { font-size: 17px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+  header h1 {
+    font-family: var(--display); font-weight: 400; font-size: 19px; margin: 0;
+    letter-spacing: 0.01em; text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+  }
+  header h1 .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--orange); display: inline-block; }
+  header h1 span.acc { color: var(--orange); }
   .badge {
-    font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 600;
-    background: var(--accent-soft); color: var(--accent); text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 700;
+    background: var(--ink); color: var(--bg); text-transform: uppercase; letter-spacing: 0.08em;
   }
   .sandbox-banner {
-    background: #fff8e1; border-bottom: 1px solid #f0e2b6; color: #6b5200;
-    padding: 8px 20px; font-size: 12.5px;
+    background: var(--orange-soft); border-bottom: 1px solid #F6CDB8; color: #5A2A12;
+    padding: 9px 24px; font-size: 12.5px;
   }
-  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 0; min-height: calc(100vh - 96px); }
+  .layout { display: grid; grid-template-columns: 310px 1fr; gap: 0; min-height: calc(100vh - 100px); }
   @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
-  aside { background: var(--panel); border-right: 1px solid var(--line); padding: 16px; }
+  aside { background: var(--bg); border-right: 1px solid var(--line); padding: 18px; }
   aside h2, .panel h2 {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
-    color: var(--muted); margin: 0 0 10px; font-weight: 650;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted); margin: 0 0 10px; font-weight: 700;
   }
   .seller {
-    border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
-    margin-bottom: 9px; cursor: pointer; background: #fff; transition: .12s;
+    border: 1px solid var(--line); border-radius: 4px; padding: 12px 13px 12px 15px;
+    margin-bottom: 9px; cursor: pointer; background: var(--panel); position: relative;
+    transition: border-color 160ms ease, transform 160ms var(--ease-out);
   }
-  .seller:hover { border-color: #c3ccdb; }
-  .seller.active { border-color: var(--accent); background: var(--accent-soft); }
-  .seller .n { font-weight: 620; font-size: 14px; }
+  .seller:active { transform: scale(0.98); }
+  @media (hover: hover) and (pointer: fine) { .seller:hover { border-color: #C9BDA6; } }
+  .seller.active { border-color: var(--ink); }
+  .seller.active::before { content: ""; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 4px; background: var(--orange); border-radius: 4px 0 0 4px; }
+  .seller .n { font-family: var(--display); font-weight: 400; font-size: 14px; letter-spacing: .01em; }
   .seller .m { color: var(--muted); font-size: 12px; margin-top: 3px; }
   .seller .figs { display: flex; gap: 10px; margin-top: 7px; font-size: 11.5px; }
   .seller .figs span { color: var(--muted); }
   .seller .figs b { color: var(--ink); font-variant-numeric: tabular-nums; }
-  main { padding: 18px 20px 28px; max-width: 1000px; }
-  .chat { display: flex; flex-direction: column; gap: 14px; }
-  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  main { padding: 22px 26px 32px; max-width: 1020px; }
+  .chat { display: flex; flex-direction: column; gap: 16px; }
+  .msg { display: flex; gap: 11px; align-items: flex-start; animation: msgIn 240ms var(--ease-out) both; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: fadeIn 200ms ease both; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .msg .who {
-    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 11px; font-weight: 700; color: #fff; background: var(--muted); margin-top: 2px;
+    flex: 0 0 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 10.5px; font-weight: 800; color: var(--bg); background: var(--muted); margin-top: 2px; letter-spacing: .03em;
   }
-  .msg.user .who { background: #3a4453; }
-  .msg.bot .who { background: var(--accent); }
+  .msg.user .who { background: var(--ink); }
+  .msg.bot .who { background: var(--orange); color: var(--ink); }
   .bubble {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px 14px; flex: 1; min-width: 0;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 13px 16px; flex: 1; min-width: 0;
   }
-  .msg.user .bubble { background: #eef1f6; }
+  .msg.user .bubble { background: var(--accent-soft); border-color: transparent; }
   .bubble p { margin: 0 0 9px; }
   .bubble p:last-child { margin-bottom: 0; }
+  .bubble b { font-weight: 700; }
   .card {
-    border: 1px solid var(--line); border-radius: 11px; margin-top: 11px;
-    background: #fcfcfd; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 6px; margin-top: 12px;
+    background: var(--panel); overflow: hidden;
   }
   .card > .head {
-    padding: 9px 13px; border-bottom: 1px solid var(--line); font-size: 12px;
-    font-weight: 650; color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
-    background: #f8f9fb;
+    padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 11px;
+    font-weight: 700; color: var(--bg); text-transform: uppercase; letter-spacing: .12em;
+    background: var(--ink);
   }
-  .card > .body { padding: 13px; }
+  .card > .body { padding: 14px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
-  th { color: var(--muted); font-weight: 620; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   tr:last-child td { border-bottom: none; }
-  .alert { border-left: 3px solid var(--line); padding: 9px 12px; margin-bottom: 9px; border-radius: 0 8px 8px 0; }
+  .alert { border-left: 4px solid var(--line); padding: 10px 13px; margin-bottom: 9px; border-radius: 0 4px 4px 0; }
   .alert.critical { border-color: var(--crit); background: var(--crit-soft); }
-  .alert.warning { border-color: #d99400; background: var(--warn-soft); }
-  .alert.info { border-color: var(--accent); background: var(--accent-soft); }
+  .alert.warning { border-color: var(--orange); background: var(--orange-soft); }
+  .alert.info { border-color: var(--ink); background: var(--accent-soft); }
   .alert.good { border-color: var(--ok); background: var(--ok-soft); }
-  .alert .h { font-weight: 640; margin-bottom: 3px; }
-  .alert .d { font-size: 13px; color: #3c4453; }
-  .pill { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 5px; font-weight: 620; }
+  .alert .h { font-weight: 700; margin-bottom: 3px; }
+  .alert .d { font-size: 13px; color: #3E3A33; }
+  .pill { display: inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 999px; font-weight: 700; letter-spacing: .03em; }
   .pill.free { background: var(--ok-soft); color: var(--ok); }
-  .pill.fin { background: var(--accent-soft); color: var(--accent); }
+  .pill.fin { background: var(--accent-soft); color: var(--ink); }
   .pill.slow { background: var(--warn-soft); color: var(--warn); }
   .pill.no { background: var(--crit-soft); color: var(--crit); }
   .pill.yes { background: var(--ok-soft); color: var(--ok); }
-  .composer { display: flex; gap: 9px; margin-top: 16px; }
+  .composer { display: flex; gap: 9px; margin-top: 18px; }
   .composer input {
-    flex: 1; padding: 11px 13px; border: 1px solid var(--line); border-radius: 9px;
-    font-size: 14px; font-family: inherit; background: #fff;
+    flex: 1; padding: 12px 14px; border: 1px solid var(--line); border-radius: 4px;
+    font-size: 14.5px; font-family: inherit; background: var(--panel); color: var(--ink);
   }
-  .composer input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  .composer input:focus { outline: 2px solid var(--orange); outline-offset: 1px; border-color: var(--ink); }
   button {
-    padding: 11px 16px; border-radius: 9px; border: 1px solid var(--accent);
-    background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
-    cursor: pointer; font-family: inherit;
+    padding: 11px 18px; border-radius: 4px; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: inherit; letter-spacing: .01em;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease;
   }
-  button:hover { filter: brightness(1.07); }
-  button.ghost { background: #fff; color: var(--accent); }
-  button.danger { background: #fff; color: var(--crit); border-color: #e5b8b4; }
-  button:disabled { opacity: .5; cursor: default; }
-  .prompts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+  button:active { transform: scale(0.97); }
+  @media (hover: hover) and (pointer: fine) {
+    button:hover { background: #2A2825; }
+    button.ghost:hover { background: var(--accent-soft); }
+    .prompts button:hover { border-color: var(--ink); background: var(--panel); }
+  }
+  button.ghost { background: transparent; color: var(--ink); }
+  button.ok { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+  @media (hover: hover) and (pointer: fine) { button.ok:hover { background: #F04E14; } }
+  button.danger { background: transparent; color: var(--crit); border-color: #E3B3AB; }
+  button:disabled { opacity: .45; cursor: default; transform: none; }
+  .prompts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
   .prompts button {
-    padding: 6px 11px; font-size: 12.5px; font-weight: 500;
-    background: #fff; color: #2c3542; border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 600;
+    background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px;
   }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 14px; margin-top: 16px; }
-  details summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 600; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-top: 18px; }
+  aside .panel { background: var(--panel); }
+  details summary { cursor: pointer; font-size: 13px; color: var(--orange-ink); font-weight: 700; }
   pre {
-    background: #10141b; color: #cbd5e1; padding: 11px; border-radius: 8px;
+    background: var(--ink); color: #E8E1D3; padding: 12px; border-radius: 4px;
     overflow-x: auto; font-size: 11.5px; line-height: 1.5; max-height: 300px;
   }
   .muted { color: var(--muted); font-size: 12.5px; }
   .kv { display: grid; grid-template-columns: auto auto; gap: 4px 14px; font-size: 13px; }
   .kv .k { color: var(--muted); }
-  .kv .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .kv .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
   .checks li { margin-bottom: 3px; font-size: 12.5px; }
   .wi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
   .wi-grid label { font-size: 12.5px; color: var(--muted); display: block; margin-bottom: 4px; }
   .wi-grid select, .wi-grid input[type=number] {
-    width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px;
-    font-size: 13px; font-family: inherit; background: #fff;
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px;
+    font-size: 13px; font-family: inherit; background: var(--panel); color: var(--ink);
   }
-  .wi-box { border: 1px solid var(--line); border-radius: 9px; padding: 10px 11px; background: #fcfcfd; }
-  .wi-box b { font-size: 13px; }
+  .wi-box { border: 1px solid var(--line); border-radius: 4px; padding: 11px 12px; background: var(--bg); }
+  .wi-box b { font-size: 13px; font-family: var(--display); font-weight: 400; letter-spacing: .01em; }
   .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
   .legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 5px; }
   .tier-switch { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-top: 10px; }
+  input[type=checkbox] { accent-color: var(--orange); width: 15px; height: 15px; }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--line);
-    border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+    border-top-color: var(--orange); border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <header>
-  <h1>SME Finance Copilot</h1>
+  <h1><span class="dot"></span>SME Finance <span class="acc">Copilot</span></h1>
   <span class="badge" id="mode">loading</span>
   <span class="muted" id="asof"></span>
 </header>
@@ -167,7 +197,7 @@
       <h2>This session</h2>
       <div id="tierNow" class="muted">advice only</div>
       <label class="tier-switch"><input type="checkbox" id="allowActions">
-        Allow the assistant to <b>prepare</b> actions (T2)</label>
+        <span>Allow the assistant to <b>prepare</b> actions (T2)</span></label>
       <div class="muted" style="font-size:11.5px;margin-top:4px">Off by default. Even when on,
         nothing happens until you press Approve yourself.</div>
     </div>
@@ -408,16 +438,16 @@ function chartSVG(series, buffer, compare) {
 
   const ticks = [hi, (hi + lo) / 2, lo].map(v =>
     `<text x="${PL - 7}" y="${(y(v) + 3.5).toFixed(1)}" text-anchor="end"
-      font-size="10" fill="#8a93a3">${Math.round(v / 1000)}k</text>
+      font-size="10" fill="#7A7366">${Math.round(v / 1000)}k</text>
      <line x1="${PL}" y1="${y(v).toFixed(1)}" x2="${W - PR}" y2="${y(v).toFixed(1)}"
-      stroke="#eef0f4"/>`).join('');
+      stroke="#ECE4D6"/>`).join('');
 
   const zeroY = y(0), bufY = y(buffer);
   const marks = series.map((s, i) => {
     const big = (s.events || []).filter(e => e.amount >= 1500);
     if (!big.length) return '';
     return `<circle cx="${x(i).toFixed(1)}" cy="${y(s.balance).toFixed(1)}" r="3.5"
-      fill="#b3261e"><title>${esc(s.date)}: ${big.map(e =>
+      fill="#B42318"><title>${esc(s.date)}: ${big.map(e =>
       e.counterparty + ' ' + eur(e.amount)).join(', ')}</title></circle>`;
   }).join('');
 
@@ -426,18 +456,18 @@ function chartSVG(series, buffer, compare) {
     aria-label="Projected bank balance">
     ${ticks}
     <line x1="${PL}" y1="${zeroY.toFixed(1)}" x2="${W - PR}" y2="${zeroY.toFixed(1)}"
-      stroke="#b3261e" stroke-width="1.2"/>
+      stroke="#B42318" stroke-width="1.2"/>
     <line x1="${PL}" y1="${bufY.toFixed(1)}" x2="${W - PR}" y2="${bufY.toFixed(1)}"
-      stroke="#d99400" stroke-dasharray="4 3" stroke-width="1.2"/>
-    <polygon points="${area}" fill="#1f5fd0" opacity="0.07"/>
-    <polyline points="${line}" fill="none" stroke="#1f5fd0" stroke-width="2"/>
+      stroke="#9A5B00" stroke-dasharray="4 3" stroke-width="1.2"/>
+    <polygon points="${area}" fill="#FF5A1F" opacity="0.08"/>
+    <polyline points="${line}" fill="none" stroke="#141414" stroke-width="2"/>
     ${compare ? `<polyline points="${compare.map((s, i) => `${x(i).toFixed(1)},${y(s.balance).toFixed(1)}`).join(' ')}"
-      fill="none" stroke="#16794a" stroke-width="2.4"/>` : ''}
+      fill="none" stroke="#FF5A1F" stroke-width="2.6"/>` : ''}
     ${marks}
-    <text x="${PL}" y="${H - 8}" font-size="10" fill="#8a93a3">${esc(firstDate)}</text>
-    <text x="${W - PR}" y="${H - 8}" font-size="10" fill="#8a93a3"
+    <text x="${PL}" y="${H - 8}" font-size="10" fill="#7A7366">${esc(firstDate)}</text>
+    <text x="${W - PR}" y="${H - 8}" font-size="10" fill="#7A7366"
       text-anchor="end">${esc(lastDate)}</text>
-    <text x="${W - PR}" y="${(bufY - 5).toFixed(1)}" font-size="9.5" fill="#9a6100"
+    <text x="${W - PR}" y="${(bufY - 5).toFixed(1)}" font-size="9.5" fill="#9A5B00"
       text-anchor="end">safety buffer ${eur(buffer)}</text>
   </svg>`;
 }
@@ -579,9 +609,9 @@ function renderWhatIf(r) {
     <div class="alert ${tone}"><div class="h">${esc(r.summary_lines[0])}</div>
       <div class="d">${esc(r.verdict_meaning)}</div></div>
     ${chartSVG(r.baseline.series, r.safety_buffer, r.scenario.series)}
-    <div class="legend"><span><i style="background:#1f5fd0"></i>today's projection</span>
-      <span><i style="background:#16794a"></i>with your changes</span>
-      <span><i style="background:#d99400"></i>safety buffer</span></div>
+    <div class="legend"><span><i style="background:#141414"></i>today's projection</span>
+      <span><i style="background:#FF5A1F"></i>with your changes</span>
+      <span><i style="background:#9A5B00"></i>safety buffer</span></div>
     <div style="margin-top:10px"><b style="font-size:12.5px">What changed</b>
       <ul class="checks" style="margin:5px 0 0;padding-left:16px">
       ${r.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>
