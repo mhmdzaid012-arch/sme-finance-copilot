@@ -102,8 +102,9 @@ API and writes the transcript to `docs/evidence/llm_live_run.md`.
 **Offline mode is not a stub.** It exists so the repository behaves the same for
 anyone who clones it, with no credential, no network call and no cost. If a model is
 configured but unavailable in the middle of a session, the turn falls back to offline
-mode instead of failing. LLM mode is implemented, but it has not been exercised
-against the live API in this sandbox. See risk R11 in [docs/SECURITY.md](docs/SECURITY.md).
+mode instead of failing. LLM mode was run against the live API on 18 October 2026:
+eight scenarios, all answered in LLM mode, and both injection attempts were refused.
+See risk R11 in [docs/SECURITY.md](docs/SECURITY.md).
 
 The key property in both modes: **the tools do the financial reasoning, not the model.**
 Every figure comes from deterministic Python, and the model only plans and phrases.
