@@ -249,6 +249,9 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         pipeline[d] = pipeline.get(d, 0.0) + gross * (1 - fee_rate - refund_rate)
 
     payout_events: dict[date, float] = {}
+    # Payouts a scenario delays past the last forecast day. The money is late,
+    # not lost, so it is reported instead of silently disappearing.
+    payouts_pending: list[dict] = []
     remaining = dict(pipeline)
     # The rolling reserve is withheld on one payout and released on the next,
     # so it delays cash rather than reducing it. Seeded with the reserve the
@@ -262,9 +265,12 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         remaining = {k: v for k, v in remaining.items() if k > cutoff}
         # A delayed payout releases the same money, just later.
         landing = pd + timedelta(days=max(0, sc.payout_delay_days))
+        paid = round(release * (1 - reserve) + held_reserve, 2)
         if landing <= horizon_end:
-            payout_events[landing] = round(
-                payout_events.get(landing, 0.0) + release * (1 - reserve) + held_reserve, 2)
+            payout_events[landing] = round(payout_events.get(landing, 0.0) + paid, 2)
+        else:
+            payouts_pending.append({"scheduled": pd.isoformat(),
+                                    "date": landing.isoformat(), "amount": paid})
         held_reserve = release * reserve
 
     # --- 3/4/5. outflows ---------------------------------------------------
@@ -484,6 +490,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             {"date": d.isoformat(), "amount": a}
             for d, a in sorted(payout_events.items())
         ],
+        "payouts_pending_at_horizon": payouts_pending,
         "scheduled_obligations": [
             {"date": e["date"].isoformat(), "amount": round(e["amount"], 2),
              "counterparty": e["counterparty"], "note": e.get("note", ""),

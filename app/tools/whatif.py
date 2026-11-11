@@ -329,6 +329,14 @@ def simulate(ctx: SellerContext, params: dict) -> dict:
         f"{bf['days_below_buffer']} becomes {sf['days_below_buffer']}.",
         f"Balance at the end of the {horizon} days: {_eur(end_base)} becomes {_eur(end_scen)}.",
     ]
+    pending = scen["payouts_pending_at_horizon"]
+    if pending:
+        pending_total = sum(p["amount"] for p in pending)
+        lines.append(
+            f"That ending balance leaves out {_eur(pending_total)} of delayed payouts that "
+            f"land just after the last day shown (next on {pending[0]['date']}). The money "
+            f"is late, not lost: counting it, the ending balance would be "
+            f"{_eur(end_scen + pending_total)}.")
     if financing_info:
         lines.append(f"Financing cost in this scenario: about EUR {financing_info['cost']:,.0f}.")
 
@@ -352,6 +360,7 @@ def simulate(ctx: SellerContext, params: dict) -> dict:
         "comparison": {
             "trough_change": round(delta_trough, 2),
             "ending_balance_change": round(end_scen - end_base, 2),
+            "payouts_pending_at_horizon": round(sum(p["amount"] for p in pending), 2),
             "days_below_buffer_change": sf["days_below_buffer"] - bf["days_below_buffer"],
             "negative_before": bf["goes_negative"],
             "negative_after": sf["goes_negative"],

@@ -78,3 +78,46 @@ def test_future_bills_are_not_marked_overdue(any_seller):
     f = forecast_cashflow(any_seller, 60)
     assert f["scheduled_obligations"]
     assert not any(o["overdue"] for o in f["scheduled_obligations"])
+
+
+# ---------------------------------------------------------------------------
+# B6 - a payout delayed past the last forecast day is pending, not deleted
+# ---------------------------------------------------------------------------
+
+def test_baseline_forecast_has_no_pending_payouts(any_seller):
+    assert forecast_cashflow(any_seller, 60)["payouts_pending_at_horizon"] == []
+
+
+@pytest.mark.parametrize("seller_id,horizon,delay", [
+    ("amara-prints", 53, 3), ("linas-ceramics", 90, 3),
+    ("kofi-coffee", 90, 7), ("techfix-parts", 90, 7),
+])
+def test_delayed_payout_past_the_horizon_is_reported_as_pending(seller_id, horizon, delay):
+    """Every euro the baseline pays out is either paid or pending in the scenario."""
+    ctx = get_seller(seller_id)
+    base = forecast_cashflow(ctx, horizon)
+    late = forecast_cashflow(ctx, horizon, Scenario(payout_delay_days=delay))
+    paid_base = sum(p["amount"] for p in base["payout_events"])
+    paid_late = sum(p["amount"] for p in late["payout_events"])
+    pending = late["payouts_pending_at_horizon"]
+    assert pending, "this case was chosen because a payout crosses the horizon"
+    assert paid_late + sum(p["amount"] for p in pending) == pytest.approx(paid_base, abs=0.05)
+    horizon_end = (ctx.as_of + timedelta(days=horizon)).isoformat()
+    assert all(p["date"] > horizon_end for p in pending)
+
+
+def test_whatif_reply_says_the_delayed_payout_is_late_not_lost():
+    from app.tools.whatif import simulate
+    r = simulate(get_seller("amara-prints"), {"payout_delay_days": 3, "horizon_days": 53})
+    pending = r["comparison"]["payouts_pending_at_horizon"]
+    assert pending > 0
+    text = " ".join(r["summary_lines"])
+    assert "late, not lost" in text
+    assert f"EUR {pending:,.0f}" in text
+
+
+def test_whatif_reply_is_unchanged_when_nothing_is_pending():
+    from app.tools.whatif import simulate
+    r = simulate(get_seller("amara-prints"), {"payout_delay_days": 3, "horizon_days": 60})
+    assert r["comparison"]["payouts_pending_at_horizon"] == 0
+    assert "late, not lost" not in " ".join(r["summary_lines"])
