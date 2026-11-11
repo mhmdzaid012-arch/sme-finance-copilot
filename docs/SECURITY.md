@@ -261,7 +261,7 @@ recommended after simulation.
 ### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 299 tests and the evidence pack run in offline mode so that they need no key and
+All 302 tests and the evidence pack run in offline mode so that they need no key and
 always give the same answer. LLM mode was run against the live API on 18 October 2026
 (`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
 scenarios, all answered in LLM mode with no fallback; both injection attempts were

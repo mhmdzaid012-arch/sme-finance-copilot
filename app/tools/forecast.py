@@ -441,14 +441,18 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         # frequently weeks earlier than the trough itself - a fixed lookback
         # would blame whatever ordinary bills happen to land near the low point.
         agg: dict[str, float] = {}
+        count: dict[str, int] = {}
         for s in series:
             sd = date.fromisoformat(s["date"])
             if sd <= trough_date:
                 for e in s["events"]:
                     key = e["counterparty"]
                     agg[key] = agg.get(key, 0.0) + e["amount"]
+                    count[key] = count.get(key, 0) + 1
+        # `payments` says how many payments the amount adds up, so three rent
+        # payments are never described as "one payment".
         drivers = [
-            {"counterparty": k, "amount": round(v, 2)}
+            {"counterparty": k, "amount": round(v, 2), "payments": count[k]}
             for k, v in sorted(agg.items(), key=lambda kv: -kv[1])[:4]
         ]
 

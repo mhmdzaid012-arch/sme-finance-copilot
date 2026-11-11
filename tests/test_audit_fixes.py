@@ -148,3 +148,46 @@ def test_no_alert_text_contains_none_for_any_seller(any_seller, horizon):
     alerts = generate_alerts(any_seller, forecast_cashflow(any_seller, horizon))
     for item in alerts["alerts"] + alerts["mitigations"]:
         assert "None" not in item.get("headline", "") + item.get("action", "") + item["detail"]
+
+
+# ---------------------------------------------------------------------------
+# A3 - several payments added together are never called "one payment"
+# ---------------------------------------------------------------------------
+
+def _monthly_cost_case():
+    """Amara without her stock bill but with a large new monthly cost: the
+    biggest driver is then the same payee paid several times."""
+    ctx = _with_profile_copy("amara-prints")
+    ctx.profile["scheduled_obligations"] = []
+    f = forecast_cashflow(ctx, 120, Scenario(extra_monthly_cost=3000.0))
+    return ctx, f
+
+
+def test_drivers_say_how_many_payments_they_add_up():
+    _, f = _monthly_cost_case()
+    top = f["findings"]["primary_drivers"][0]
+    trough = f["findings"]["trough_date"]
+    events = [e for s in f["series"] if s["date"] <= trough for e in s["events"]
+              if e["counterparty"] == top["counterparty"]]
+    assert top["payments"] == len(events) > 1
+    assert top["amount"] == pytest.approx(sum(e["amount"] for e in events))
+
+
+def test_alert_does_not_call_several_payments_one_payment():
+    ctx, f = _monthly_cost_case()
+    top = f["findings"]["primary_drivers"][0]
+    alerts = generate_alerts(ctx, f, include_financing=False)["alerts"]
+    conc = next(a for a in alerts if a["id"] == "single_payment_concentration")
+    assert "One payment" not in conc["headline"]
+    assert f"{top['payments']} payments" in conc["headline"]
+    assert "single obligation" not in conc["detail"]
+    headline_alert = next(a for a in alerts if a["id"] == "cash_shortfall_critical")
+    assert f"over {top['payments']} payments" in headline_alert["detail"]
+
+
+def test_a_single_big_bill_is_still_called_one_payment(amara):
+    f = forecast_cashflow(amara, 60)
+    assert f["findings"]["primary_drivers"][0]["payments"] == 1
+    conc = next(a for a in generate_alerts(amara, f, include_financing=False)["alerts"]
+                if a["id"] == "single_payment_concentration")
+    assert conc["headline"].startswith("One payment causes most of the squeeze")

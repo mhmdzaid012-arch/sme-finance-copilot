@@ -39,6 +39,14 @@ def _fmt_eur(x: float) -> str:
     return f"EUR {x:,.0f}"
 
 
+def _driver_label(d: dict) -> str:
+    """'Rent (EUR 850)' for one payment, 'Rent (EUR 2,550 over 3 payments)' for several."""
+    n = d.get("payments", 1)
+    if n > 1:
+        return f"{d['counterparty']} ({_fmt_eur(d['amount'])} over {n} payments)"
+    return f"{d['counterparty']} ({_fmt_eur(d['amount'])})"
+
+
 def generate_alerts(ctx: SellerContext, forecast: dict,
                     include_financing: bool = True) -> dict:
     """Turn a forecast into a ranked, actionable alert list."""
@@ -54,9 +62,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
     gap = f["shortfall_to_buffer"] or 0.0
 
     drivers = f["primary_drivers"]
-    driver_text = ", ".join(
-        f"{d['counterparty']} ({_fmt_eur(d['amount'])})" for d in drivers[:3]
-    ) or "ordinary operating costs"
+    driver_text = ", ".join(_driver_label(d) for d in drivers[:3]) or "ordinary operating costs"
 
     # --- the headline cash alert ------------------------------------------
     if f["goes_negative"]:
@@ -130,10 +136,16 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 "headline": (
                     f"One payment causes most of the squeeze: "
                     f"{top['counterparty']} at {_fmt_eur(top['amount'])}"
+                    if top.get("payments", 1) == 1 else
+                    f"{top['payments']} payments to {top['counterparty']} add up to most "
+                    f"of the squeeze: {_fmt_eur(top['amount'])} in total"
                 ),
                 "detail": (
-                    f"This single obligation is the biggest cause of the "
-                    f"{_fmt_eur(gap)} gap."
+                    (f"This single obligation is the biggest cause of the "
+                     f"{_fmt_eur(gap)} gap."
+                     if top.get("payments", 1) == 1 else
+                     f"Together these {top['payments']} payments are the biggest cause "
+                     f"of the {_fmt_eur(gap)} gap.")
                     + (lambda t30, tsplit: (
                         f" Tested: paying it 30 days later - {t30.lower()}"
                         if t30 else "")

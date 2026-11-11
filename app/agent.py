@@ -437,7 +437,8 @@ def run_offline(session: Session, message: str) -> dict:
                 f"at {_fmt(f['trough_balance'])} on {f['trough_date']}."
             )
             drivers = ", ".join(
-                f"{d['counterparty']} ({_fmt(d['amount'])})"
+                f"{d['counterparty']} ({_fmt(d['amount'])}"
+                + (f" over {d['payments']} payments)" if d.get("payments", 1) > 1 else ")")
                 for d in f["primary_drivers"][:2]
             )
             lines.append(

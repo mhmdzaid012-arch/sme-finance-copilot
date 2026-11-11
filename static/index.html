@@ -492,7 +492,7 @@ function renderForecast(f) {
     ${fi.primary_drivers && fi.primary_drivers.length ? `
       <div style="margin-top:11px"><b style="font-size:12.5px">What drives the drawdown</b>
       <table style="margin-top:5px"><tbody>${fi.primary_drivers.map(d =>
-        `<tr><td>${esc(d.counterparty)}</td><td class="num">${eur(d.amount)}</td></tr>`).join('')}
+        `<tr><td>${esc(d.counterparty)}${d.payments > 1 ? ` (${d.payments} payments)` : ''}</td><td class="num">${eur(d.amount)}</td></tr>`).join('')}
       </tbody></table></div>` : ''}
     <details style="margin-top:11px"><summary>Assumptions behind this projection</summary>
       <div class="kv" style="margin-top:8px">
