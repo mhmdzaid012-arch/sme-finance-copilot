@@ -111,6 +111,7 @@ def _required_phrases(f: dict) -> dict[str, list[str]]:
         eur(h["bill_amount"]), pretty_date(h["first_negative_date"]),
         eur(h["trough_balance"]), pretty_date(h["trough_date"]),
         eur(h["need_amount"]), f"{h['need_days']} days", f"{h['lead_days']} days",
+        eur(h["payout_queue_at_trough"]),
         h["recommended"]["name"], eur(h["recommended"]["cost"]),
         h["cheapest_overall"]["name"], eur(h["cheapest_overall"]["cost"]),
     ]

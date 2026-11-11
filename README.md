@@ -36,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 319 tests
+pytest -q                              # 327 tests
 ```
 
 ---
@@ -74,7 +74,9 @@ A EUR 6,800 stock payment is due on 25 September.
 
 The copilot's answer: her balance goes negative on **25 September** and bottoms out at
 **-EUR 5,055** on 4 October. She needs about **EUR 6,555 for 47 days**, and she has
-**6 days** to arrange it. The cheapest matching product, Granary Supplier Payment Terms
+**6 days** to arrange it. It also names the underlying cause: on 4 October the
+marketplace will still be holding about **EUR 8,459** she has already earned, more than
+the whole gap. The cheapest matching product, Granary Supplier Payment Terms
 at EUR 195, takes 7 days to arrange, so it can't be her first line of defence. The copilot
 recommends Ember Seasonal Bridge at EUR 217, which arrives in time. It also simulated
 Ember with its real repayments first, and it keeps her out of the red. Before any of
@@ -219,7 +221,7 @@ scripts/
                          (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
                          before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               319 tests
+tests/               327 tests
 ```
 
 ## API

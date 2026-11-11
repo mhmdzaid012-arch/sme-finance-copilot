@@ -140,7 +140,19 @@ separate inputs to the financing engine.
 
 **Driver attribution** adds up everything paid from today to the lowest point, instead
 of looking only at a fixed window before it. The payment that causes a low point often
-lands well before the low point itself.
+lands well before the low point itself. Each driver carries the number of payments it
+adds up, so three rent payments are never reported as one.
+
+**Payout timing as a named cause.** The forecast also walks the second ledger forward:
+`payout_queue` is the money already earned and not yet paid out, starting from the real
+platform balance and moving with projected net sales and payouts. `findings.payout_hold`
+reports how much of it the marketplace is holding on the day of the lowest point, and
+the headline alert says so in one sentence. The bills decide when the balance is
+lowest; the payout hold is why the seller's own earnings are not there to meet them.
+
+**Bills due today or overdue.** A declared bill due on or before the forecast date is
+charged on the first day and marked overdue, unless the bank ledger already shows it
+as paid.
 
 ### 3.5 Scenario support
 
@@ -376,7 +388,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 319 tests
+pytest -q                             # 327 tests
 ```
 
 ## 10. Known limitations

@@ -37,7 +37,7 @@ from .security.permissions import (
     request_action,
 )
 from .store import get_seller
-from .tools.alerts import generate_alerts
+from .tools.alerts import generate_alerts, payout_hold_sentence
 from .tools.analysis import analyse_business
 from .tools.financing import match_financing
 from .tools.forecast import forecast_cashflow
@@ -448,6 +448,8 @@ def run_offline(session: Session, message: str) -> dict:
                 f"{f['suggested_bridge_days']} days, and you have "
                 f"{f['days_until_first_shortfall']} days to arrange it."
             )
+            if payout_hold_sentence(f):
+                lines.append(payout_hold_sentence(f))
             if f["suggested_bridge_days"] != f["days_below_buffer"]:
                 lines.append(
                     f"The {f['suggested_bridge_days']} days run from the first dip "

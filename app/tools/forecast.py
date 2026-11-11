@@ -443,6 +443,10 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
 
     stock_on_hand = 0.0
     stock_used_total = 0.0
+    # The other ledger: money already earned that the marketplace has not paid
+    # out yet. Starts from the real platform balance and moves with projected
+    # sales (net of fees and refunds) and payouts.
+    queue = m["platform_balance"]
     for i in range(1, horizon_days + 1):
         d = ctx.as_of + timedelta(days=i)
         gross = projected_sales[d]
@@ -479,6 +483,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         outflow = variable + chargebacks + fixed
 
         balance += inflow + inflow_other - outflow
+        queue += gross * (1 - fee_rate - refund_rate) - inflow
         series.append({
             "date": d.isoformat(),
             "projected_sales": round(gross, 2),
@@ -488,6 +493,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "cogs_covered_by_stock": round(from_stock, 2),
             "outflow_fixed": round(fixed, 2),
             "balance": round(balance, 2),
+            "payout_queue": round(queue, 2),
             "events": [
                 {"counterparty": e["counterparty"], "amount": round(e["amount"], 2),
                  "category": e["category"], "source": e["source"]}
@@ -526,6 +532,23 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
     shortfall_to_buffer = 0.0
     if trough and trough["balance"] < buffer_level:
         shortfall_to_buffer = round(buffer_level - trough["balance"], 2)
+
+    # Payout timing as a named cause. The bills decide WHEN the balance is
+    # lowest; the payout hold decides whether the seller's own earnings are
+    # there to meet them. This is the money already earned and still held by
+    # the marketplace on the day of the low point, set against the gap.
+    payout_hold = None
+    if trough:
+        held = max(0.0, trough["payout_queue"])
+        payout_hold = {
+            "held_at_trough": round(held, 2),
+            "trough_date": trough["date"],
+            "share_of_gap_pct": (round(min(100.0, held / shortfall_to_buffer * 100), 1)
+                                 if shortfall_to_buffer > 0 else None),
+            "covers_gap": bool(shortfall_to_buffer > 0 and held >= shortfall_to_buffer),
+            "hold_days": hold_days,
+            "cadence_days": int(ctx.profile["payout_schedule"]["cadence_days"]),
+        }
 
     # How long a bridge facility would need to run: from the first day below
     # the buffer to the last one. This can be longer than `days_below_buffer`
@@ -593,6 +616,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "stock_drawn_down": round(stock_used_total, 2),
             "stock_remaining_at_horizon": round(stock_on_hand, 2),
             "primary_drivers": drivers,
+            "payout_hold": payout_hold,
         },
     }
 

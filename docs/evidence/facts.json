@@ -4,7 +4,7 @@
     "sellers": 4,
     "products": 18,
     "transactions": 4794,
-    "tests": 319,
+    "tests": 327,
     "evidence_scenarios": 18,
     "audit_records": 79
   },
@@ -23,6 +23,7 @@
     "first_negative_date": "2026-09-25",
     "trough_balance": -5054.79,
     "trough_date": "2026-10-04",
+    "payout_queue_at_trough": 8458.57,
     "need_amount": 6554.79,
     "need_days": 47,
     "lead_days": 6,

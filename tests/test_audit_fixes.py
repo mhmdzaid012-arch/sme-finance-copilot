@@ -309,3 +309,57 @@ def test_non_monthly_bills_still_repeat_on_their_day_gap():
     dates = _projected_dates(f, "Weekly Cleaner")
     assert dates[0] == config.AS_OF + timedelta(days=5)
     assert all((b - a).days == 7 for a, b in zip(dates, dates[1:]))
+
+
+# ---------------------------------------------------------------------------
+# A5 - payout timing is named as a cause, with a figure
+# ---------------------------------------------------------------------------
+
+def test_payout_queue_is_a_running_total(any_seller):
+    """queue(d) = queue(d-1) + that day's net sales - that day's payout."""
+    f = forecast_cashflow(any_seller, 60)
+    a = f["assumptions"]
+    net_share = 1 - a["platform_fee_rate"] - a["refund_rate"]
+    prev = f["opening_platform_balance"]
+    for row in f["series"]:
+        expected = prev + row["projected_sales"] * net_share - row["inflow_payout"]
+        assert row["payout_queue"] == pytest.approx(expected, abs=0.02), row["date"]
+        prev = row["payout_queue"]
+
+
+def test_payout_hold_is_reported_at_the_low_point(amara):
+    f = forecast_cashflow(amara, 60)
+    hold = f["findings"]["payout_hold"]
+    trough_row = next(r for r in f["series"] if r["date"] == f["findings"]["trough_date"])
+    assert hold["held_at_trough"] == trough_row["payout_queue"]
+    assert hold["trough_date"] == f["findings"]["trough_date"]
+    # Amara's own held earnings exceed her gap: the thesis of the product.
+    assert hold["covers_gap"] is True
+    assert hold["held_at_trough"] > f["findings"]["shortfall_to_buffer"]
+
+
+def test_headline_alert_names_payout_timing_with_the_amount(amara):
+    f = forecast_cashflow(amara, 60)
+    held = f["findings"]["payout_hold"]["held_at_trough"]
+    detail = next(a for a in generate_alerts(amara, f, include_financing=False)["alerts"]
+                  if a["id"] == "cash_shortfall_critical")["detail"]
+    assert "Payout timing is the underlying cause" in detail
+    assert f"EUR {held:,.0f}" in detail
+    assert "more than the whole" in detail
+
+
+def test_payout_timing_is_not_blamed_when_there_is_no_gap(lina):
+    from app.tools.alerts import payout_hold_sentence
+    f = forecast_cashflow(lina, 60)
+    assert f["findings"]["shortfall_to_buffer"] == 0
+    assert payout_hold_sentence(f["findings"]) == ""
+    for a in generate_alerts(lina, f, include_financing=False)["alerts"]:
+        assert "underlying cause" not in a["detail"]
+
+
+def test_partial_cover_is_stated_as_a_share():
+    from app.tools.alerts import payout_hold_sentence
+    text = payout_hold_sentence({"shortfall_to_buffer": 10_000.0, "payout_hold": {
+        "held_at_trough": 2_500.0, "trough_date": "2026-10-04", "share_of_gap_pct": 25.0,
+        "covers_gap": False, "hold_days": 10, "cadence_days": 14}})
+    assert "about 25% of the EUR 10,000 gap" in text

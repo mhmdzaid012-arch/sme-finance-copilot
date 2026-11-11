@@ -482,6 +482,8 @@ function renderForecast(f) {
       <div class="k">Lowest projected point</div>
       <div class="v" style="color:${fi.trough_balance < 0 ? 'var(--crit)' : 'inherit'}">
         ${eur(fi.trough_balance)} on ${esc(fi.trough_date)}</div>
+      ${fi.payout_hold && fi.shortfall_to_buffer > 0 ? `<div class="k">Your money in the payout queue that day</div>
+        <div class="v">${eur(fi.payout_hold.held_at_trough)}</div>` : ''}
       ${fi.goes_negative ? `<div class="k">Goes negative</div>
         <div class="v" style="color:var(--crit)">${esc(fi.first_negative_date)}</div>` : ''}
       ${fi.shortfall_to_buffer > 0 ? `<div class="k">Needed to hold the buffer</div>

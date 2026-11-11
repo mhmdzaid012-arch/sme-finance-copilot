@@ -39,6 +39,26 @@ def _fmt_eur(x: float) -> str:
     return f"EUR {x:,.0f}"
 
 
+def payout_hold_sentence(f: dict) -> str:
+    """
+    Name payout timing as a cause, with the figure. The bills decide when the
+    balance is lowest; the payout hold is why the seller's own earnings are
+    not there to meet them. Empty when there is no gap to explain.
+    """
+    hold, gap = f.get("payout_hold"), f.get("shortfall_to_buffer") or 0.0
+    if not hold or gap <= 0 or hold["held_at_trough"] <= 0:
+        return ""
+    held = _fmt_eur(hold["held_at_trough"])
+    if hold["covers_gap"]:
+        size = f"more than the whole {_fmt_eur(gap)} gap"
+    else:
+        size = f"about {hold['share_of_gap_pct']:.0f}% of the {_fmt_eur(gap)} gap"
+    return (f"Payout timing is the underlying cause: on {hold['trough_date']} the "
+            f"marketplace will still be holding about {held} that you have already "
+            f"earned, {size}. The bills set the date; the {hold['hold_days']}-day payout "
+            f"hold is why your own money is not there to meet them.")
+
+
 def _span_note(f: dict) -> str:
     """Explain the two day-counts when they differ (47 days of bridge, 43 below)."""
     span, below = f["suggested_bridge_days"], f["days_below_buffer"]
@@ -93,6 +113,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                    f"throughout you would need about {_fmt_eur(gap)} for roughly "
                    f"{duration} days." if gap > 0 and duration else "")
                 + _span_note(f)
+                + (" " + payout_hold_sentence(f) if payout_hold_sentence(f) else "")
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,
@@ -112,6 +133,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 f"{_fmt_eur(trough_balance)} on {trough_date}. It does not go negative, "
                 f"so this is a thin-margin warning rather than a missed-payment risk. "
                 f"Main drivers: {driver_text}."
+                + (" " + payout_hold_sentence(f) if payout_hold_sentence(f) else "")
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,

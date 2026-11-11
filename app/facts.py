@@ -71,6 +71,8 @@ def _hero() -> dict:
         "first_negative_date": fi["first_negative_date"],
         "trough_balance": fi["trough_balance"],
         "trough_date": fi["trough_date"],
+        # Earned money still held by the marketplace on the day of the low point.
+        "payout_queue_at_trough": fi["payout_hold"]["held_at_trough"],
         "need_amount": amount,
         "need_days": days,
         "lead_days": lead,
