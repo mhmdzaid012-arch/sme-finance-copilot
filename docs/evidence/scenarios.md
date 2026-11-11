@@ -46,7 +46,7 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 >
 > - NordCap Revenue Advance (NordCap Growth (fictional)): EUR 590 for the period, arranges in ~3 day(s). Repay EUR 7,145 total (factor 1.09) by handing over 14% of daily sales - roughly EUR 51/day at your current sales rate, so about 139 days. Cost EUR 590, an effective ~24% APR precisely because it is repaid quickly. Simulated with its repayments: You never go negative, but you dip below your EUR 1,500 safety buffer for 9 day(s).
 >
-> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 1,835 for the period, arranges in ~1 day(s). Repay EUR 8,390 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 81/day at your current sales rate, so about 104 days. Cost EUR 1,835, an effective ~98% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-10-02.
+> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 1,835 for the period, arranges in ~1 day(s). Repay EUR 8,390 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 81/day at your current sales rate, so about 104 days. Cost EUR 1,835, an effective ~98% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-10-01.
 >
 > 3 further option(s) match on eligibility but take too long to arrange this time - worth putting in place for the next peak.
 >
@@ -174,15 +174,13 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-29 and bottoms out at EUR -4,328 on 2026-10-07.
+> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-29 and bottoms out at EUR -6,108 on 2026-10-07.
 >
-> The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 13,328 for roughly 49 days, and you have 7 days to arrange it.
+> The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 15,108 for roughly 51 days, and you have 5 days to arrange it.
 >
-> The 49 days run from the first dip (2026-09-17) to the last day below the buffer (2026-11-04); you are under the buffer on 31 of them.
+> The 51 days run from the first dip (2026-09-15) to the last day below the buffer (2026-11-04); you are under the buffer on 35 of them.
 >
 > Before borrowing, try these: request an early or expedited payout; ask Shenzhen Components Ltd for extended terms.
->
-> If you do need to finance it, the cheapest option that can arrive in time is Granary Supplier Payment Terms at about EUR 414.
 
 ---
 
@@ -196,11 +194,9 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> 3 of 18 illustrative products match a EUR 13,328 requirement. Lowest cost for the 49 days you need it: Granary Supplier Payment Terms at EUR 414. Fastest to arrange: SwiftCash Merchant Advance in ~1 day(s), costing EUR 3,732. 8 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
+> 2 of 18 illustrative products match a EUR 15,108 requirement. Lowest cost for the 51 days you need it: SwiftCash Merchant Advance at EUR 4,230. 9 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
 >
-> - Granary Supplier Payment Terms (Granary Trade Credit (fictional)): EUR 414 for the period, arranges in ~7 day(s). EUR 13,328 advanced for 49 days at 1.9% per 30 days costs about EUR 414 (effective ~23% APR). Repaid automatically from your next payout rather than out of future profit. Simulated with its repayments: You never go negative, but you dip below your EUR 9,000 safety buffer for 22 day(s).
->
-> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 3,732 for the period, arranges in ~1 day(s). Repay EUR 17,060 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 292/day at your current sales rate, so about 58 days. Cost EUR 3,732, an effective ~175% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-11-02.
+> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 4,230 for the period, arranges in ~1 day(s). Repay EUR 19,338 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 292/day at your current sales rate, so about 66 days. Cost EUR 4,230, an effective ~155% APR precisely because it is repaid quickly. Simulated with its repayments: This makes the shortfall worse.
 >
 > 1 further option(s) match on eligibility but take too long to arrange this time - worth putting in place for the next peak.
 >
@@ -303,11 +299,11 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > Better, but you still go negative from 2026-10-16.
 >
-> Lowest balance: -EUR 5,055 (2026-10-04) becomes -EUR 3,901 (2026-10-18).
+> Lowest balance: -EUR 5,055 (2026-10-04) becomes -EUR 4,081 (2026-10-18).
 >
 > Days below your EUR 1,500 safety buffer: 43 becomes 22.
 >
-> Balance at the end of the 90 days: EUR 5,212 becomes EUR 5,212.
+> Balance at the end of the 90 days: EUR 5,138 becomes EUR 5,138.
 >
 > Assumption: Assumes Textil Nord GmbH agrees to the new date. Nothing here asks them - that conversation is yours to have.
 >
@@ -331,9 +327,9 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > Lowest balance: -EUR 5,055 (2026-10-04) becomes -EUR 5,378 (2026-10-07).
 >
-> Days below your EUR 1,500 safety buffer: 43 becomes 50.
+> Days below your EUR 1,500 safety buffer: 43 becomes 51.
 >
-> Balance at the end of the 90 days: EUR 5,212 becomes EUR 5,212.
+> Balance at the end of the 90 days: EUR 5,138 becomes EUR 5,138.
 >
 > Security note: 2 customer-supplied note(s) on your account contain text aimed at the assistant (control_bypass, fabricated_approval, instruction_override, system_impersonation). They were redacted before processing and nothing was acted on.
 
@@ -353,11 +349,11 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).
 >
-> Lowest balance: -EUR 5,055 (2026-10-04) becomes EUR 960 (2026-10-18).
+> Lowest balance: -EUR 5,055 (2026-10-04) becomes EUR 780 (2026-10-18).
 >
 > Days below your EUR 1,500 safety buffer: 43 becomes 3.
 >
-> Balance at the end of the 90 days: EUR 5,212 becomes EUR 8,381.
+> Balance at the end of the 90 days: EUR 5,138 becomes EUR 8,307.
 >
 > Financing cost in this scenario: about EUR 217.
 >
@@ -416,19 +412,19 @@ Each row forecasts forward from a past date and compares the projection against 
 | Seller | Horizon | Projected | Actual | Raw error | Undeclared one-offs | Adjusted error | Adj. error (% of monthly revenue) |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | amara-prints | 30d | 8,007 | 3,180 | 4,827 | 4,500 | 327 | 3.0% |
-| amara-prints | 45d | 7,897 | 3,180 | 4,717 | 4,500 | 217 | 2.0% |
-| amara-prints | 60d | 9,650 | 3,180 | 6,470 | 6,350 | 120 | 1.1% |
+| amara-prints | 45d | 7,957 | 3,180 | 4,777 | 4,500 | 277 | 2.5% |
+| amara-prints | 60d | 9,710 | 3,180 | 6,530 | 6,350 | 180 | 1.6% |
 | kofi-coffee | 30d | 21,188 | 21,500 | -312 | 0 | -312 | -1.2% |
-| kofi-coffee | 45d | 20,475 | 21,500 | -1,025 | 0 | -1,025 | -4.1% |
-| kofi-coffee | 60d | 20,147 | 21,500 | -1,353 | 0 | -1,353 | -5.6% |
+| kofi-coffee | 45d | 21,285 | 21,500 | -215 | 0 | -215 | -0.9% |
+| kofi-coffee | 60d | 20,957 | 21,500 | -543 | 0 | -543 | -2.2% |
 | linas-ceramics | 30d | 2,804 | 2,740 | 64 | 0 | 64 | 1.7% |
 | linas-ceramics | 45d | 2,723 | 2,740 | -17 | 0 | -17 | -0.5% |
 | linas-ceramics | 60d | 2,754 | 2,740 | 14 | 0 | 14 | 0.4% |
 | techfix-parts | 30d | 14,026 | 14,900 | -874 | 0 | -874 | -2.2% |
-| techfix-parts | 45d | 13,033 | 14,900 | -1,867 | 0 | -1,867 | -4.6% |
-| techfix-parts | 60d | 12,304 | 14,900 | -2,596 | 0 | -2,596 | -6.5% |
+| techfix-parts | 45d | 14,813 | 14,900 | -87 | 0 | -87 | -0.2% |
+| techfix-parts | 60d | 14,084 | 14,900 | -816 | 0 | -816 | -2.0% |
 
-Mean absolute adjusted error: **2.7%** of monthly revenue. Worst case: **6.5%**. (Consistency check - not real-world accuracy.)
+Mean absolute adjusted error: **1.5%** of monthly revenue. Worst case: **3.0%**. (Consistency check - not real-world accuracy.)
 
 ## Audit log
 
@@ -452,10 +448,10 @@ The backtest above uses data generated by the same process the forecaster assume
 
 | Scenario | Mean error | Worst |
 |---|---:|---:|
-| Same process the forecaster assumes | 2.7% | 6.5% |
-| Daily sales twice as noisy (sd 0.16 -> 0.30) | 4.5% | 9.4% |
-| A seasonal pattern the forecaster does not know | 9.0% | 16.7% |
-| Marketplace payouts arrive 0-3 days late at random | 9.5% | 41.0% |
-| All three at once | 15.1% | 39.1% |
+| Same process the forecaster assumes | 1.5% | 3.0% |
+| Daily sales twice as noisy (sd 0.16 -> 0.30) | 3.3% | 5.9% |
+| A seasonal pattern the forecaster does not know | 7.6% | 13.4% |
+| Marketplace payouts arrive 0-3 days late at random | 9.5% | 42.5% |
+| All three at once | 14.8% | 42.1% |
 
 Absolute forecast error as a percentage of monthly revenue. Each run is 12 backtests (4 sellers x 30/45/60-day horizons). 'baseline' uses data generated by the same process the forecaster assumes, so it is a consistency check rather than evidence of real-world accuracy. The other rows deliberately break an assumption. In the late-payout rows every payout releases the sales it was scheduled to release but lands 0-3 days late; a payout pushed past the end of the history stays pending. Those rows repeat the run over 100 independent sets of draws, one seeded generator per seller. Late payouts are the dominant sensitivity, and the error is concentrated (see by_payout_position): it is large when a payout is due on the day the forecast is measured and arrives late, and close to the baseline otherwise. A payout that is late on the day the forecast is MADE no longer hurts: the forecaster notices it is missing from the bank ledger and expects it. The what-if simulator's 'payouts arrive late' setting exists so a seller can test exactly this on their own projection.

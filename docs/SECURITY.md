@@ -171,9 +171,10 @@ Ordered by residual risk, meaning the risk left after the controls described abo
 
 This is measured, not guessed. `scripts/stress_test.py` shows that when payouts arrive
 0-3 days late at random, the mean forecast error rises to **9.5%** of monthly revenue
-(median 2.6%, worst case 41.0%, 1,200 backtests). The error is concentrated: 38.6% on
-average when a payout is due on the measured date and arrives late, 2.4% otherwise. The consistency check, where the data matches the forecaster's assumptions,
-shows 2.7%. The submitted version reported 19.4% for late payouts; its test harness
+(median 2.2%, worst case 42.5%, 1,200 backtests). The error is concentrated: 41.5% on
+average when a payout is due on the measured date and arrives late, 1.4% when no payout
+is in transit. The consistency check, where the data matches the forecaster's assumptions,
+shows 1.5%. The submitted version reported 19.4% for late payouts; its test harness
 deleted some late payouts instead of delaying them, which is fixed and tested
 (`tests/test_stress_harness.py`).
 Undeclared one-off bills are the second blind spot: in one backtest, EUR 4,500 of a
@@ -260,7 +261,7 @@ recommended after simulation.
 ### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 311 tests and the evidence pack run in offline mode so that they need no key and
+All 319 tests and the evidence pack run in offline mode so that they need no key and
 always give the same answer. LLM mode was run against the live API on 18 October 2026
 (`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
 scenarios, all answered in LLM mode with no fallback; both injection attempts were

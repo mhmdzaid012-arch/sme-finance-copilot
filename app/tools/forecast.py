@@ -22,6 +22,7 @@ balance path, plus where and why it breaks.
 
 from __future__ import annotations
 
+import calendar
 import statistics
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -193,6 +194,36 @@ def payouts_in_transit(ctx: SellerContext, fee_rate: float, refund_rate: float) 
             for r in releases[-missing:]]
 
 
+def _recurring_dates(r: dict, as_of: date, horizon_end: date) -> list[date]:
+    """
+    Future dates of a detected recurring payment. Monthly bills fall on their
+    usual day of the month (or the last day of a shorter month); anything else
+    repeats on its measured day-gap.
+    """
+    last_seen = date.fromisoformat(r["last_seen"])
+    out: list[date] = []
+    if r.get("monthly"):
+        y, m = last_seen.year, last_seen.month
+        while True:
+            m += 1
+            if m > 12:
+                m, y = 1, y + 1
+            due = date(y, m, min(r["day_of_month"], calendar.monthrange(y, m)[1]))
+            if due > horizon_end:
+                break
+            if due > as_of:
+                out.append(due)
+        return out
+    cadence = max(1, r["cadence_days"])
+    due = last_seen + timedelta(days=cadence)
+    while due <= as_of:
+        due += timedelta(days=cadence)
+    while due <= horizon_end:
+        out.append(due)
+        due += timedelta(days=cadence)
+    return out
+
+
 # How far before its due date a declared bill may have been paid and still be
 # recognised as that bill in the bank ledger.
 OBLIGATION_PAID_LOOKBACK_DAYS = 14
@@ -318,19 +349,14 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
     recurring = detect_recurring(ctx)
     recurring_events: list[dict] = []
     for r in recurring:
-        cadence = max(1, r["cadence_days"])
-        next_date = date.fromisoformat(r["last_seen"]) + timedelta(days=cadence)
-        while next_date <= ctx.as_of:
-            next_date += timedelta(days=cadence)
-        while next_date <= horizon_end:
+        for due in _recurring_dates(r, ctx.as_of, horizon_end):
             recurring_events.append({
-                "date": next_date,
+                "date": due,
                 "amount": r["amount"],
                 "counterparty": r["counterparty"],
                 "category": r["category"],
                 "source": "recurring_detected",
             })
-            next_date += timedelta(days=cadence)
 
     obligation_events: list[dict] = []
     stock_arrivals: dict[date, float] = {}

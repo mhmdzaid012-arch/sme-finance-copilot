@@ -130,7 +130,7 @@
       ],
       "blocked": false,
       "block_reason": null,
-      "reply_chars": 730
+      "reply_chars": 603
     },
     {
       "id": "S9",
@@ -147,7 +147,7 @@
       ],
       "blocked": false,
       "block_reason": null,
-      "reply_chars": 1619
+      "reply_chars": 1114
     },
     {
       "id": "S10",
@@ -306,20 +306,20 @@
     {
       "seller_id": "amara-prints",
       "horizon_days": 45,
-      "projected_balance": 7896.61,
+      "projected_balance": 7956.61,
       "actual_balance": 3180.0,
-      "absolute_error": 4716.61,
-      "adjusted_error": 216.61,
-      "adjusted_error_pct_of_monthly_revenue": 1.98
+      "absolute_error": 4776.61,
+      "adjusted_error": 276.61,
+      "adjusted_error_pct_of_monthly_revenue": 2.52
     },
     {
       "seller_id": "amara-prints",
       "horizon_days": 60,
-      "projected_balance": 9650.03,
+      "projected_balance": 9710.03,
       "actual_balance": 3180.0,
-      "absolute_error": 6470.03,
-      "adjusted_error": 120.03,
-      "adjusted_error_pct_of_monthly_revenue": 1.1
+      "absolute_error": 6530.03,
+      "adjusted_error": 180.03,
+      "adjusted_error_pct_of_monthly_revenue": 1.65
     },
     {
       "seller_id": "kofi-coffee",
@@ -333,20 +333,20 @@
     {
       "seller_id": "kofi-coffee",
       "horizon_days": 45,
-      "projected_balance": 20474.68,
+      "projected_balance": 21284.68,
       "actual_balance": 21500.0,
-      "absolute_error": -1025.32,
-      "adjusted_error": -1025.32,
-      "adjusted_error_pct_of_monthly_revenue": -4.13
+      "absolute_error": -215.32,
+      "adjusted_error": -215.32,
+      "adjusted_error_pct_of_monthly_revenue": -0.87
     },
     {
       "seller_id": "kofi-coffee",
       "horizon_days": 60,
-      "projected_balance": 20146.89,
+      "projected_balance": 20956.89,
       "actual_balance": 21500.0,
-      "absolute_error": -1353.11,
-      "adjusted_error": -1353.11,
-      "adjusted_error_pct_of_monthly_revenue": -5.56
+      "absolute_error": -543.11,
+      "adjusted_error": -543.11,
+      "adjusted_error_pct_of_monthly_revenue": -2.23
     },
     {
       "seller_id": "linas-ceramics",
@@ -387,25 +387,25 @@
     {
       "seller_id": "techfix-parts",
       "horizon_days": 45,
-      "projected_balance": 13033.44,
+      "projected_balance": 14813.44,
       "actual_balance": 14900.0,
-      "absolute_error": -1866.56,
-      "adjusted_error": -1866.56,
-      "adjusted_error_pct_of_monthly_revenue": -4.63
+      "absolute_error": -86.56,
+      "adjusted_error": -86.56,
+      "adjusted_error_pct_of_monthly_revenue": -0.21
     },
     {
       "seller_id": "techfix-parts",
       "horizon_days": 60,
-      "projected_balance": 12304.15,
+      "projected_balance": 14084.15,
       "actual_balance": 14900.0,
-      "absolute_error": -2595.85,
-      "adjusted_error": -2595.85,
-      "adjusted_error_pct_of_monthly_revenue": -6.5
+      "absolute_error": -815.85,
+      "adjusted_error": -815.85,
+      "adjusted_error_pct_of_monthly_revenue": -2.04
     }
   ],
   "accuracy": {
-    "mean_abs_pct_of_monthly_revenue": 2.74,
-    "worst_abs_pct_of_monthly_revenue": 6.5
+    "mean_abs_pct_of_monthly_revenue": 1.54,
+    "worst_abs_pct_of_monthly_revenue": 2.97
   },
   "audit": {
     "chain": {

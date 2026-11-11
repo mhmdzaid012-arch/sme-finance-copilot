@@ -142,8 +142,24 @@ def test_documents_quote_the_live_figures(doc, stored_facts):
 def test_no_stale_figures_anywhere(doc):
     path = DECK_SCRIPT if doc == "build_deck.js" else DOCS[doc]
     text = path.read_text(encoding="utf-8")
-    found = [s for s in STALE if s in text]
+    found = [s for s in STALE if _quoted_as_a_whole_figure(s, text)]
     assert not found, f"{doc} still contains stale figures: {found}"
+
+
+def _quoted_as_a_whole_figure(stale: str, text: str) -> bool:
+    """True if `stale` appears as a figure of its own, not inside a longer
+    number: "2.5%" must be caught, "42.5%" (a current figure) must not."""
+    before = r"(?<![\d.,])" if stale[0].isdigit() else ""
+    after = r"(?!\d)" if stale[-1].isdigit() else ""
+    return re.search(before + re.escape(stale) + after, text) is not None
+
+
+def test_stale_figure_check_matches_whole_figures_only():
+    assert _quoted_as_a_whole_figure("2.5%", "the error was 2.5% then")
+    assert _quoted_as_a_whole_figure("EUR 800", "she makes EUR 800 a month")
+    assert _quoted_as_a_whole_figure("€", "costs €5")
+    assert not _quoted_as_a_whole_figure("2.5%", "worst case 42.5%")
+    assert not _quoted_as_a_whole_figure("EUR 800", "about EUR 8000")
 
 
 def test_deck_takes_every_figure_from_the_facts_file():

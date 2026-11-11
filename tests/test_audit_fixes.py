@@ -265,3 +265,47 @@ def test_late_payout_is_expected_instead_of_forgotten(seller_id):
     # fix the late path stayed a whole payout lower for the entire forecast.
     assert late["series"][-1]["balance"] == pytest.approx(
         on_time["series"][-1]["balance"], abs=amount * 0.02)
+
+
+# ---------------------------------------------------------------------------
+# B2 - monthly bills stay on their day of the month
+# ---------------------------------------------------------------------------
+
+def _projected_dates(f: dict, counterparty: str) -> list[date]:
+    return [date.fromisoformat(s["date"]) for s in f["series"] for e in s["events"]
+            if e["counterparty"] == counterparty]
+
+
+def test_rent_stays_on_the_first_of_the_month_for_180_days(amara):
+    """Before the fix: 2 Oct, 2 Nov, 3 Dec, 3 Jan, 3 Feb, 6 Mar."""
+    dates = _projected_dates(forecast_cashflow(amara, 180), "Studio Rent (Kreuzberg)")
+    assert dates == [date(2026, 10, 1), date(2026, 11, 1), date(2026, 12, 1),
+                     date(2027, 1, 1), date(2027, 2, 1), date(2027, 3, 1)]
+
+
+def test_bill_on_the_30th_uses_the_last_day_of_a_shorter_month(amara):
+    dates = _projected_dates(forecast_cashflow(amara, 180), "Part-time Studio Assistant")
+    assert dates == [date(2026, 9, 30), date(2026, 10, 30), date(2026, 11, 30),
+                     date(2026, 12, 30), date(2027, 1, 30), date(2027, 2, 28)]
+
+
+def test_every_monthly_bill_is_projected_once_per_month_on_its_day(any_seller):
+    f = forecast_cashflow(any_seller, 120)
+    for r in f["recurring_detected"]:
+        assert r["monthly"], r["counterparty"]
+        dates = _projected_dates(f, r["counterparty"])
+        assert len({(d.year, d.month) for d in dates}) == len(dates), r["counterparty"]
+        assert all(d.day == r["day_of_month"] for d in dates if d.month != 2), r["counterparty"]
+
+
+def test_non_monthly_bills_still_repeat_on_their_day_gap():
+    ctx = get_seller("amara-prints")
+    weekly = [Transaction(f"wk-{i}", ctx.seller_id, config.AS_OF - timedelta(days=7 * i + 2),
+                          "bank", "expense", "cleaning", -40.0, "Weekly Cleaner", "")
+              for i in range(8)]
+    f = forecast_cashflow(_with_extra_txns(ctx, weekly), 30)
+    r = next(x for x in f["recurring_detected"] if x["counterparty"] == "Weekly Cleaner")
+    assert r["monthly"] is False and r["cadence_days"] == 7
+    dates = _projected_dates(f, "Weekly Cleaner")
+    assert dates[0] == config.AS_OF + timedelta(days=5)
+    assert all((b - a).days == 7 for a, b in zip(dates, dates[1:]))

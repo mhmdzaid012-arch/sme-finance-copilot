@@ -4,75 +4,75 @@
     {
       "key": "baseline",
       "label": "Same process the forecaster assumes",
-      "mean_pct": 2.7,
-      "worst_pct": 6.5,
+      "mean_pct": 1.5,
+      "worst_pct": 3.0,
       "backtests": 12
     },
     {
       "key": "noisier_sales",
       "label": "Daily sales twice as noisy (sd 0.16 -> 0.30)",
-      "mean_pct": 4.5,
-      "worst_pct": 9.4,
+      "mean_pct": 3.3,
+      "worst_pct": 5.9,
       "backtests": 12
     },
     {
       "key": "different_seasonality",
       "label": "A seasonal pattern the forecaster does not know",
-      "mean_pct": 9.0,
-      "worst_pct": 16.7,
+      "mean_pct": 7.6,
+      "worst_pct": 13.4,
       "backtests": 12
     },
     {
       "key": "late_payouts",
       "label": "Marketplace payouts arrive 0-3 days late at random",
       "mean_pct": 9.5,
-      "worst_pct": 41.0,
+      "worst_pct": 42.5,
       "backtests": 1200,
       "sets_of_draws": 100,
-      "median_pct": 2.6,
-      "p90_pct": 38.1,
+      "median_pct": 2.2,
+      "p90_pct": 41.0,
       "by_payout_position": {
         "no_payout_in_transit": {
           "backtests": 690,
-          "mean_pct": 2.4,
-          "worst_pct": 6.5
+          "mean_pct": 1.4,
+          "worst_pct": 3.0
         },
         "in_transit_on_forecast_date": {
           "backtests": 273,
-          "mean_pct": 2.3,
-          "worst_pct": 5.5
+          "mean_pct": 2.1,
+          "worst_pct": 3.4
         },
         "in_transit_on_measured_date": {
           "backtests": 237,
-          "mean_pct": 38.6,
-          "worst_pct": 41.0
+          "mean_pct": 41.5,
+          "worst_pct": 42.5
         }
       }
     },
     {
       "key": "all_three",
       "label": "All three at once",
-      "mean_pct": 15.1,
-      "worst_pct": 39.1,
+      "mean_pct": 14.8,
+      "worst_pct": 42.1,
       "backtests": 1200,
       "sets_of_draws": 100,
-      "median_pct": 8.9,
-      "p90_pct": 37.9,
+      "median_pct": 8.7,
+      "p90_pct": 41.0,
       "by_payout_position": {
         "no_payout_in_transit": {
           "backtests": 690,
-          "mean_pct": 10.5,
-          "worst_pct": 21.5
+          "mean_pct": 9.3,
+          "worst_pct": 18.0
         },
         "in_transit_on_forecast_date": {
           "backtests": 273,
-          "mean_pct": 6.9,
-          "worst_pct": 21.4
+          "mean_pct": 6.4,
+          "worst_pct": 17.9
         },
         "in_transit_on_measured_date": {
           "backtests": 237,
-          "mean_pct": 37.9,
-          "worst_pct": 39.1
+          "mean_pct": 40.7,
+          "worst_pct": 42.1
         }
       }
     }
