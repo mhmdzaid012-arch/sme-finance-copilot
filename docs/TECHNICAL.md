@@ -405,7 +405,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 330 tests
+pytest -q                             # 346 tests
 ```
 
 ## 10. Known limitations
@@ -430,4 +430,6 @@ These are covered briefly here and expanded in [SECURITY.md](SECURITY.md).
 4. **Synthetic benchmarks and a synthetic catalog.**
 5. **Pattern-based injection defence is incomplete by nature.**
 6. **Demo-grade sessions**, with no user authentication.
-7. **LLM mode hasn't been exercised against the live API** in this sandbox.
+7. **LLM mode is exercised live but not by the test suite.** It was run against the
+   live API on 18 October 2026 (risk R11 in SECURITY.md); the tests and the evidence
+   pack always run offline.

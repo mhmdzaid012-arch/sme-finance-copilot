@@ -40,7 +40,7 @@ from .store import get_seller
 from .tools.alerts import generate_alerts, payout_hold_sentence
 from .tools.analysis import analyse_business
 from .tools.financing import match_financing
-from .tools.forecast import forecast_cashflow
+from .tools.forecast import LLM_TOOL_RESULT_CHARS, forecast_cashflow
 from .tools.whatif import WhatIfError, simulate, verify_financing_options
 
 SYSTEM_PROMPT = """You are the SME Finance Copilot, an assistant for owners of small \
@@ -672,7 +672,7 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
                 tool_results.append({
                     "type": "tool_result",
                     "tool_use_id": block.id,
-                    "content": json.dumps(result, default=str)[:20000],
+                    "content": json.dumps(result, default=str)[:LLM_TOOL_RESULT_CHARS],
                 })
             messages.append({"role": "user", "content": tool_results})
         else:

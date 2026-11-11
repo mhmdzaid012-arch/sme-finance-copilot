@@ -412,3 +412,19 @@ def test_short_history_does_not_count_days_before_the_first_sale():
     ctx = get_seller("amara-prints", as_of=date(2026, 3, 14))  # 14 days of history
     baseline, _ = _weekday_baseline(ctx)
     assert min(baseline.values()) > 100
+
+
+# ---------------------------------------------------------------------------
+# LLM mode - the model must always be able to see the forecast's findings
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("horizon", [30, 60, 90, 180])
+def test_findings_survive_the_cut_applied_to_tool_results_in_llm_mode(any_seller, horizon):
+    """A tool result is cut to LLM_TOOL_RESULT_CHARS before the model sees it.
+    Before this fix the findings of a 90- or 180-day forecast were cut off."""
+    import json
+    from app.tools.forecast import LLM_TOOL_RESULT_CHARS
+    f = forecast_cashflow(any_seller, horizon)
+    visible = json.dumps(f, default=str)[:LLM_TOOL_RESULT_CHARS]
+    findings = json.dumps(f["findings"], default=str)
+    assert findings in visible

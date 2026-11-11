@@ -239,6 +239,9 @@ def _recurring_dates(r: dict, as_of: date, horizon_end: date) -> list[date]:
     return out
 
 
+# Characters of a tool result the language model is given (see app/agent.py).
+LLM_TOOL_RESULT_CHARS = 20000
+
 # How far before its due date a declared bill may have been paid and still be
 # recognised as that bill in the bank ledger.
 OBLIGATION_PAID_LOOKBACK_DAYS = 14
@@ -576,7 +579,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         last = date.fromisoformat(below_buffer[-1]["date"])
         bridge_days = (last - first).days + 1
 
-    return {
+    out = {
         "seller_id": ctx.seller_id,
         "as_of": ctx.as_of.isoformat(),
         "horizon_days": horizon_days,
@@ -634,6 +637,13 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "payout_hold": payout_hold,
         },
     }
+    # The findings go first. In LLM mode a tool result is cut to
+    # LLM_TOOL_RESULT_CHARS characters before the model sees it; with the
+    # day-by-day series first, the findings of any forecast longer than about
+    # 60 days were cut off and the model never saw them.
+    lead = ("seller_id", "as_of", "horizon_days", "currency", "opening_bank_balance",
+            "opening_platform_balance", "safety_buffer", "findings")
+    return {**{k: out[k] for k in lead}, **{k: v for k, v in out.items() if k not in lead}}
 
 
 def backtest(seller_id: str, cutoff: date, horizon_days: int = 30) -> dict:

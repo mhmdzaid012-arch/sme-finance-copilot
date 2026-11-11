@@ -117,8 +117,11 @@ wrap"). A disguised attack can't be cut out precisely, so the whole field is wit
 **Reporting.** The seller is told once per session that notes on their account
 contained text aimed at the assistant.
 
-**Output checks (`check_output`).** These block any claim of approval, guarantee or
-certainty, and anything shaped like an account or card number.
+**Output checks (`check_output`).** These block three specific wordings ("you are
+approved", "guaranteed" / "we guarantee", "you will definitely get") and anything shaped
+like an account or card number. Other wordings of the same claim, such as "your loan is
+approved" or "you are pre-approved", are **not** caught today; the system prompt forbids
+them, and no wording can make anything execute without the human.
 
 **False positives are tested too**, in the same six languages
 (`test_benign_questions_in_other_languages_are_not_flagged`). A guardrail that fires
@@ -261,7 +264,7 @@ recommended after simulation.
 ### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 330 tests and the evidence pack run in offline mode so that they need no key and
+All 346 tests and the evidence pack run in offline mode so that they need no key and
 always give the same answer. LLM mode was run against the live API on 18 October 2026
 (`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
 scenarios, all answered in LLM mode with no fallback; both injection attempts were

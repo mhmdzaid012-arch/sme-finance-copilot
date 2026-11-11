@@ -36,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 330 tests
+pytest -q                              # 346 tests
 ```
 
 ---
@@ -221,7 +221,7 @@ scripts/
                          (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
                          before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               330 tests
+tests/               346 tests
 ```
 
 ## API
