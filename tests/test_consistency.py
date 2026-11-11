@@ -120,6 +120,10 @@ def _required_phrases(f: dict) -> dict[str, list[str]]:
     return {
         "README.md": hero + accuracy + [tests],
         "TECHNICAL.md": accuracy + [
+            # The accuracy figure is never quoted without its unadjusted and
+            # balance-based versions.
+            f"{a['unadjusted_mean_pct']}%", f"{a['unadjusted_worst_pct']}%",
+            f"{a['balance_based_mean_pct']}%", f"{a['one_off_share_of_raw_error_pct']}%",
             eur(bt["raw_error"]), eur(bt["undeclared_one_offs"]), tests,
             eur(h["mca"]["cost"]), eur(h["recommended"]["cost"]),
             f"{f['counts']['transactions']:,} transactions",

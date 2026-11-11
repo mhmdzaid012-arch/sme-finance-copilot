@@ -363,3 +363,52 @@ def test_partial_cover_is_stated_as_a_share():
         "held_at_trough": 2_500.0, "trough_date": "2026-10-04", "share_of_gap_pct": 25.0,
         "covers_gap": False, "hold_days": 10, "cadence_days": 14}})
     assert "about 25% of the EUR 10,000 gap" in text
+
+
+# ---------------------------------------------------------------------------
+# B4 - the sales baseline is per calendar day, not per ledger row
+# ---------------------------------------------------------------------------
+
+def _resplit_sales(ctx: SellerContext, rows_per_day: int) -> SellerContext:
+    """The same daily sales, recorded as several order rows per day."""
+    txns = []
+    for t in ctx.transactions:
+        if t.type != "sale":
+            txns.append(t)
+            continue
+        for k in range(rows_per_day):
+            txns.append(Transaction(f"{t.txn_id}-{k}", t.seller_id, t.date, t.ledger, t.type,
+                                    t.category, t.amount / rows_per_day, t.counterparty, t.memo))
+    out = SellerContext(profile=ctx.profile, transactions=txns, as_of=ctx.as_of)
+    out.metrics = compute_metrics(out)
+    return out
+
+
+def test_per_order_rows_give_the_same_forecast_as_daily_rows(amara):
+    """Before the fix, 4 order rows per day cut projected sales to a quarter."""
+    daily = forecast_cashflow(amara, 60)
+    per_order = forecast_cashflow(_resplit_sales(amara, 4), 60)
+    for a, b in zip(daily["series"], per_order["series"]):
+        assert b["projected_sales"] == pytest.approx(a["projected_sales"], abs=0.02), a["date"]
+    assert per_order["findings"]["trough_balance"] == pytest.approx(
+        daily["findings"]["trough_balance"], abs=1.0)
+
+
+def test_a_day_with_no_sales_counts_as_zero(amara):
+    from app.tools.forecast import _weekday_baseline
+    before, _ = _weekday_baseline(amara)
+    closed_day = config.AS_OF - timedelta(days=7)  # one day inside the 56-day window
+    txns = [t for t in amara.transactions if not (t.type == "sale" and t.date == closed_day)]
+    ctx = SellerContext(profile=amara.profile, transactions=txns, as_of=amara.as_of)
+    ctx.metrics = compute_metrics(ctx)
+    after, _ = _weekday_baseline(ctx)
+    wd = closed_day.weekday()
+    assert after[wd] < before[wd]  # 8 such weekdays in the window, one now zero
+    assert all(after[k] == pytest.approx(before[k]) for k in range(7) if k != wd)
+
+
+def test_short_history_does_not_count_days_before_the_first_sale():
+    from app.tools.forecast import _weekday_baseline
+    ctx = get_seller("amara-prints", as_of=date(2026, 3, 14))  # 14 days of history
+    baseline, _ = _weekday_baseline(ctx)
+    assert min(baseline.values()) > 100

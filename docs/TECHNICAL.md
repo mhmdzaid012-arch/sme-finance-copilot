@@ -222,14 +222,31 @@ and it is the reason the what-if simulator has a *payouts arrive late* setting
 (section 6): sellers can test it on their own projection instead of trusting a single
 number.
 
-The error is measured against **monthly revenue**, not the closing balance. Measuring
-against the balance flatters sellers with large balances and punishes small ones.
+**What the consistency check does not show.** Five limits, stated so nobody has to
+find them:
 
-Unforecastable payments are reported separately, not absorbed into the error. For
-Amara, a 30-day backtest has a raw error of EUR 4,827, of which EUR 4,500 is a single
-supplier deposit that was never declared. **A rule-based forecaster can't see a lumpy
-commitment that nobody told it about.** That is why the product asks sellers to
-declare their upcoming bills.
+1. **It compares one number**: the bank balance on the last day of the window. It does
+   not check the lowest point, the date of the lowest point or the bridge amount, which
+   are the figures a seller acts on.
+2. **No backtest window contains a declared bill.** Every window ends on 10 September,
+   and the first declared bill is due on 25 September. The situation the product exists
+   for, a large bill meeting the payout schedule, is not back-tested.
+3. **The headline figure leaves out one-off payments nobody declared.** Before that
+   adjustment the mean error is **13.2%** of monthly revenue (worst case 59.7%), and
+   the adjustment removes 80.5% of the raw error. All of it is two payments in Amara's
+   ledger: a EUR 4,500 stock deposit on 20 August and a EUR 1,850 VAT prepayment on
+   15 July. For Amara, a 30-day backtest has a raw error of EUR 4,827, of which
+   EUR 4,500 is that deposit. Neither payment was on the declared-bills list when the
+   forecast was made, but a real seller would have known about both. So the headline
+   figure means "accuracy when the seller declares the bills they know about". **A
+   rule-based forecaster can't see a lumpy commitment that nobody told it about**,
+   which is why the product asks sellers to declare upcoming bills.
+4. **The error is divided by monthly revenue, not by the closing balance.** Measuring
+   against the balance flatters sellers with large balances and punishes small ones.
+   Divided by the closing balance, the mean error is **3.8%**.
+5. **The seasonal factors in `config.SEASONALITY` are the same ones the data generator
+   uses.** For seasonality the check is circular. The "seasonal pattern the forecaster
+   doesn't know" row of the stress test is the measure of that exposure.
 
 ---
 
@@ -388,7 +405,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 327 tests
+pytest -q                             # 330 tests
 ```
 
 ## 10. Known limitations
@@ -398,6 +415,15 @@ These are covered briefly here and expanded in [SECURITY.md](SECURITY.md).
 1. **Late payouts and undeclared one-off bills** are the largest sources of forecast
    error (see the stress test). The what-if simulator exposes the first, and declaring
    bills addresses the second. Neither is solved.
+   - **Quarterly and annual bills are not detected.** The detector needs three payments
+     inside 180 days, so VAT prepayments and insurance must be declared by the seller.
+   - **Stock already owned on the forecast date is not an input.** Stock is only
+     counted when it arrives with a declared bill. A seller holding unsold stock would
+     see product costs charged that they have already paid.
+   - **Refund and chargeback rates are simple 56-day averages.** Refunds lag sales by
+     days and chargebacks by weeks, so the measured rates are approximate (for Amara
+     the 56-day chargeback rate is 0.68% against 0.42% over the whole history), and
+     chargebacks are charged on the day of sale.
 2. **Rule-based forecasting can't anticipate structural breaks**, such as a
    marketplace changing its terms or a supplier failing.
 3. **Eligibility matching is not underwriting.**

@@ -43,12 +43,27 @@ def _weekday_baseline(ctx: SellerContext) -> tuple[dict[int, float], float]:
     """
     Mean gross sales per weekday over the baseline window, de-seasonalised so
     that the seasonality multiplier is not applied twice.
+
+    Sales are added up per calendar day first, and a day with no sales counts
+    as zero. Averaging the ledger rows directly is only right when there is
+    exactly one row per day: with one row per order it returns the average
+    order value, not the day's sales (audit B4).
     """
     window = ctx.window(config.SALES_BASELINE_WINDOW_DAYS, types=("sale",))
-    by_weekday: dict[int, list[float]] = {i: [] for i in range(7)}
+    per_day: dict[date, float] = {}
     for t in window:
         seas = _seasonal(t.date, ctx.profile["category"])
-        by_weekday[t.date.weekday()].append(t.amount / seas if seas else t.amount)
+        per_day[t.date] = per_day.get(t.date, 0.0) + (t.amount / seas if seas else t.amount)
+
+    by_weekday: dict[int, list[float]] = {i: [] for i in range(7)}
+    if per_day:
+        # Never count days before the seller's first recorded sale as zeros.
+        first_sale = min((t.date for t in ctx.transactions if t.type == "sale"),
+                         default=ctx.as_of)
+        d = max(first_sale, ctx.as_of - timedelta(days=config.SALES_BASELINE_WINDOW_DAYS - 1))
+        while d <= ctx.as_of:
+            by_weekday[d.weekday()].append(per_day.get(d, 0.0))
+            d += timedelta(days=1)
 
     overall = [v for vals in by_weekday.values() for v in vals]
     fallback = statistics.mean(overall) if overall else 0.0
@@ -690,6 +705,11 @@ def backtest(seller_id: str, cutoff: date, horizon_days: int = 30) -> dict:
         "actual_balance": round(actual, 2),
         "absolute_error": round(error, 2),
         "pct_error_vs_actual": round(error / denom * 100, 2),
+        # The same error before the one-off adjustment, on the same
+        # denominator as the headline figure, so the two can be compared.
+        "raw_error_pct_of_monthly_revenue": round(
+            error / max(ctx_past.metrics["avg_monthly_revenue"], 1.0) * 100, 2
+        ),
         "undeclared_one_offs": one_offs,
         "undeclared_one_off_total": one_off_total,
         "adjusted_error": adjusted_error,

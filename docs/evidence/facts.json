@@ -4,7 +4,7 @@
     "sellers": 4,
     "products": 18,
     "transactions": 4794,
-    "tests": 327,
+    "tests": 330,
     "evidence_scenarios": 18,
     "audit_records": 79
   },
@@ -462,6 +462,10 @@
       "adjusted_error": 326.71,
       "adjusted_pct_of_revenue": 2.97
     },
+    "unadjusted_mean_pct": 13.2,
+    "unadjusted_worst_pct": 59.7,
+    "balance_based_mean_pct": 3.8,
+    "one_off_share_of_raw_error_pct": 80.5,
     "consistency_mean_pct": 1.5,
     "consistency_worst_pct": 3.0,
     "stress": {
