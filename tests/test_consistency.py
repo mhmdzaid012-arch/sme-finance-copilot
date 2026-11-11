@@ -187,6 +187,14 @@ def test_real_data_backtest_figures_in_the_docs_match_the_evidence_file():
     assert uci["dataset"]["licence"] == "CC BY 4.0"
 
 
+def test_recorded_live_run_is_current_or_labelled_as_old(stored_facts):
+    """The live-LLM transcript cannot be regenerated without an API key. It must
+    either quote today's figures or say plainly that it predates them."""
+    text = (config.EVIDENCE_DIR / "llm_live_run.md").read_text(encoding="utf-8")
+    current = eur(stored_facts["hero"]["need_amount"]) in text
+    assert current or "Recorded before the finals fixes" in text
+
+
 def test_third_party_data_is_never_committed():
     ignored = (config.ROOT / ".gitignore").read_text(encoding="utf-8")
     assert "data/external/" in ignored and ".env" in ignored

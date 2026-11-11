@@ -17,6 +17,74 @@ monthly revenue over the previous 90 days.
 
 ---
 
+## 0. STATUS UPDATE (written last, read this first)
+
+The session hit its usage limit before the report could be rewritten. **Sections 1-10
+below describe the state after Steps 0-3 only and their "after" numbers are out of
+date.** This section is the current truth. `pytest -q`: **367 passed**.
+
+Done since section 4 was written (all approved items 1-10, then Steps 4 and 5):
+
+| Commit | What |
+|---|---|
+| `cde4ba7` | A2: bill due today or overdue is charged on day one |
+| `32afce8` | B6: payout delayed past the forecast end is "pending", reply says "late, not lost" |
+| `3ad4669` | B10: never "None days" |
+| `5c1962f` | A3: several payments are never called "one payment" |
+| `04b9b35` | A4: 47 vs 43 days explained in alert, reply and UI |
+| `1d0bcd4` | N1: a payout that is due but not in the bank is expected, not forgotten |
+| `c080fc5` | B2: monthly bills stay on their day of the month |
+| `a1287f2` | A5: payout timing named as a cause, with the amount held |
+| `6932410` | B4 (sales per calendar day) + accuracy disclosures in TECHNICAL.md 3.6 and 10 |
+| `c19ef5b` | Step 4: forecast findings always visible to the model; two doc corrections |
+| `5dc7018` | Step 5: real-data sales backtest on UCI Online Retail II (CC BY 4.0) |
+| (this commit) | Old live-LLM transcript labelled as pre-fix; this status section |
+
+Current headline numbers (command: `python scripts/generate_evidence.py`, then
+`docs/evidence/facts.json` and `stress_test.json`):
+
+| Number | Submitted | Now |
+|---|---:|---:|
+| Tests | 232 | 367 |
+| Consistency check, mean / worst | 3.1% / 6.5% | 1.5% / 3.0% |
+| Same check without the one-off adjustment (new disclosure) | not reported | 13.2% mean, 59.7% worst |
+| Late payouts, mean / median / worst | 19.4% / - / 47.9% | 9.5% / 2.2% / 42.5% (1,200 backtests) |
+| Amara lowest balance | -EUR 5,084, 4 Oct | -EUR 5,055, 4 Oct |
+| Amara amount needed, days, lead time | EUR 6,584, 47, 6 | EUR 6,555, 47, 6 |
+| Her own money in the payout queue on 4 Oct (new) | not reported | EUR 8,459 |
+| Balance on day 60 | EUR 2,815 | EUR 2,671 |
+| Ember / Granary / merchant advance cost | EUR 218 / 196 / 1,844 | EUR 217 / 195 / 1,835 |
+| What-if low points: supplier 3 weeks late / payouts 3 days late / Ember / SwiftCash | -3,925 / -5,412 / 959 / -796 | -4,081 / -5,378 / 780 / -927 |
+| UCI real-data check, 60-day sales total error (`python scripts/uci_backtest.py`) | none | ours 19.1%, repeat last week 29.6%, same weekday last year 7.4% |
+
+Stress-test sentence for the deck (replaces the one in section 3):
+> Late payouts are our biggest forecast risk: when payouts slip 0-3 days, the average
+> error rises from 1.5% to 9.5% of monthly revenue (1,200 simulated backtests).
+
+Deck slides that must change (deck not edited): slide 7 (-5,084 -> -5,055; 6,584 ->
+6,555; 2,815 -> 2,671; add the EUR 8,459 payout-queue sentence), slide 8 (196 -> 195;
+218 -> 217; 1,844 -> 1,835), slide 9 (-5,084 -> -5,055; -3,925 -> -4,081; -5,412 ->
+-5,378; 959 -> 780; -796 -> -927), slide 11 (3.1% -> 1.5%; 19.4% -> 9.5%; 232 -> 367
+tests), slide 16 (232 -> 367 tests), slide 14 (the claim that an output guardrail
+enforces "never says approved" is too strong, see N6). Slides 2 and 5 (13.7 days) are
+unchanged. The deck contains no statement about when Amazon's rule changed.
+
+New findings from Step 4, **not fixed, need approval**:
+- N6 Output guardrail catches only three wordings; "Your loan is approved" and "You are pre-approved" pass. SECURITY.md now says so. Effort S. Recommend fix.
+- N4 LLM mode has no timeout set (SDK default: 600 s read, 2 retries). On bad Wi-Fi a live turn could hang. Effort S. Recommend fix.
+- N2/N3 `/api/seller/{id}/whatif` and `/financing` return a 500 error on malformed input (text where a number is expected, "NaN"); not reachable from the UI. Effort S.
+- N9 LLM mode keeps no conversation history between turns (follow-up questions lose context).
+- N7 Baseline starts one growth step too low: a seller growing 3.5% per 28 days is under-projected by 3.7%. N8 The growth estimate is mostly noise (spread 2.8-5.9 points against true growth of 0.7-5.3%). Recommend disclose.
+- N10 Business analysis crashes for a seller with no sales at all. N11 `get_transactions` is registered but not implemented.
+- The stale-figure test now matches whole figures only, because the true figure 42.5% contains the banned "2.5%".
+
+**Not done:** Step 6 full sweep write-up and slide-by-slide old/new text, Step 7
+suggestions, rewriting sections 1-10 of this report, pushing `finals`, and opening the
+pull request (default branch is `master`). `docs/evidence/llm_live_run.md` is labelled
+as recorded before the fixes; re-run `scripts/live_llm_check.py` with the team's key.
+
+---
+
 ## 1. Summary
 
 1. Fixed the seasonality double-count (R12) and the broken stress-test harness. Both have regression tests.
