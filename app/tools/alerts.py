@@ -71,9 +71,11 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
             "detail": (
                 f"On current trends the bank balance goes negative on {first_neg} and "
                 f"bottoms out at {_fmt_eur(trough_balance)} on {trough_date}. The "
-                f"payments driving it are {driver_text}. To stay above your "
-                f"{_fmt_eur(buffer_level)} safety buffer throughout you would need "
-                f"about {_fmt_eur(gap)} for roughly {duration} days."
+                f"payments driving it are {driver_text}."
+                # Only state an amount and a duration when there is one to state.
+                + (f" To stay above your {_fmt_eur(buffer_level)} safety buffer "
+                   f"throughout you would need about {_fmt_eur(gap)} for roughly "
+                   f"{duration} days." if gap > 0 and duration else "")
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,

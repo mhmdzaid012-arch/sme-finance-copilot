@@ -121,3 +121,30 @@ def test_whatif_reply_is_unchanged_when_nothing_is_pending():
     r = simulate(get_seller("amara-prints"), {"payout_delay_days": 3, "horizon_days": 60})
     assert r["comparison"]["payouts_pending_at_horizon"] == 0
     assert "late, not lost" not in " ".join(r["summary_lines"])
+
+
+# ---------------------------------------------------------------------------
+# B10 - no alert may ever read "for roughly None days"
+# ---------------------------------------------------------------------------
+
+def _all_text(obj) -> str:
+    import json
+    return json.dumps(obj, default=str)
+
+
+def test_no_alert_text_contains_none_even_with_a_negative_buffer():
+    """A negative buffer means: negative balance, but nothing needed to reach the buffer."""
+    ctx = _with_profile_copy("amara-prints")
+    ctx.metrics = dict(ctx.metrics, safety_buffer=-10_000.0)
+    f = forecast_cashflow(ctx, 60)
+    assert f["findings"]["goes_negative"] and f["findings"]["suggested_bridge_days"] == 0
+    alerts = generate_alerts(ctx, f, include_financing=False)
+    for a in alerts["alerts"]:
+        assert "None" not in a["headline"] + a["detail"], a["id"]
+
+
+@pytest.mark.parametrize("horizon", [7, 30, 60, 180])
+def test_no_alert_text_contains_none_for_any_seller(any_seller, horizon):
+    alerts = generate_alerts(any_seller, forecast_cashflow(any_seller, horizon))
+    for item in alerts["alerts"] + alerts["mitigations"]:
+        assert "None" not in item.get("headline", "") + item.get("action", "") + item["detail"]
