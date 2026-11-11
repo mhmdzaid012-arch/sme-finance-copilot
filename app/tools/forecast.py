@@ -159,6 +159,28 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
     return released_through, round(held_reserve, 2)
 
 
+# How far before its due date a declared bill may have been paid and still be
+# recognised as that bill in the bank ledger.
+OBLIGATION_PAID_LOOKBACK_DAYS = 14
+
+
+def _obligation_paid(ctx: SellerContext, obligation: dict) -> bool:
+    """
+    True if the bank ledger shows this declared bill as paid: an outflow of the
+    same amount to the same counterparty, no more than 14 days before it was due.
+    """
+    due = date.fromisoformat(obligation["due"])
+    earliest = due - timedelta(days=OBLIGATION_PAID_LOOKBACK_DAYS)
+    amount = float(obligation["amount"])
+    return any(
+        t.ledger == "bank" and t.amount < 0
+        and t.counterparty == obligation["counterparty"]
+        and abs(abs(t.amount) - amount) < 0.01
+        and t.date >= earliest
+        for t in ctx.transactions
+    )
+
+
 @dataclass
 class Scenario:
     """
@@ -265,6 +287,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
 
     obligation_events: list[dict] = []
     stock_arrivals: dict[date, float] = {}
+    first_day = ctx.as_of + timedelta(days=1)
     for o in ctx.profile.get("scheduled_obligations", []):
         original_due = date.fromisoformat(o["due"])
         od = original_due + timedelta(
@@ -273,20 +296,35 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         parts = [(od, amount)]
         if o["counterparty"] in sc.obligation_splits:
             parts = [(od, amount / 2), (od + timedelta(days=30), amount / 2)]
+        # A bill due today or earlier that the bank ledger does not show as
+        # paid is the most urgent one of all. It is charged on the first day
+        # of the forecast and marked overdue - never silently dropped.
+        if original_due <= ctx.as_of and _obligation_paid(ctx, o):
+            continue
         # Goods arrive on the originally agreed date. Negotiating to *pay*
         # later does not delay the delivery, so the stock is not shifted.
+        # (For an overdue bill the stock is counted from the first day.)
         inv = float(o.get("inventory_value", 0.0) or 0.0)
-        if inv > 0 and ctx.as_of < original_due <= horizon_end:
-            stock_arrivals[original_due] = stock_arrivals.get(original_due, 0.0) + inv
+        stock_date = max(original_due, first_day)
+        if inv > 0 and stock_date <= horizon_end:
+            stock_arrivals[stock_date] = stock_arrivals.get(stock_date, 0.0) + inv
         for pdate, pamount in parts:
-            if ctx.as_of < pdate <= horizon_end:
+            overdue = pdate <= ctx.as_of
+            if overdue:
+                pdate = first_day
+            if pdate <= horizon_end:
+                note = o.get("note", "")
+                if overdue:
+                    note = (f"Overdue: was due {original_due.isoformat()} and no matching "
+                            f"payment is in the bank ledger." + (f" {note}" if note else ""))
                 obligation_events.append({
                     "date": pdate,
                     "amount": pamount,
                     "counterparty": o["counterparty"],
                     "category": o["category"],
                     "source": "scheduled_obligation",
-                    "note": o.get("note", ""),
+                    "note": note,
+                    "overdue": overdue,
                 })
 
     # --- scenario-only events -------------------------------------------------
@@ -448,7 +486,8 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         ],
         "scheduled_obligations": [
             {"date": e["date"].isoformat(), "amount": round(e["amount"], 2),
-             "counterparty": e["counterparty"], "note": e.get("note", "")}
+             "counterparty": e["counterparty"], "note": e.get("note", ""),
+             "overdue": bool(e.get("overdue"))}
             for e in sorted(obligation_events, key=lambda e: e["date"])
         ],
         "recurring_detected": recurring,
