@@ -248,6 +248,50 @@ find them:
    uses.** For seasonality the check is circular. The "seasonal pattern the forecaster
    doesn't know" row of the stress test is the measure of that exposure.
 
+### 3.7 Real-data check of the sales forecast
+
+Everything above is measured on data we generated. To break that circle for at least
+one component, `scripts/uci_backtest.py` runs the sales projection, unchanged and
+untuned, on a real retailer: the UCI *Online Retail II* dataset (a UK online gift-ware
+seller, 1 December 2009 to 9 December 2011, 1,067,371 invoice lines; Chen, D., 2012,
+https://doi.org/10.24432/C5CG6D, licence CC BY 4.0). After cleaning (cancellations, non-positive quantities and prices and
+non-product codes removed) 1,036,877 lines remain, added up into 739 calendar days,
+135 of them with no sales.
+
+**Scope: sales only.** The dataset has no payouts, fees, bills or bank balances, so
+this does not test the payout model, which is the part of the product that matters
+most.
+
+Method: one forecast every 7 days (80 forecast dates), each seeing only the days up to
+its date and scored on the next 14, 30 and 60 days. Nothing is fitted to this dataset.
+The error is the gap between forecast and actual total sales over the horizon, as a
+share of actual sales, averaged over forecast dates (median in brackets).
+
+| Horizon | Our forecast | Repeat last week | Weekday average, 8 weeks | Same weekday last year* |
+|---|---:|---:|---:|---:|
+| 14 days | 32.6% (13.3%) | 35.3% (19.4%) | 36.7% (14.0%) | 15.0% (10.8%) |
+| 30 days | 18.7% (10.5%) | 27.8% (16.2%) | 24.2% (11.0%) | 10.6% (10.9%) |
+| 60 days | 19.1% (11.8%) | 29.6% (20.7%) | 25.9% (14.5%) | 7.4% (7.4%) |
+
+\* Needs a year of history, so it covers only the last 45 of the 80 forecast dates.
+On those same 45 dates our forecast's 60-day error is 24.6% (15.0%).
+
+What this shows, plainly:
+
+- The forecast **beats the two naive forecasts that use only recent weeks** at 30 and
+  60 days, and is roughly level with them at 14 days.
+- It **loses clearly to "same weekday last year"** wherever a year of history exists.
+  The monthly seasonal table was written for the sandbox and under-states this
+  retailer's Christmas peak; the seller's own previous year is a far better guide.
+  Using it when it exists is the obvious next improvement.
+- The averages are pulled up by the Christmas shutdown: the retailer closes from
+  24 December to early January and the forecaster knows nothing about holidays. The
+  worst single 14-day forecast (made on 22 December 2010) predicted GBP 639,108
+  against GBP 58,495 of actual sales.
+
+The download script is `scripts/uci_download.py`; the raw data is not in the
+repository (`data/external/` is git-ignored). Results: `docs/evidence/uci_backtest.json`.
+
 ---
 
 ## 4. Core algorithm: financing matching
@@ -405,7 +449,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 346 tests
+pytest -q                             # 366 tests
 ```
 
 ## 10. Known limitations

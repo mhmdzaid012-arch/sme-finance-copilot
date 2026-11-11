@@ -175,6 +175,26 @@ def test_deck_takes_every_figure_from_the_facts_file():
     assert not literals, f"hard-coded amounts in the deck: {literals[:5]}"
 
 
+def test_real_data_backtest_figures_in_the_docs_match_the_evidence_file():
+    """The UCI figures are published in two documents; both must match the file."""
+    uci = json.loads((config.EVIDENCE_DIR / "uci_backtest.json").read_text(encoding="utf-8"))
+    h60 = uci["all_origins"]["60"]
+    for doc in ("README.md", "TECHNICAL.md"):
+        text = DOCS[doc].read_text(encoding="utf-8")
+        for method in ("model", "last_week", "last_year"):
+            assert f"{h60[method]['total_error_mean_pct']}%" in text, (doc, method)
+        assert "CC BY 4.0" in text and "10.24432/C5CG6D" in text, doc
+    assert uci["dataset"]["licence"] == "CC BY 4.0"
+
+
+def test_third_party_data_is_never_committed():
+    ignored = (config.ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "data/external/" in ignored and ".env" in ignored
+    tracked = subprocess.run(["git", "ls-files", "data/external", ".env"], cwd=config.ROOT,
+                             capture_output=True, text=True).stdout.strip()
+    assert tracked == "", f"must not be committed: {tracked}"
+
+
 def test_accuracy_is_never_described_as_real_world_without_the_stress_result():
     for doc, path in DOCS.items():
         text = path.read_text(encoding="utf-8")

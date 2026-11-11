@@ -9,3 +9,5 @@ logs/
 *.pdf
 slide-*.jpg
 thumbnails*.jpg
+# Third-party datasets are downloaded by scripts, never committed
+data/external/

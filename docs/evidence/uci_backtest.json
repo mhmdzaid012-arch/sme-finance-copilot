@@ -1,0 +1,284 @@
+{
+  "dataset": {
+    "name": "Online Retail II",
+    "author": "Chen, D. (2012)",
+    "source": "UCI Machine Learning Repository",
+    "doi": "https://doi.org/10.24432/C5CG6D",
+    "licence": "CC BY 4.0",
+    "first_day": "2009-12-01",
+    "last_day": "2011-12-09",
+    "calendar_days": 739,
+    "days_with_no_sales": 135
+  },
+  "scope": "Sales component only. The dataset has no payouts, fees, bills or bank balances, so it does not test the payout model.",
+  "method": {
+    "rolling_origin_step_days": 7,
+    "min_history_days": 120,
+    "horizons_days": [
+      14,
+      30,
+      60
+    ],
+    "fitted_to_this_dataset": "nothing",
+    "seasonal_table": "config.SEASONALITY, unchanged (written for the sandbox)",
+    "errors": "percent of actual sales over the horizon; mean over origins"
+  },
+  "all_origins": {
+    "14": {
+      "origins": 80,
+      "model": {
+        "total_error_mean_pct": 32.6,
+        "total_error_median_pct": 13.3,
+        "daily_error_mean_pct": 49.1
+      },
+      "last_week": {
+        "total_error_mean_pct": 35.3,
+        "total_error_median_pct": 19.4,
+        "daily_error_mean_pct": 54.2
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 36.7,
+        "total_error_median_pct": 14.0,
+        "daily_error_mean_pct": 52.4
+      },
+      "last_year": {
+        "total_error_mean_pct": 15.0,
+        "total_error_median_pct": 10.8,
+        "daily_error_mean_pct": 39.1
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 60.0,
+        "weekday_avg_8w": 57.8,
+        "last_year": 40.0
+      }
+    },
+    "30": {
+      "origins": 80,
+      "model": {
+        "total_error_mean_pct": 18.7,
+        "total_error_median_pct": 10.5,
+        "daily_error_mean_pct": 39.1
+      },
+      "last_week": {
+        "total_error_mean_pct": 27.8,
+        "total_error_median_pct": 16.2,
+        "daily_error_mean_pct": 49.9
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 24.2,
+        "total_error_median_pct": 11.0,
+        "daily_error_mean_pct": 42.7
+      },
+      "last_year": {
+        "total_error_mean_pct": 10.6,
+        "total_error_median_pct": 10.9,
+        "daily_error_mean_pct": 38.1
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 60.0,
+        "weekday_avg_8w": 55.6,
+        "last_year": 33.3
+      }
+    },
+    "60": {
+      "origins": 80,
+      "model": {
+        "total_error_mean_pct": 19.1,
+        "total_error_median_pct": 11.8,
+        "daily_error_mean_pct": 40.0
+      },
+      "last_week": {
+        "total_error_mean_pct": 29.6,
+        "total_error_median_pct": 20.7,
+        "daily_error_mean_pct": 51.5
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 25.9,
+        "total_error_median_pct": 14.5,
+        "daily_error_mean_pct": 45.1
+      },
+      "last_year": {
+        "total_error_mean_pct": 7.4,
+        "total_error_median_pct": 7.4,
+        "daily_error_mean_pct": 37.0
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 62.2,
+        "weekday_avg_8w": 48.9,
+        "last_year": 26.7
+      }
+    }
+  },
+  "origins_with_a_year_of_history": {
+    "14": {
+      "origins": 45,
+      "model": {
+        "total_error_mean_pct": 47.9,
+        "total_error_median_pct": 15.3,
+        "daily_error_mean_pct": 64.7
+      },
+      "last_week": {
+        "total_error_mean_pct": 44.7,
+        "total_error_median_pct": 19.6,
+        "daily_error_mean_pct": 64.1
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 53.5,
+        "total_error_median_pct": 14.6,
+        "daily_error_mean_pct": 69.5
+      },
+      "last_year": {
+        "total_error_mean_pct": 15.0,
+        "total_error_median_pct": 10.8,
+        "daily_error_mean_pct": 39.1
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 60.0,
+        "weekday_avg_8w": 57.8,
+        "last_year": 40.0
+      }
+    },
+    "30": {
+      "origins": 45,
+      "model": {
+        "total_error_mean_pct": 25.2,
+        "total_error_median_pct": 13.5,
+        "daily_error_mean_pct": 46.3
+      },
+      "last_week": {
+        "total_error_mean_pct": 35.0,
+        "total_error_median_pct": 22.2,
+        "daily_error_mean_pct": 58.0
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 31.9,
+        "total_error_median_pct": 14.9,
+        "daily_error_mean_pct": 51.2
+      },
+      "last_year": {
+        "total_error_mean_pct": 10.6,
+        "total_error_median_pct": 10.9,
+        "daily_error_mean_pct": 38.1
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 60.0,
+        "weekday_avg_8w": 55.6,
+        "last_year": 33.3
+      }
+    },
+    "60": {
+      "origins": 45,
+      "model": {
+        "total_error_mean_pct": 24.6,
+        "total_error_median_pct": 15.0,
+        "daily_error_mean_pct": 44.7
+      },
+      "last_week": {
+        "total_error_mean_pct": 34.3,
+        "total_error_median_pct": 20.1,
+        "daily_error_mean_pct": 56.4
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 33.3,
+        "total_error_median_pct": 15.3,
+        "daily_error_mean_pct": 51.4
+      },
+      "last_year": {
+        "total_error_mean_pct": 7.4,
+        "total_error_median_pct": 7.4,
+        "daily_error_mean_pct": 37.0
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 62.2,
+        "weekday_avg_8w": 48.9,
+        "last_year": 26.7
+      }
+    }
+  },
+  "origins_in_september_and_october_2011": {
+    "14": {
+      "origins": 5,
+      "model": {
+        "total_error_mean_pct": 19.4,
+        "total_error_median_pct": 18.0,
+        "daily_error_mean_pct": 32.1
+      },
+      "last_week": {
+        "total_error_mean_pct": 21.8,
+        "total_error_median_pct": 22.2,
+        "daily_error_mean_pct": 43.9
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 27.2,
+        "total_error_median_pct": 26.5,
+        "daily_error_mean_pct": 35.5
+      },
+      "last_year": {
+        "total_error_mean_pct": 13.7,
+        "total_error_median_pct": 10.2,
+        "daily_error_mean_pct": 39.0
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 60.0,
+        "weekday_avg_8w": 100.0,
+        "last_year": 40.0
+      }
+    },
+    "30": {
+      "origins": 5,
+      "model": {
+        "total_error_mean_pct": 17.1,
+        "total_error_median_pct": 13.9,
+        "daily_error_mean_pct": 32.6
+      },
+      "last_week": {
+        "total_error_mean_pct": 18.8,
+        "total_error_median_pct": 22.3,
+        "daily_error_mean_pct": 40.5
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 26.6,
+        "total_error_median_pct": 24.7,
+        "daily_error_mean_pct": 34.1
+      },
+      "last_year": {
+        "total_error_mean_pct": 4.9,
+        "total_error_median_pct": 3.7,
+        "daily_error_mean_pct": 37.1
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 40.0,
+        "weekday_avg_8w": 100.0,
+        "last_year": 0.0
+      }
+    },
+    "60": {
+      "origins": 5,
+      "model": {
+        "total_error_mean_pct": 20.1,
+        "total_error_median_pct": 22.3,
+        "daily_error_mean_pct": 34.1
+      },
+      "last_week": {
+        "total_error_mean_pct": 17.7,
+        "total_error_median_pct": 18.8,
+        "daily_error_mean_pct": 38.4
+      },
+      "weekday_avg_8w": {
+        "total_error_mean_pct": 32.9,
+        "total_error_median_pct": 32.2,
+        "daily_error_mean_pct": 37.4
+      },
+      "last_year": {
+        "total_error_mean_pct": 3.6,
+        "total_error_median_pct": 2.3,
+        "daily_error_mean_pct": 30.5
+      },
+      "model_beats_on_total_error_pct_of_origins": {
+        "last_week": 40.0,
+        "weekday_avg_8w": 100.0,
+        "last_year": 0.0
+      }
+    }
+  }
+}
