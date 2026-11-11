@@ -4,36 +4,36 @@
     {
       "key": "baseline",
       "label": "Same process the forecaster assumes",
-      "mean_pct": 3.1,
+      "mean_pct": 2.7,
       "worst_pct": 6.5,
       "backtests": 12
     },
     {
       "key": "noisier_sales",
       "label": "Daily sales twice as noisy (sd 0.16 -> 0.30)",
-      "mean_pct": 4.4,
-      "worst_pct": 9.5,
+      "mean_pct": 4.5,
+      "worst_pct": 9.4,
       "backtests": 12
     },
     {
       "key": "different_seasonality",
       "label": "A seasonal pattern the forecaster does not know",
-      "mean_pct": 8.3,
-      "worst_pct": 16.8,
+      "mean_pct": 9.0,
+      "worst_pct": 16.7,
       "backtests": 12
     },
     {
       "key": "late_payouts",
       "label": "Marketplace payouts arrive 0-3 days late at random",
-      "mean_pct": 19.4,
-      "worst_pct": 47.9,
+      "mean_pct": 19.6,
+      "worst_pct": 47.6,
       "backtests": 12
     },
     {
       "key": "all_three",
       "label": "All three at once",
-      "mean_pct": 26.6,
-      "worst_pct": 46.4,
+      "mean_pct": 27.1,
+      "worst_pct": 46.1,
       "backtests": 12
     }
   ]

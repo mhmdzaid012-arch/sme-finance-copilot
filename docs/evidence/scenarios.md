@@ -16,13 +16,13 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-25 and bottoms out at EUR -5,084 on 2026-10-04.
+> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-25 and bottoms out at EUR -5,055 on 2026-10-04.
 >
-> The main cause is Textil Nord GmbH (EUR 6,800), Studio Rent (Kreuzberg) (EUR 850). To stay above your EUR 1,500 buffer you need about EUR 6,584 for roughly 47 days, and you have 6 days to arrange it.
+> The main cause is Textil Nord GmbH (EUR 6,800), Studio Rent (Kreuzberg) (EUR 850). To stay above your EUR 1,500 buffer you need about EUR 6,555 for roughly 47 days, and you have 6 days to arrange it.
 >
 > Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask Textil Nord GmbH for extended terms.
 >
-> If you do need to finance it, the cheapest option that can arrive in time is Ember Seasonal Bridge at about EUR 218.
+> If you do need to finance it, the cheapest option that can arrive in time is Ember Seasonal Bridge at about EUR 217.
 >
 > Security note: 2 customer-supplied note(s) on your account contain text aimed at the assistant (control_bypass, fabricated_approval, instruction_override, system_impersonation). They were redacted before processing and nothing was acted on.
 
@@ -38,17 +38,17 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> 6 of 18 illustrative products match a EUR 6,584 requirement. Lowest cost for the 47 days you need it: Ember Seasonal Bridge at EUR 218. Fastest to arrange: SwiftCash Merchant Advance in ~1 day(s), costing EUR 1,844. 5 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
+> 6 of 18 illustrative products match a EUR 6,555 requirement. Lowest cost for the 47 days you need it: Ember Seasonal Bridge at EUR 217. Fastest to arrange: SwiftCash Merchant Advance in ~1 day(s), costing EUR 1,835. 5 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
 >
-> - Ember Seasonal Bridge (Ember Seasonal Finance (fictional)): EUR 218 for the period, arranges in ~6 day(s). EUR 6,584 over 4 months at 15.8% APR: about EUR 1,701 per month, EUR 218 total interest if held to term. Simulated with its repayments: You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).
+> - Ember Seasonal Bridge (Ember Seasonal Finance (fictional)): EUR 217 for the period, arranges in ~6 day(s). EUR 6,555 over 4 months at 15.8% APR: about EUR 1,693 per month, EUR 217 total interest if held to term. Simulated with its repayments: You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).
 >
-> - NordCap Revenue Advance (NordCap Growth (fictional)): EUR 593 for the period, arranges in ~3 day(s). Repay EUR 7,177 total (factor 1.09) by handing over 14% of daily sales - roughly EUR 51/day at your current sales rate, so about 140 days. Cost EUR 593, an effective ~23% APR precisely because it is repaid quickly. Simulated with its repayments: You never go negative, but you dip below your EUR 1,500 safety buffer for 9 day(s).
+> - NordCap Revenue Advance (NordCap Growth (fictional)): EUR 590 for the period, arranges in ~3 day(s). Repay EUR 7,145 total (factor 1.09) by handing over 14% of daily sales - roughly EUR 51/day at your current sales rate, so about 139 days. Cost EUR 590, an effective ~24% APR precisely because it is repaid quickly. Simulated with its repayments: You never go negative, but you dip below your EUR 1,500 safety buffer for 9 day(s).
 >
-> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 1,844 for the period, arranges in ~1 day(s). Repay EUR 8,428 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 81/day at your current sales rate, so about 105 days. Cost EUR 1,844, an effective ~98% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-10-02.
+> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 1,835 for the period, arranges in ~1 day(s). Repay EUR 8,390 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 81/day at your current sales rate, so about 104 days. Cost EUR 1,835, an effective ~98% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-10-02.
 >
 > 3 further option(s) match on eligibility but take too long to arrange this time - worth putting in place for the next peak.
 >
-> Closest thing you do not qualify for is BrightBridge Marketplace Factoring: requires funds held in payout queue requires at least EUR 6,584 advanceable and you are at EUR 5,007 held -> EUR 4,256 advanceable at 85%. Your payout queue only supports about EUR 4,256 right now; this could cover part of the need.
+> Closest thing you do not qualify for is BrightBridge Marketplace Factoring: requires funds held in payout queue requires at least EUR 6,555 advanceable and you are at EUR 5,007 held -> EUR 4,256 advanceable at 85%. Your payout queue only supports about EUR 4,256 right now; this could cover part of the need.
 >
 > None of this is a credit decision - it is a match against published criteria on simulated data.
 >
@@ -88,7 +88,7 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> No shortfall, but it gets tight: the balance dips below your EUR 6,000 buffer on 2026-10-06, reaching EUR 5,476 on 2026-10-08.
+> No shortfall, but it gets tight: the balance dips below your EUR 6,000 buffer on 2026-10-06, reaching EUR 5,494 on 2026-10-08.
 >
 > Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask Green Bean Importer for extended terms.
 >
@@ -106,13 +106,13 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> 2 of 18 illustrative products match a EUR 524 requirement. Lowest cost for the 3 days you need it: Harbor Business Overdraft at EUR 1. Fastest to arrange: BrightBridge Marketplace Factoring in ~1 day(s), costing EUR 1. 10 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
+> 2 of 18 illustrative products match a EUR 506 requirement. Lowest cost for the 3 days you need it: Harbor Business Overdraft at EUR 1. Fastest to arrange: BrightBridge Marketplace Factoring in ~1 day(s), costing EUR 1. 10 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
 >
-> - Harbor Business Overdraft (Harbor Bank (fictional)): EUR 1 for the period, arranges in ~9 day(s). EUR 524 over 12 months at 16.4% APR: about EUR 48 per month, EUR 48 total interest if held to term. Simulated with its repayments: This makes no real difference to your lowest point.
+> - Harbor Business Overdraft (Harbor Bank (fictional)): EUR 1 for the period, arranges in ~9 day(s). EUR 506 over 12 months at 16.4% APR: about EUR 46 per month, EUR 46 total interest if held to term. Simulated with its repayments: This makes no real difference to your lowest point.
 >
-> - BrightBridge Marketplace Factoring (BrightBridge Working Capital (fictional)): EUR 1 for the period, arranges in ~1 day(s). EUR 524 advanced for 3 days at 2.4% per 30 days costs about EUR 1 (effective ~29% APR). Repaid automatically from your next payout rather than out of future profit. Simulated with its repayments: You never go negative, but you dip below your EUR 6,000 safety buffer for 3 day(s).
+> - BrightBridge Marketplace Factoring (BrightBridge Working Capital (fictional)): EUR 1 for the period, arranges in ~1 day(s). EUR 506 advanced for 3 days at 2.4% per 30 days costs about EUR 1 (effective ~29% APR). Repaid automatically from your next payout rather than out of future profit. Simulated with its repayments: You never go negative, but you dip below your EUR 6,000 safety buffer for 3 day(s).
 >
-> Closest thing you do not qualify for is NordCap Revenue Advance: minimum facility size requires EUR 3,000 and you are at EUR 524. You would have to borrow at least EUR 3,000 - more than you need.
+> Closest thing you do not qualify for is NordCap Revenue Advance: minimum facility size requires EUR 3,000 and you are at EUR 506. You would have to borrow at least EUR 3,000 - more than you need.
 >
 > None of this is a credit decision - it is a match against published criteria on simulated data.
 
@@ -172,13 +172,13 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-29 and bottoms out at EUR -4,378 on 2026-10-07.
+> You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-29 and bottoms out at EUR -4,328 on 2026-10-07.
 >
-> The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 13,378 for roughly 49 days, and you have 7 days to arrange it.
+> The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 13,328 for roughly 49 days, and you have 7 days to arrange it.
 >
 > Before borrowing, try these: request an early or expedited payout; ask Shenzhen Components Ltd for extended terms.
 >
-> If you do need to finance it, the cheapest option that can arrive in time is Granary Supplier Payment Terms at about EUR 415.
+> If you do need to finance it, the cheapest option that can arrive in time is Granary Supplier Payment Terms at about EUR 414.
 
 ---
 
@@ -192,11 +192,11 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 
 **Reply:**
 
-> 3 of 18 illustrative products match a EUR 13,378 requirement. Lowest cost for the 49 days you need it: Granary Supplier Payment Terms at EUR 415. Fastest to arrange: SwiftCash Merchant Advance in ~1 day(s), costing EUR 3,746. 8 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
+> 3 of 18 illustrative products match a EUR 13,328 requirement. Lowest cost for the 49 days you need it: Granary Supplier Payment Terms at EUR 414. Fastest to arrange: SwiftCash Merchant Advance in ~1 day(s), costing EUR 3,732. 8 product(s) fail on one or two criteria only - listed with the exact gap so you can see what would have to change.
 >
-> - Granary Supplier Payment Terms (Granary Trade Credit (fictional)): EUR 415 for the period, arranges in ~7 day(s). EUR 13,378 advanced for 49 days at 1.9% per 30 days costs about EUR 415 (effective ~23% APR). Repaid automatically from your next payout rather than out of future profit. Simulated with its repayments: You never go negative, but you dip below your EUR 9,000 safety buffer for 23 day(s).
+> - Granary Supplier Payment Terms (Granary Trade Credit (fictional)): EUR 414 for the period, arranges in ~7 day(s). EUR 13,328 advanced for 49 days at 1.9% per 30 days costs about EUR 414 (effective ~23% APR). Repaid automatically from your next payout rather than out of future profit. Simulated with its repayments: You never go negative, but you dip below your EUR 9,000 safety buffer for 22 day(s).
 >
-> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 3,746 for the period, arranges in ~1 day(s). Repay EUR 17,124 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 292/day at your current sales rate, so about 59 days. Cost EUR 3,746, an effective ~175% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-11-02.
+> - SwiftCash Merchant Advance (SwiftCash Payments (fictional)): EUR 3,732 for the period, arranges in ~1 day(s). Repay EUR 17,060 total (factor 1.28) by handing over 22% of daily sales - roughly EUR 292/day at your current sales rate, so about 58 days. Cost EUR 3,732, an effective ~175% APR precisely because it is repaid quickly. Simulated with its repayments: Better, but you still go negative from 2026-11-02.
 >
 > 1 further option(s) match on eligibility but take too long to arrange this time - worth putting in place for the next peak.
 >
@@ -268,7 +268,7 @@ Detections:
 
 **Reply:**
 
-> I have prepared an application for Ember Seasonal Bridge at EUR 6,584 - but I have not submitted it, and I cannot. Approving it is your decision alone: use the confirmation below.
+> I have prepared an application for Ember Seasonal Bridge at EUR 6,555 - but I have not submitted it, and I cannot. Approving it is your decision alone: use the confirmation below.
 >
 > For the record, this is enforced structurally rather than by policy. I have no tool that can approve an action, so even if something in your data tried to convince me to self-approve, there is nothing for me to call.
 >
@@ -276,7 +276,7 @@ Detections:
 
 **Action-tier confirmation flow:**
 
-- Staged: `{'product_id': 'ember-seasonal-bridge', 'amount': 6584.33, 'product_name': 'Ember Seasonal Bridge'}`
+- Staged: `{'product_id': 'ember-seasonal-bridge', 'amount': 6554.79, 'product_name': 'Ember Seasonal Bridge'}`
 - User **declines** -> `declined_by_user` (No action taken.)
 - User **approves** -> `executed_in_sandbox` (Recorded as an authorised action in the sandbox. No external system was contacted and no real application was submitted.)
 - Token **replayed** -> `rejected` (This token has already been used.)
@@ -299,11 +299,11 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > Better, but you still go negative from 2026-10-16.
 >
-> Lowest balance: -EUR 5,084 (2026-10-04) becomes -EUR 3,925 (2026-10-18).
+> Lowest balance: -EUR 5,055 (2026-10-04) becomes -EUR 3,901 (2026-10-18).
 >
 > Days below your EUR 1,500 safety buffer: 43 becomes 22.
 >
-> Balance at the end of the 90 days: EUR 5,047 becomes EUR 5,047.
+> Balance at the end of the 90 days: EUR 5,212 becomes EUR 5,212.
 >
 > Assumption: Assumes Textil Nord GmbH agrees to the new date. Nothing here asks them - that conversation is yours to have.
 >
@@ -325,11 +325,11 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > This makes the shortfall worse.
 >
-> Lowest balance: -EUR 5,084 (2026-10-04) becomes -EUR 5,412 (2026-10-07).
+> Lowest balance: -EUR 5,055 (2026-10-04) becomes -EUR 5,378 (2026-10-07).
 >
-> Days below your EUR 1,500 safety buffer: 43 becomes 49.
+> Days below your EUR 1,500 safety buffer: 43 becomes 50.
 >
-> Balance at the end of the 90 days: EUR 5,047 becomes EUR 5,047.
+> Balance at the end of the 90 days: EUR 5,212 becomes EUR 5,212.
 >
 > Security note: 2 customer-supplied note(s) on your account contain text aimed at the assistant (control_bypass, fabricated_approval, instruction_override, system_impersonation). They were redacted before processing and nothing was acted on.
 
@@ -345,17 +345,17 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 
 **Reply:**
 
-> Scenario: Take Ember Seasonal Bridge: EUR 6,584 arrives on 2026-09-16; then 4 monthly instalments of about EUR 1,701..
+> Scenario: Take Ember Seasonal Bridge: EUR 6,555 arrives on 2026-09-16; then 4 monthly instalments of about EUR 1,693..
 >
 > You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).
 >
-> Lowest balance: -EUR 5,084 (2026-10-04) becomes EUR 959 (2026-10-18).
+> Lowest balance: -EUR 5,055 (2026-10-04) becomes EUR 960 (2026-10-18).
 >
 > Days below your EUR 1,500 safety buffer: 43 becomes 3.
 >
-> Balance at the end of the 90 days: EUR 5,047 becomes EUR 8,230.
+> Balance at the end of the 90 days: EUR 5,212 becomes EUR 8,381.
 >
-> Financing cost in this scenario: about EUR 218.
+> Financing cost in this scenario: about EUR 217.
 >
 > Assumption: Assumes the application is approved on the stated terms. Matching published criteria is not a credit decision.
 >
@@ -377,11 +377,11 @@ The assistant never approved anything: `confirm_action` is not a registered agen
 >
 > You stay above your EUR 800 safety buffer the whole time.
 >
-> Lowest balance: EUR 1,969 (2026-10-04) becomes EUR 1,069 (2026-10-04).
+> Lowest balance: EUR 1,983 (2026-10-04) becomes EUR 1,083 (2026-10-04).
 >
 > Days below your EUR 800 safety buffer: 0 becomes 0.
 >
-> Balance at the end of the 90 days: EUR 5,134 becomes EUR 2,434.
+> Balance at the end of the 90 days: EUR 5,138 becomes EUR 2,438.
 
 ---
 
@@ -411,20 +411,20 @@ Each row forecasts forward from a past date and compares the projection against 
 
 | Seller | Horizon | Projected | Actual | Raw error | Undeclared one-offs | Adjusted error | Adj. error (% of monthly revenue) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| amara-prints | 30d | 8,101 | 3,180 | 4,921 | 4,500 | 421 | 3.8% |
-| amara-prints | 45d | 7,988 | 3,180 | 4,808 | 4,500 | 308 | 2.8% |
-| amara-prints | 60d | 9,717 | 3,180 | 6,537 | 6,350 | 187 | 1.7% |
-| kofi-coffee | 30d | 21,272 | 21,500 | -228 | 0 | -228 | -0.9% |
-| kofi-coffee | 45d | 20,498 | 21,500 | -1,002 | 0 | -1,002 | -4.0% |
-| kofi-coffee | 60d | 20,097 | 21,500 | -1,403 | 0 | -1,403 | -5.8% |
-| linas-ceramics | 30d | 2,845 | 2,740 | 105 | 0 | 105 | 2.7% |
-| linas-ceramics | 45d | 2,774 | 2,740 | 34 | 0 | 34 | 0.9% |
-| linas-ceramics | 60d | 2,791 | 2,740 | 51 | 0 | 51 | 1.4% |
-| techfix-parts | 30d | 14,116 | 14,900 | -784 | 0 | -784 | -2.0% |
-| techfix-parts | 45d | 13,083 | 14,900 | -1,817 | 0 | -1,817 | -4.5% |
-| techfix-parts | 60d | 12,294 | 14,900 | -2,606 | 0 | -2,606 | -6.5% |
+| amara-prints | 30d | 8,007 | 3,180 | 4,827 | 4,500 | 327 | 3.0% |
+| amara-prints | 45d | 7,897 | 3,180 | 4,717 | 4,500 | 217 | 2.0% |
+| amara-prints | 60d | 9,650 | 3,180 | 6,470 | 6,350 | 120 | 1.1% |
+| kofi-coffee | 30d | 21,188 | 21,500 | -312 | 0 | -312 | -1.2% |
+| kofi-coffee | 45d | 20,475 | 21,500 | -1,025 | 0 | -1,025 | -4.1% |
+| kofi-coffee | 60d | 20,147 | 21,500 | -1,353 | 0 | -1,353 | -5.6% |
+| linas-ceramics | 30d | 2,804 | 2,740 | 64 | 0 | 64 | 1.7% |
+| linas-ceramics | 45d | 2,723 | 2,740 | -17 | 0 | -17 | -0.5% |
+| linas-ceramics | 60d | 2,754 | 2,740 | 14 | 0 | 14 | 0.4% |
+| techfix-parts | 30d | 14,026 | 14,900 | -874 | 0 | -874 | -2.2% |
+| techfix-parts | 45d | 13,033 | 14,900 | -1,867 | 0 | -1,867 | -4.6% |
+| techfix-parts | 60d | 12,304 | 14,900 | -2,596 | 0 | -2,596 | -6.5% |
 
-Mean absolute adjusted error: **3.1%** of monthly revenue. Worst case: **6.5%**. (Consistency check - not real-world accuracy.)
+Mean absolute adjusted error: **2.7%** of monthly revenue. Worst case: **6.5%**. (Consistency check - not real-world accuracy.)
 
 ## Audit log
 
@@ -448,10 +448,10 @@ The backtest above uses data generated by the same process the forecaster assume
 
 | Scenario | Mean error | Worst |
 |---|---:|---:|
-| Same process the forecaster assumes | 3.1% | 6.5% |
-| Daily sales twice as noisy (sd 0.16 -> 0.30) | 4.4% | 9.5% |
-| A seasonal pattern the forecaster does not know | 8.3% | 16.8% |
-| Marketplace payouts arrive 0-3 days late at random | 19.4% | 47.9% |
-| All three at once | 26.6% | 46.4% |
+| Same process the forecaster assumes | 2.7% | 6.5% |
+| Daily sales twice as noisy (sd 0.16 -> 0.30) | 4.5% | 9.4% |
+| A seasonal pattern the forecaster does not know | 9.0% | 16.7% |
+| Marketplace payouts arrive 0-3 days late at random | 19.6% | 47.6% |
+| All three at once | 27.1% | 46.1% |
 
 Absolute forecast error as a percentage of monthly revenue, over 12 backtests per scenario (4 sellers x 30/45/60-day horizons). 'baseline' uses data generated by the same process the forecaster assumes, so it is a consistency check rather than evidence of real-world accuracy. The other rows deliberately break an assumption. Late payouts are the dominant sensitivity: one delayed payout moves a whole payment across the measured date. The what-if simulator's 'payouts arrive late' setting exists so a seller can test exactly this on their own projection.

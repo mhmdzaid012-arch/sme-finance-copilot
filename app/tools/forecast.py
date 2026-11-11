@@ -59,17 +59,30 @@ def _weekday_baseline(ctx: SellerContext) -> tuple[dict[int, float], float]:
 
 
 def _growth_factor(ctx: SellerContext) -> float:
-    """Growth per TREND_WINDOW_DAYS, clamped to avoid runaway extrapolation."""
+    """
+    Growth per TREND_WINDOW_DAYS, clamped to avoid runaway extrapolation.
+
+    Measured on de-seasonalised sales, exactly like the weekday baseline. The
+    projection multiplies by the seasonal factor afterwards, so measuring
+    growth on raw sales would count the seasonal step twice (a November
+    forecast would read the October -> November uplift as growth and then
+    apply November's factor on top). Fixed for the finals: audit B1 / R12.
+    """
     n = config.TREND_WINDOW_DAYS
     recent_start = ctx.as_of - timedelta(days=n - 1)
     prior_start = recent_start - timedelta(days=n)
+    category = ctx.profile["category"]
+
+    def deseasonalised(t) -> float:
+        seas = _seasonal(t.date, category)
+        return t.amount / seas if seas else t.amount
 
     recent = sum(
-        t.amount for t in ctx.transactions
+        deseasonalised(t) for t in ctx.transactions
         if t.type == "sale" and recent_start <= t.date <= ctx.as_of
     )
     prior = sum(
-        t.amount for t in ctx.transactions
+        deseasonalised(t) for t in ctx.transactions
         if t.type == "sale" and prior_start <= t.date < recent_start
     )
     if prior <= 0:

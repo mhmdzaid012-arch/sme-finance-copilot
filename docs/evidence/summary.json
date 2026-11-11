@@ -285,7 +285,7 @@
       "scenario": "S13",
       "staged_params": {
         "product_id": "ember-seasonal-bridge",
-        "amount": 6584.33,
+        "amount": 6554.79,
         "product_name": "Ember Seasonal Bridge"
       },
       "declined_status": "declined_by_user",
@@ -297,115 +297,115 @@
     {
       "seller_id": "amara-prints",
       "horizon_days": 30,
-      "projected_balance": 8100.54,
+      "projected_balance": 8006.71,
       "actual_balance": 3180.0,
-      "absolute_error": 4920.54,
-      "adjusted_error": 420.54,
-      "adjusted_error_pct_of_monthly_revenue": 3.82
+      "absolute_error": 4826.71,
+      "adjusted_error": 326.71,
+      "adjusted_error_pct_of_monthly_revenue": 2.97
     },
     {
       "seller_id": "amara-prints",
       "horizon_days": 45,
-      "projected_balance": 7987.63,
+      "projected_balance": 7896.61,
       "actual_balance": 3180.0,
-      "absolute_error": 4807.63,
-      "adjusted_error": 307.63,
-      "adjusted_error_pct_of_monthly_revenue": 2.81
+      "absolute_error": 4716.61,
+      "adjusted_error": 216.61,
+      "adjusted_error_pct_of_monthly_revenue": 1.98
     },
     {
       "seller_id": "amara-prints",
       "horizon_days": 60,
-      "projected_balance": 9716.72,
+      "projected_balance": 9650.03,
       "actual_balance": 3180.0,
-      "absolute_error": 6536.72,
-      "adjusted_error": 186.72,
-      "adjusted_error_pct_of_monthly_revenue": 1.71
+      "absolute_error": 6470.03,
+      "adjusted_error": 120.03,
+      "adjusted_error_pct_of_monthly_revenue": 1.1
     },
     {
       "seller_id": "kofi-coffee",
       "horizon_days": 30,
-      "projected_balance": 21272.31,
+      "projected_balance": 21188.22,
       "actual_balance": 21500.0,
-      "absolute_error": -227.69,
-      "adjusted_error": -227.69,
-      "adjusted_error_pct_of_monthly_revenue": -0.91
+      "absolute_error": -311.78,
+      "adjusted_error": -311.78,
+      "adjusted_error_pct_of_monthly_revenue": -1.25
     },
     {
       "seller_id": "kofi-coffee",
       "horizon_days": 45,
-      "projected_balance": 20498.01,
+      "projected_balance": 20474.68,
       "actual_balance": 21500.0,
-      "absolute_error": -1001.99,
-      "adjusted_error": -1001.99,
-      "adjusted_error_pct_of_monthly_revenue": -4.04
+      "absolute_error": -1025.32,
+      "adjusted_error": -1025.32,
+      "adjusted_error_pct_of_monthly_revenue": -4.13
     },
     {
       "seller_id": "kofi-coffee",
       "horizon_days": 60,
-      "projected_balance": 20096.82,
+      "projected_balance": 20146.89,
       "actual_balance": 21500.0,
-      "absolute_error": -1403.18,
-      "adjusted_error": -1403.18,
-      "adjusted_error_pct_of_monthly_revenue": -5.77
+      "absolute_error": -1353.11,
+      "adjusted_error": -1353.11,
+      "adjusted_error_pct_of_monthly_revenue": -5.56
     },
     {
       "seller_id": "linas-ceramics",
       "horizon_days": 30,
-      "projected_balance": 2844.76,
+      "projected_balance": 2804.47,
       "actual_balance": 2740.0,
-      "absolute_error": 104.76,
-      "adjusted_error": 104.76,
-      "adjusted_error_pct_of_monthly_revenue": 2.73
+      "absolute_error": 64.47,
+      "adjusted_error": 64.47,
+      "adjusted_error_pct_of_monthly_revenue": 1.68
     },
     {
       "seller_id": "linas-ceramics",
       "horizon_days": 45,
-      "projected_balance": 2774.09,
+      "projected_balance": 2722.97,
       "actual_balance": 2740.0,
-      "absolute_error": 34.09,
-      "adjusted_error": 34.09,
-      "adjusted_error_pct_of_monthly_revenue": 0.9
+      "absolute_error": -17.03,
+      "adjusted_error": -17.03,
+      "adjusted_error_pct_of_monthly_revenue": -0.45
     },
     {
       "seller_id": "linas-ceramics",
       "horizon_days": 60,
-      "projected_balance": 2790.96,
+      "projected_balance": 2754.37,
       "actual_balance": 2740.0,
-      "absolute_error": 50.96,
-      "adjusted_error": 50.96,
-      "adjusted_error_pct_of_monthly_revenue": 1.4
+      "absolute_error": 14.37,
+      "adjusted_error": 14.37,
+      "adjusted_error_pct_of_monthly_revenue": 0.39
     },
     {
       "seller_id": "techfix-parts",
       "horizon_days": 30,
-      "projected_balance": 14115.53,
+      "projected_balance": 14025.54,
       "actual_balance": 14900.0,
-      "absolute_error": -784.47,
-      "adjusted_error": -784.47,
-      "adjusted_error_pct_of_monthly_revenue": -1.97
+      "absolute_error": -874.46,
+      "adjusted_error": -874.46,
+      "adjusted_error_pct_of_monthly_revenue": -2.2
     },
     {
       "seller_id": "techfix-parts",
       "horizon_days": 45,
-      "projected_balance": 13083.11,
+      "projected_balance": 13033.44,
       "actual_balance": 14900.0,
-      "absolute_error": -1816.89,
-      "adjusted_error": -1816.89,
-      "adjusted_error_pct_of_monthly_revenue": -4.51
+      "absolute_error": -1866.56,
+      "adjusted_error": -1866.56,
+      "adjusted_error_pct_of_monthly_revenue": -4.63
     },
     {
       "seller_id": "techfix-parts",
       "horizon_days": 60,
-      "projected_balance": 12293.81,
+      "projected_balance": 12304.15,
       "actual_balance": 14900.0,
-      "absolute_error": -2606.19,
-      "adjusted_error": -2606.19,
-      "adjusted_error_pct_of_monthly_revenue": -6.52
+      "absolute_error": -2595.85,
+      "adjusted_error": -2595.85,
+      "adjusted_error_pct_of_monthly_revenue": -6.5
     }
   ],
   "accuracy": {
-    "mean_abs_pct_of_monthly_revenue": 3.09,
-    "worst_abs_pct_of_monthly_revenue": 6.52
+    "mean_abs_pct_of_monthly_revenue": 2.74,
+    "worst_abs_pct_of_monthly_revenue": 6.5
   },
   "audit": {
     "chain": {
