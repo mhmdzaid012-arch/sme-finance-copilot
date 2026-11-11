@@ -191,3 +191,33 @@ def test_a_single_big_bill_is_still_called_one_payment(amara):
     conc = next(a for a in generate_alerts(amara, f, include_financing=False)["alerts"]
                 if a["id"] == "single_payment_concentration")
     assert conc["headline"].startswith("One payment causes most of the squeeze")
+
+
+# ---------------------------------------------------------------------------
+# A4 - "47 days" (bridge span) and "43 days" (days below) are both explained
+# ---------------------------------------------------------------------------
+
+def test_bridge_span_and_days_below_are_both_reported_and_explained(amara):
+    f = forecast_cashflow(amara, 60)
+    fi = f["findings"]
+    first = date.fromisoformat(fi["first_below_buffer_date"])
+    last = date.fromisoformat(fi["last_below_buffer_date"])
+    assert fi["suggested_bridge_days"] == (last - first).days + 1
+    assert fi["days_below_buffer"] < fi["suggested_bridge_days"]
+    detail = next(a for a in generate_alerts(amara, f, include_financing=False)["alerts"]
+                  if a["id"] == "cash_shortfall_critical")["detail"]
+    assert f"for roughly {fi['suggested_bridge_days']} days" in detail
+    assert f"under the buffer on {fi['days_below_buffer']} of them" in detail
+
+
+def test_financing_is_matched_on_the_bridge_span_not_the_days_below(amara):
+    fi = forecast_cashflow(amara, 60)["findings"]
+    alerts = generate_alerts(amara, forecast_cashflow(amara, 60))
+    assert alerts["alerts"][0]["days_needed"] == fi["suggested_bridge_days"]
+
+
+def test_no_span_note_when_the_two_counts_agree(kofi):
+    f = forecast_cashflow(kofi, 60)
+    assert f["findings"]["suggested_bridge_days"] == f["findings"]["days_below_buffer"]
+    for a in generate_alerts(kofi, f, include_financing=False)["alerts"]:
+        assert "of them" not in a["detail"]

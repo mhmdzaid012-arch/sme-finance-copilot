@@ -20,6 +20,8 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 >
 > The main cause is Textil Nord GmbH (EUR 6,800), Studio Rent (Kreuzberg) (EUR 850). To stay above your EUR 1,500 buffer you need about EUR 6,555 for roughly 47 days, and you have 6 days to arrange it.
 >
+> The 47 days run from the first dip (2026-09-16) to the last day below the buffer (2026-11-01); you are under the buffer on 43 of them.
+>
 > Before borrowing, try these: request an early or expedited payout; pause or reduce discretionary ad spend; ask Textil Nord GmbH for extended terms.
 >
 > If you do need to finance it, the cheapest option that can arrive in time is Ember Seasonal Bridge at about EUR 217.
@@ -175,6 +177,8 @@ Every operation below is also recorded in `audit_log.jsonl`, whose hash chain is
 > You are heading for a cash shortfall. On current trends the bank balance goes negative on 2026-09-29 and bottoms out at EUR -4,328 on 2026-10-07.
 >
 > The main cause is Shenzhen Components Ltd (EUR 12,400), Payroll (2 staff) (EUR 2,900). To stay above your EUR 9,000 buffer you need about EUR 13,328 for roughly 49 days, and you have 7 days to arrange it.
+>
+> The 49 days run from the first dip (2026-09-17) to the last day below the buffer (2026-11-04); you are under the buffer on 31 of them.
 >
 > Before borrowing, try these: request an early or expedited payout; ask Shenzhen Components Ltd for extended terms.
 >

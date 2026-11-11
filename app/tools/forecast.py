@@ -460,8 +460,11 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
     if trough and trough["balance"] < buffer_level:
         shortfall_to_buffer = round(buffer_level - trough["balance"], 2)
 
-    # How long the balance stays below the buffer - i.e. how long a bridge
-    # facility would need to run.
+    # How long a bridge facility would need to run: from the first day below
+    # the buffer to the last one. This can be longer than `days_below_buffer`
+    # when the balance recovers for a few days in between (a payout lands, then
+    # the next bill takes it under again) - a bridge cannot be handed back for
+    # those days, so the span is the right financing duration.
     bridge_days = 0
     if below_buffer:
         first = date.fromisoformat(below_buffer[0]["date"])
@@ -509,6 +512,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "first_negative_date": negative[0]["date"] if negative else None,
             "days_below_buffer": len(below_buffer),
             "first_below_buffer_date": below_buffer[0]["date"] if below_buffer else None,
+            "last_below_buffer_date": below_buffer[-1]["date"] if below_buffer else None,
             # Lead time to arrange a facility: distinct from how long the money
             # is needed for, and the constraint that rules products in or out.
             "days_until_first_shortfall": (

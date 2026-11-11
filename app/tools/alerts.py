@@ -39,6 +39,16 @@ def _fmt_eur(x: float) -> str:
     return f"EUR {x:,.0f}"
 
 
+def _span_note(f: dict) -> str:
+    """Explain the two day-counts when they differ (47 days of bridge, 43 below)."""
+    span, below = f["suggested_bridge_days"], f["days_below_buffer"]
+    if not span or span == below:
+        return ""
+    return (f" Those {span} days run from the first dip on {f['first_below_buffer_date']} "
+            f"to the last day below the buffer, {f['last_below_buffer_date']}; the "
+            f"balance is under the buffer on {below} of them.")
+
+
 def _driver_label(d: dict) -> str:
     """'Rent (EUR 850)' for one payment, 'Rent (EUR 2,550 over 3 payments)' for several."""
     n = d.get("payments", 1)
@@ -82,6 +92,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 + (f" To stay above your {_fmt_eur(buffer_level)} safety buffer "
                    f"throughout you would need about {_fmt_eur(gap)} for roughly "
                    f"{duration} days." if gap > 0 and duration else "")
+                + _span_note(f)
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,

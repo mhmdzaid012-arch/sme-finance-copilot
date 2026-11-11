@@ -486,6 +486,8 @@ function renderForecast(f) {
         <div class="v" style="color:var(--crit)">${esc(fi.first_negative_date)}</div>` : ''}
       ${fi.shortfall_to_buffer > 0 ? `<div class="k">Needed to hold the buffer</div>
         <div class="v">${eur(fi.shortfall_to_buffer)} for ${fi.suggested_bridge_days} days</div>
+        ${fi.suggested_bridge_days !== fi.days_below_buffer ? `<div class="k">Days below the buffer in that span</div>
+        <div class="v">${fi.days_below_buffer} of ${fi.suggested_bridge_days}</div>` : ''}
         <div class="k">Lead time to arrange</div>
         <div class="v">${fi.days_until_first_shortfall} days</div>` : ''}
     </div>

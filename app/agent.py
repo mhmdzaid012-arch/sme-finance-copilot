@@ -448,6 +448,13 @@ def run_offline(session: Session, message: str) -> dict:
                 f"{f['suggested_bridge_days']} days, and you have "
                 f"{f['days_until_first_shortfall']} days to arrange it."
             )
+            if f["suggested_bridge_days"] != f["days_below_buffer"]:
+                lines.append(
+                    f"The {f['suggested_bridge_days']} days run from the first dip "
+                    f"({f['first_below_buffer_date']}) to the last day below the buffer "
+                    f"({f['last_below_buffer_date']}); you are under the buffer on "
+                    f"{f['days_below_buffer']} of them."
+                )
         elif f["days_below_buffer"]:
             lines.append(
                 f"No shortfall, but it gets tight: the balance dips below your "
