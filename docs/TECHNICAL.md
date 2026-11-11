@@ -167,8 +167,8 @@ forecaster doesn't know, then backtests again:
 | Same process the forecaster assumes | 2.7% | 6.5% |
 | Daily sales twice as noisy | 4.5% | 9.4% |
 | A seasonal pattern the forecaster doesn't know | 9.0% | 16.7% |
-| Marketplace payouts arrive 0-3 days late at random | 15.2% | 41.0% |
-| All three at once | 22.2% | 49.9% |
+| Marketplace payouts arrive 0-3 days late at random | 9.5% | 41.0% |
+| All three at once | 15.1% | 39.1% |
 
 Late payouts are by far the largest sensitivity. The first three rows are one run of
 12 backtests each. The two late-payout rows are 1,200 backtests each: the run is
@@ -184,16 +184,27 @@ shared one generator across sellers; it reported 19.4% and 47.9% for this row.
 
 The late-payout error is concentrated, not spread evenly:
 
-| Late-payout backtests | Count | Mean error |
-|---|---:|---:|
-| A payout was in transit on the forecast date or the measured date | 510 | 32.4% |
-| No payout in transit on either date | 690 | 2.4% |
-| All (median 5.6%, 90th percentile 38.1%) | 1,200 | 15.2% |
+| Late-payout backtests | Count | Mean error | Worst |
+|---|---:|---:|---:|
+| No payout in transit on either date | 690 | 2.4% | 6.5% |
+| A payout was in transit on the day the forecast was made | 273 | 2.3% | 5.5% |
+| A payout was in transit on the day the forecast was measured | 237 | 38.6% | 41.0% |
+| All (median 2.6%, 90th percentile 38.1%) | 1,200 | 9.5% | 41.0% |
 
-The 510-in-1,200 share is specific to this sandbox: four sellers, one measured date, and one
-seller (TechFix) with a payout scheduled on exactly that date. The split is the finding
-that carries over: on time, the forecast is as good as the baseline; one payout in
-transit costs roughly a third of a month's revenue. This is the method's main weakness,
+"In transit" means due on the schedule but not yet in the bank. The second row used to
+average 27.1%: the forecaster worked out which payouts had been paid from the schedule
+alone, so a payout that was late on the day of the forecast was assumed paid and never
+counted. `payouts_in_transit()` now compares the schedule with the payouts actually in
+the bank ledger and expects any that are missing on the first forecast day
+(`test_late_payout_is_expected_instead_of_forgotten`). That change took this row from
+15.2% to 9.5%.
+
+The third row cannot be fixed by a single-path forecast: the money really does arrive
+after the measured date. Its 237-in-1,200 share is specific to this sandbox: four
+sellers, one measured date, and one seller (TechFix) with a payout scheduled on exactly
+that date. The split is the finding that carries over: the forecast is as good as the
+baseline unless a payout slips across the day you care about, and then it is wrong by
+about one payout. This is the method's main weakness,
 and it is the reason the what-if simulator has a *payouts arrive late* setting
 (section 6): sellers can test it on their own projection instead of trusting a single
 number.
@@ -364,7 +375,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 305 tests
+pytest -q                             # 311 tests
 ```
 
 ## 10. Known limitations

@@ -221,3 +221,47 @@ def test_no_span_note_when_the_two_counts_agree(kofi):
     assert f["findings"]["suggested_bridge_days"] == f["findings"]["days_below_buffer"]
     for a in generate_alerts(kofi, f, include_financing=False)["alerts"]:
         assert "of them" not in a["detail"]
+
+
+# ---------------------------------------------------------------------------
+# N1 - a payout that is due but has not reached the bank is still counted
+# ---------------------------------------------------------------------------
+
+def _without_last_bank_payout(seller_id: str) -> tuple[SellerContext, float]:
+    """The same seller, in a world where the latest payout has not landed yet:
+    it is missing from the bank ledger and from the bank balance."""
+    ctx = get_seller(seller_id)
+    last = max((t for t in ctx.transactions if t.type == "payout" and t.ledger == "bank"),
+               key=lambda t: t.date)
+    kept = [t for t in ctx.transactions
+            if not (t.type == "payout" and t.date == last.date)]
+    out = SellerContext(profile=ctx.profile, transactions=kept, as_of=ctx.as_of)
+    out.metrics = compute_metrics(out)
+    return out, last.amount
+
+
+def test_on_time_sandbox_has_no_payout_in_transit_on_any_day(any_seller):
+    """The schedule and the bank ledger agree on every day of the history."""
+    from app.tools.forecast import payouts_in_transit
+    m = any_seller.metrics
+    start = date(2026, 4, 1)
+    for i in range((config.AS_OF - start).days + 1):
+        ctx = get_seller(any_seller.seller_id, as_of=start + timedelta(days=i))
+        assert payouts_in_transit(ctx, m["platform_fee_rate"], m["refund_rate"]) == [], ctx.as_of
+
+
+@pytest.mark.parametrize("seller_id", ["amara-prints", "techfix-parts"])
+def test_late_payout_is_expected_instead_of_forgotten(seller_id):
+    on_time = forecast_cashflow(get_seller(seller_id), 60)
+    late_ctx, amount = _without_last_bank_payout(seller_id)
+    late = forecast_cashflow(late_ctx, 60)
+
+    assert late["opening_bank_balance"] == pytest.approx(on_time["opening_bank_balance"] - amount, abs=0.01)
+    assert len(late["payouts_in_transit"]) == 1
+    # The expected amount is rebuilt from sales and measured fee and refund
+    # rates, so it matches the real payout to within 2%.
+    assert late["payouts_in_transit"][0]["amount"] == pytest.approx(amount, rel=0.02)
+    # Once the late payout lands, the two paths are the same again. Before the
+    # fix the late path stayed a whole payout lower for the entire forecast.
+    assert late["series"][-1]["balance"] == pytest.approx(
+        on_time["series"][-1]["balance"], abs=amount * 0.02)

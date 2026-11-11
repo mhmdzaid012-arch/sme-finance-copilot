@@ -159,9 +159,10 @@ def _backtests(payout_log: dict) -> list[dict]:
             rows.append({
                 "seller_id": sid, "horizon_days": h,
                 "abs_pct": abs(b["adjusted_error_pct_of_monthly_revenue"]),
-                # A payout was in transit on the day the forecast was made, or
-                # on the day it was measured against.
-                "payout_in_transit": straddles(pairs, cutoff) or straddles(pairs, config.AS_OF),
+                # A payout was due but had not landed on the day the forecast
+                # was made / on the day it was measured against.
+                "late_at_forecast": straddles(pairs, cutoff),
+                "late_at_measure": straddles(pairs, config.AS_OF),
             })
     return rows
 
@@ -182,15 +183,22 @@ def _run(season=None, noise_sd=0.16, jitter=0) -> dict:
     out = {"mean_pct": round(statistics.mean(errs), 1),
            "worst_pct": round(max(errs), 1), "backtests": len(errs)}
     if jitter:
-        hit = [r["abs_pct"] for r in rows if r["payout_in_transit"]]
-        clean = [r["abs_pct"] for r in rows if not r["payout_in_transit"]]
+        groups = {
+            "no_payout_in_transit": [r["abs_pct"] for r in rows
+                                     if not r["late_at_forecast"] and not r["late_at_measure"]],
+            "in_transit_on_forecast_date": [r["abs_pct"] for r in rows
+                                            if r["late_at_forecast"] and not r["late_at_measure"]],
+            "in_transit_on_measured_date": [r["abs_pct"] for r in rows if r["late_at_measure"]],
+        }
         out.update({
             "sets_of_draws": len(seeds),
             "median_pct": round(statistics.median(errs), 1),
             "p90_pct": round(_percentile(errs, 90), 1),
-            "share_with_payout_in_transit_pct": round(100 * len(hit) / len(rows), 1),
-            "mean_pct_payout_in_transit": round(statistics.mean(hit), 1) if hit else None,
-            "mean_pct_no_payout_in_transit": round(statistics.mean(clean), 1) if clean else None,
+            "by_payout_position": {
+                k: {"backtests": len(v),
+                    "mean_pct": round(statistics.mean(v), 1) if v else None,
+                    "worst_pct": round(max(v), 1) if v else None}
+                for k, v in groups.items()},
         })
     return out
 
@@ -214,10 +222,12 @@ def main() -> dict:
             f"end of the history stays pending. Those rows repeat the run over "
             f"{len(LATE_PAYOUT_SEEDS)} independent sets of draws, one seeded generator per "
             "seller. Late payouts are the dominant sensitivity, and the error is "
-            "concentrated: it is large when a payout is in transit on the day the forecast "
-            "is made or the day it is measured, and close to the baseline otherwise. The "
-            "what-if simulator's 'payouts arrive late' setting exists so a seller can test "
-            "exactly this on their own projection."
+            "concentrated (see by_payout_position): it is large when a payout is due on "
+            "the day the forecast is measured and arrives late, and close to the baseline "
+            "otherwise. A payout that is late on the day the forecast is MADE no longer "
+            "hurts: the forecaster notices it is missing from the bank ledger and expects "
+            "it. The what-if simulator's 'payouts arrive late' setting exists so a seller "
+            "can test exactly this on their own projection."
         ),
         "results": results,
     }

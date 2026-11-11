@@ -118,15 +118,12 @@ def _future_payout_dates(ctx: SellerContext, horizon_end: date) -> list[date]:
     return out
 
 
-def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tuple[date | None, float]:
+def _payout_replay(ctx: SellerContext, fee_rate: float,
+                   refund_rate: float) -> tuple[date | None, float, list[dict]]:
     """
-    Replay the payout schedule across actual history to recover the platform's
-    payout state at `as_of`: which sale dates have already been released, and
-    how much rolling reserve is currently being held.
-
-    Deriving this from the transaction history (rather than reading a value
-    written by the data generator) is what makes the forecaster valid for any
-    `as_of` date, and therefore backtestable.
+    Replay the payout schedule across actual history. Returns the last sale
+    date released, the rolling reserve currently held, and every payout the
+    schedule says should have been made by `as_of` (date and expected amount).
     """
     sched = ctx.profile["payout_schedule"]
     anchor = date.fromisoformat(sched["anchor"])
@@ -139,11 +136,12 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
         if t.type == "sale":
             sales_by_date[t.date] = sales_by_date.get(t.date, 0.0) + t.amount
     if not sales_by_date:
-        return None, 0.0
+        return None, 0.0, []
     history_start = min(sales_by_date)
 
     released_through: date | None = None
     held_reserve = 0.0
+    releases: list[dict] = []
     d = anchor
     while d <= ctx.as_of:
         cutoff = d - timedelta(days=hold_days)
@@ -152,11 +150,47 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
             gross = sum(v for k, v in sales_by_date.items() if window_start <= k <= cutoff)
             net = gross * (1 - fee_rate - refund_rate)
             if net > 0:
+                releases.append({"scheduled": d,
+                                 "amount": round(net * (1 - reserve) + held_reserve, 2)})
                 held_reserve = net * reserve
                 released_through = cutoff
         d += timedelta(days=cadence)
 
-    return released_through, round(held_reserve, 2)
+    return released_through, round(held_reserve, 2), releases
+
+
+def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tuple[date | None, float]:
+    """
+    Replay the payout schedule across actual history to recover the platform's
+    payout state at `as_of`: which sale dates have already been released, and
+    how much rolling reserve is currently being held.
+
+    Deriving this from the transaction history (rather than reading a value
+    written by the data generator) is what makes the forecaster valid for any
+    `as_of` date, and therefore backtestable.
+    """
+    released_through, held_reserve, _ = _payout_replay(ctx, fee_rate, refund_rate)
+    return released_through, held_reserve
+
+
+def payouts_in_transit(ctx: SellerContext, fee_rate: float, refund_rate: float) -> list[dict]:
+    """
+    Payouts the schedule says were due by `as_of` but that have not reached the
+    bank: the schedule expects N payouts, the bank ledger shows fewer, so the
+    most recent ones are still on their way.
+
+    Without this check a late payout is lost twice over: the schedule says it
+    was paid, so the forecast never pays it, yet it is not in the opening bank
+    balance either. Found by the finals stress test (finding N1).
+    """
+    _, _, releases = _payout_replay(ctx, fee_rate, refund_rate)
+    received = sum(1 for t in ctx.transactions
+                   if t.ledger == "bank" and t.type == "payout" and t.amount > 0)
+    missing = len(releases) - received
+    if missing <= 0:
+        return []
+    return [{"scheduled": r["scheduled"].isoformat(), "amount": r["amount"]}
+            for r in releases[-missing:]]
 
 
 # How far before its due date a declared bill may have been paid and still be
@@ -257,6 +291,13 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
     # so it delays cash rather than reducing it. Seeded with the reserve the
     # platform is actually holding at as_of.
     held_reserve = opening_held_reserve
+    # A payout that was due but has not reached the bank is still owed. Its
+    # true landing day is unknown, so it is expected on the first forecast day
+    # and listed in the output so the assumption is visible.
+    in_transit = payouts_in_transit(ctx, fee_rate, refund_rate)
+    for p in in_transit:
+        landing = ctx.as_of + timedelta(days=1)
+        payout_events[landing] = round(payout_events.get(landing, 0.0) + p["amount"], 2)
     for pd in _future_payout_dates(ctx, horizon_end):
         cutoff = pd - timedelta(days=hold_days)
         release = sum(v for k, v in remaining.items() if k <= cutoff)
@@ -498,6 +539,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             for d, a in sorted(payout_events.items())
         ],
         "payouts_pending_at_horizon": payouts_pending,
+        "payouts_in_transit": in_transit,
         "scheduled_obligations": [
             {"date": e["date"].isoformat(), "amount": round(e["amount"], 2),
              "counterparty": e["counterparty"], "note": e.get("note", ""),
