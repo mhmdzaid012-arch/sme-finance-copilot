@@ -36,7 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
-pytest -q                              # 250 tests
+pytest -q                              # 264 tests
 ```
 
 ---
@@ -175,8 +175,10 @@ shows that the model behaves as designed. It is not proof of real-world accuracy
 **Stress test: accuracy when the assumptions are wrong.** `scripts/stress_test.py`
 regenerates the data with the assumptions deliberately broken and runs the backtests
 again. The biggest sensitivity is payout timing. When marketplace payouts arrive 0-3
-days late at random, the mean error rises to **19.6%**, because a single late payout
-moves a whole payment across the date being measured. That's why the what-if
+days late at random, the mean error rises to **15.2%** (median 5.6%, worst case 41.0%,
+over 1,200 backtests with 100 sets of random delays). The error is concentrated, not
+spread evenly: when a payout is in transit on the day the forecast is made or the day
+it is measured, the error averages 32.4%, and otherwise 2.4%. That's why the what-if
 simulator has a "payouts arrive late" setting: a seller can test this weakness on
 their own projection. Full table: [docs/TECHNICAL.md](docs/TECHNICAL.md#36-measured-accuracy).
 
@@ -215,7 +217,7 @@ scripts/
                          (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
                          before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               250 tests
+tests/               264 tests
 ```
 
 ## API

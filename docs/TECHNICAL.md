@@ -167,13 +167,36 @@ forecaster doesn't know, then backtests again:
 | Same process the forecaster assumes | 2.7% | 6.5% |
 | Daily sales twice as noisy | 4.5% | 9.4% |
 | A seasonal pattern the forecaster doesn't know | 9.0% | 16.7% |
-| Marketplace payouts arrive 0-3 days late at random | 19.6% | 47.6% |
-| All three at once | 27.1% | 46.1% |
+| Marketplace payouts arrive 0-3 days late at random | 15.2% | 41.0% |
+| All three at once | 22.2% | 49.9% |
 
-Late payouts are by far the largest sensitivity. One delayed payout moves an entire
-payment across the date being measured. This is the method's main weakness, and it is
-the reason the what-if simulator has a *payouts arrive late* setting (section 6):
-sellers can test it on their own projection instead of trusting a single number.
+Late payouts are by far the largest sensitivity. The first three rows are one run of
+12 backtests each. The two late-payout rows are 1,200 backtests each: the run is
+repeated over 100 independent sets of random delays, because a single set is a coin
+flip on whether a whole payout crosses a measured date.
+
+How a late payout is modelled: it releases exactly the sales it was scheduled to
+release and reaches the bank 0-3 days later. A payout pushed past the end of the
+history is still pending, and its money stays in the platform balance. Each seller has
+its own seeded random generator (`tests/test_stress_harness.py`). The harness submitted
+in October deleted any payout scheduled within 3 days of the end of the history and
+shared one generator across sellers; it reported 19.4% and 47.9% for this row.
+
+The late-payout error is concentrated, not spread evenly:
+
+| Late-payout backtests | Count | Mean error |
+|---|---:|---:|
+| A payout was in transit on the forecast date or the measured date | 510 | 32.4% |
+| No payout in transit on either date | 690 | 2.4% |
+| All (median 5.6%, 90th percentile 38.1%) | 1,200 | 15.2% |
+
+The 510-in-1,200 share is specific to this sandbox: four sellers, one measured date, and one
+seller (TechFix) with a payout scheduled on exactly that date. The split is the finding
+that carries over: on time, the forecast is as good as the baseline; one payout in
+transit costs roughly a third of a month's revenue. This is the method's main weakness,
+and it is the reason the what-if simulator has a *payouts arrive late* setting
+(section 6): sellers can test it on their own projection instead of trusting a single
+number.
 
 The error is measured against **monthly revenue**, not the closing balance. Measuring
 against the balance flatters sellers with large balances and punishes small ones.
@@ -341,7 +364,7 @@ in offline mode.
 ```bash
 python scripts/generate_data.py       # 4 sellers, 4,794 transactions
 python scripts/generate_evidence.py   # 18 scenarios, 79 audit records, stress test, facts.json
-pytest -q                             # 250 tests
+pytest -q                             # 264 tests
 ```
 
 ## 10. Known limitations

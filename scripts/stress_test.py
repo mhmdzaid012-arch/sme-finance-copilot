@@ -8,6 +8,21 @@ accuracy. This script regenerates the sandbox with deliberately different
 assumptions and backtests again, so the real sensitivities are measured and
 published rather than hidden.
 
+How late payouts are modelled (rewritten for the finals)
+--------------------------------------------------------
+A late payout releases exactly the sales it was scheduled to release; it just
+reaches the bank 0-3 days later. If that pushes it past the end of the history
+it is still pending: the money stays in the platform balance. It is never
+dropped. Each seller has its own seeded random generator, so one seller's
+draws cannot shift another's. And because a single set of draws is a coin
+flip (a whole payout either crosses a measured date or it does not), the
+late-payout scenarios are repeated over LATE_PAYOUT_SEEDS sets of draws and
+the distribution is reported, not one number.
+
+The version submitted in October filtered payouts on the latest possible
+landing date, which deleted every payout scheduled within 3 days of the end of
+the history, and shared one generator across all sellers.
+
 Writes docs/evidence/stress_test.json. Runs in a temporary copy of the data, so
 the committed dataset is never touched.
 
@@ -24,7 +39,7 @@ import shutil
 import statistics
 import sys
 import tempfile
-from datetime import timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,9 +53,13 @@ from app.tools import analysis  # noqa: E402
 from app.tools import forecast as fc  # noqa: E402
 
 SELLERS = ["amara-prints", "kofi-coffee", "linas-ceramics", "techfix-parts"]
+HORIZONS = (30, 45, 60)
 
 SHIFTED_SEASONALITY = {1: 1.10, 2: 1.05, 3: 0.95, 4: 0.92, 5: 0.95, 6: 1.08,
                        7: 1.15, 8: 1.20, 9: 1.00, 10: 0.90, 11: 0.95, 12: 1.10}
+
+# Independent sets of late-payout draws. 100 x 12 backtests = 1,200 per scenario.
+LATE_PAYOUT_SEEDS = range(1, 101)
 
 SCENARIOS = [
     ("baseline", "Same process the forecaster assumes", {}),
@@ -52,14 +71,48 @@ SCENARIOS = [
      {"season": SHIFTED_SEASONALITY, "noise_sd": 0.30, "jitter": 3}),
 ]
 
+_CACHES = (store._load_sellers_file, store._load_transactions,
+           store.load_financing_catalog, analysis._benchmarks)
 
-def _run(season=None, noise_sd=0.16, jitter=0) -> dict:
+
+def late_landing(jitter: int, seed: int):
+    """
+    Build a replacement for generate_data.payout_landing_date that delays each
+    payout by 0..jitter days, with one seeded generator per seller.
+
+    Returns (landing_function, log) where log[seller_id] is the list of
+    (scheduled_date, landing_date) pairs in the order they were drawn.
+    """
+    rngs: dict[str, random.Random] = {}
+    log: dict[str, list[tuple[date, date]]] = {}
+
+    def landing(cfg, scheduled: date) -> date:
+        rng = rngs.get(cfg.seller_id)
+        if rng is None:
+            # A string seed is hashed with SHA-512, so this is reproducible
+            # across runs and machines and independent between sellers.
+            rng = rngs[cfg.seller_id] = random.Random(f"late-payouts:{seed}:{cfg.seller_id}")
+        landed = scheduled + timedelta(days=rng.randint(0, jitter))
+        log.setdefault(cfg.seller_id, []).append((scheduled, landed))
+        return landed
+
+    return landing, log
+
+
+@contextlib.contextmanager
+def stressed_world(season=None, noise_sd: float = 0.16, jitter: int = 0, seed: int = 1):
+    """
+    Generate a sandbox with the given assumptions broken into a temporary
+    folder and point the app at it. Yields (data_dir, payout_log). Everything
+    is restored afterwards.
+    """
     tmp = Path(tempfile.mkdtemp(prefix="smefc-stress-"))
     for f in ("financing_products.json", "benchmarks.json"):
         shutil.copy(ROOT / "data" / f, tmp / f)
 
-    orig = (g.DATA, g.seasonal_multiplier, g.gross_sales_for_day, g.payout_dates)
+    orig = (g.DATA, g.seasonal_multiplier, g.gross_sales_for_day, g.payout_landing_date)
     orig_data_dir = config.DATA_DIR
+    payout_log: dict[str, list[tuple[date, date]]] = {}
     try:
         g.DATA = tmp
         if season:
@@ -74,34 +127,72 @@ def _run(season=None, noise_sd=0.16, jitter=0) -> dict:
         g.gross_sales_for_day = sales
 
         if jitter:
-            jr = random.Random(7)
-            base_dates = orig[3]
-            g.payout_dates = lambda cfg, s, e: [
-                d + timedelta(days=jr.randint(0, jitter))
-                for d in base_dates(cfg, s, e) if d + timedelta(days=jitter) <= e]
+            g.payout_landing_date, payout_log = late_landing(jitter, seed)
 
         with contextlib.redirect_stdout(io.StringIO()):
             g.main()
 
         config.DATA_DIR = tmp
-        for fn in (store._load_sellers_file, store._load_transactions,
-                   store.load_financing_catalog, analysis._benchmarks):
+        for fn in _CACHES:
             fn.cache_clear()
-
-        errs = []
-        for sid in SELLERS:
-            for h in (30, 45, 60):
-                b = fc.backtest(sid, config.AS_OF - timedelta(days=h), h)
-                errs.append(abs(b["adjusted_error_pct_of_monthly_revenue"]))
-        return {"mean_pct": round(statistics.mean(errs), 1),
-                "worst_pct": round(max(errs), 1), "backtests": len(errs)}
+        yield tmp, payout_log
     finally:
-        g.DATA, g.seasonal_multiplier, g.gross_sales_for_day, g.payout_dates = orig
+        g.DATA, g.seasonal_multiplier, g.gross_sales_for_day, g.payout_landing_date = orig
         config.DATA_DIR = orig_data_dir
-        for fn in (store._load_sellers_file, store._load_transactions,
-                   store.load_financing_catalog, analysis._benchmarks):
+        for fn in _CACHES:
             fn.cache_clear()
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def straddles(pairs: list[tuple[date, date]], day: date) -> bool:
+    """True if a payout was due on or before `day` but had not landed by then."""
+    return any(scheduled <= day < landed for scheduled, landed in pairs)
+
+
+def _backtests(payout_log: dict) -> list[dict]:
+    rows = []
+    for sid in SELLERS:
+        pairs = payout_log.get(sid, [])
+        for h in HORIZONS:
+            cutoff = config.AS_OF - timedelta(days=h)
+            b = fc.backtest(sid, cutoff, h)
+            rows.append({
+                "seller_id": sid, "horizon_days": h,
+                "abs_pct": abs(b["adjusted_error_pct_of_monthly_revenue"]),
+                # A payout was in transit on the day the forecast was made, or
+                # on the day it was measured against.
+                "payout_in_transit": straddles(pairs, cutoff) or straddles(pairs, config.AS_OF),
+            })
+    return rows
+
+
+def _percentile(values: list[float], pct: float) -> float:
+    ordered = sorted(values)
+    return ordered[min(len(ordered) - 1, int(round(pct / 100 * (len(ordered) - 1))))]
+
+
+def _run(season=None, noise_sd=0.16, jitter=0) -> dict:
+    seeds = list(LATE_PAYOUT_SEEDS) if jitter else [None]
+    rows: list[dict] = []
+    for seed in seeds:
+        with stressed_world(season, noise_sd, jitter, seed or 1) as (_, payout_log):
+            rows += _backtests(payout_log)
+
+    errs = [r["abs_pct"] for r in rows]
+    out = {"mean_pct": round(statistics.mean(errs), 1),
+           "worst_pct": round(max(errs), 1), "backtests": len(errs)}
+    if jitter:
+        hit = [r["abs_pct"] for r in rows if r["payout_in_transit"]]
+        clean = [r["abs_pct"] for r in rows if not r["payout_in_transit"]]
+        out.update({
+            "sets_of_draws": len(seeds),
+            "median_pct": round(statistics.median(errs), 1),
+            "p90_pct": round(_percentile(errs, 90), 1),
+            "share_with_payout_in_transit_pct": round(100 * len(hit) / len(rows), 1),
+            "mean_pct_payout_in_transit": round(statistics.mean(hit), 1) if hit else None,
+            "mean_pct_no_payout_in_transit": round(statistics.mean(clean), 1) if clean else None,
+        })
+    return out
 
 
 def main() -> dict:
@@ -109,18 +200,24 @@ def main() -> dict:
     for key, label, kw in SCENARIOS:
         r = _run(**kw)
         results.append({"key": key, "label": label, **r})
-        print(f"{label:<52} mean {r['mean_pct']:5.1f}%   worst {r['worst_pct']:5.1f}%")
+        print(f"{label:<52} mean {r['mean_pct']:5.1f}%   worst {r['worst_pct']:5.1f}%"
+              f"   ({r['backtests']} backtests)")
 
     out = {
         "note": (
-            "Absolute forecast error as a percentage of monthly revenue, over 12 "
-            "backtests per scenario (4 sellers x 30/45/60-day horizons). 'baseline' "
-            "uses data generated by the same process the forecaster assumes, so it is "
-            "a consistency check rather than evidence of real-world accuracy. The other "
-            "rows deliberately break an assumption. Late payouts are the dominant "
-            "sensitivity: one delayed payout moves a whole payment across the measured "
-            "date. The what-if simulator's 'payouts arrive late' setting exists so a "
-            "seller can test exactly this on their own projection."
+            "Absolute forecast error as a percentage of monthly revenue. Each run is 12 "
+            "backtests (4 sellers x 30/45/60-day horizons). 'baseline' uses data generated "
+            "by the same process the forecaster assumes, so it is a consistency check "
+            "rather than evidence of real-world accuracy. The other rows deliberately "
+            "break an assumption. In the late-payout rows every payout releases the sales "
+            "it was scheduled to release but lands 0-3 days late; a payout pushed past the "
+            f"end of the history stays pending. Those rows repeat the run over "
+            f"{len(LATE_PAYOUT_SEEDS)} independent sets of draws, one seeded generator per "
+            "seller. Late payouts are the dominant sensitivity, and the error is "
+            "concentrated: it is large when a payout is in transit on the day the forecast "
+            "is made or the day it is measured, and close to the baseline otherwise. The "
+            "what-if simulator's 'payouts arrive late' setting exists so a seller can test "
+            "exactly this on their own projection."
         ),
         "results": results,
     }

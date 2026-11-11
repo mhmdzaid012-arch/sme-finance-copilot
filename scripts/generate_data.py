@@ -349,6 +349,15 @@ def payout_dates(cfg: SellerConfig, start: date, end: date) -> list[date]:
     return dates
 
 
+def payout_landing_date(cfg: SellerConfig, scheduled: date) -> date:
+    """
+    The day a scheduled payout actually reaches the bank. The sandbox pays on
+    schedule. scripts/stress_test.py replaces this to model late payouts: the
+    payout still releases the same sales, it just lands later.
+    """
+    return scheduled
+
+
 def fixed_cost_dates(cost: dict, start: date, end: date) -> list[date]:
     out: list[date] = []
     if cost["cadence"] == "monthly":
@@ -463,11 +472,16 @@ def generate_for_seller(cfg: SellerConfig) -> tuple[list[dict], dict]:
         # Withhold the reserve on this payout, release the previous one's.
         payout_amount = net * (1 - cfg.payout.reserve_pct) + held_reserve
         held_reserve = net * cfg.payout.reserve_pct
-        add(pd, "platform", "payout", "payouts", -payout_amount, "Payout to Bank",
-            f"release of sales through {cutoff.isoformat()}")
-        add(pd, "bank", "payout", "payouts", payout_amount, "Marketplace Payout",
-            f"release of sales through {cutoff.isoformat()}")
         released_through = cutoff
+        # A payout that lands after the end of the history has not happened
+        # yet: the money stays in the platform balance. It is never dropped.
+        landing = payout_landing_date(cfg, pd)
+        if landing > AS_OF:
+            continue
+        add(landing, "platform", "payout", "payouts", -payout_amount, "Payout to Bank",
+            f"release of sales through {cutoff.isoformat()}")
+        add(landing, "bank", "payout", "payouts", payout_amount, "Marketplace Payout",
+            f"release of sales through {cutoff.isoformat()}")
 
     bank_delta = sum(t["amount"] for t in txns if t["ledger"] == "bank")
     opening_bank = round(cfg.target_bank_balance - bank_delta, 2)
