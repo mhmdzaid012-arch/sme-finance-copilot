@@ -281,7 +281,7 @@ forbids such claims, and no wording can make anything execute without the human.
 
 Found in our own October review and disclosed, unfixed, in the submitted version. The
 growth rate was measured on raw sales, which already contain the seasonal step, and the
-seasonal factor was then applied again. **Fixed on the `finals` branch:** growth is now
+seasonal factor was then applied again. **Fixed in commit `f0196c0`** (`finals` branch): growth is now
 measured on de-seasonalised sales, the same way as the weekday baseline, so seasonality
 is applied exactly once.
 
