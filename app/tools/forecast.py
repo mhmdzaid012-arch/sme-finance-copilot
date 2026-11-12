@@ -22,6 +22,7 @@ balance path, plus where and why it breaks.
 
 from __future__ import annotations
 
+import calendar
 import statistics
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -42,12 +43,27 @@ def _weekday_baseline(ctx: SellerContext) -> tuple[dict[int, float], float]:
     """
     Mean gross sales per weekday over the baseline window, de-seasonalised so
     that the seasonality multiplier is not applied twice.
+
+    Sales are added up per calendar day first, and a day with no sales counts
+    as zero. Averaging the ledger rows directly is only right when there is
+    exactly one row per day: with one row per order it returns the average
+    order value, not the day's sales (audit B4).
     """
     window = ctx.window(config.SALES_BASELINE_WINDOW_DAYS, types=("sale",))
-    by_weekday: dict[int, list[float]] = {i: [] for i in range(7)}
+    per_day: dict[date, float] = {}
     for t in window:
         seas = _seasonal(t.date, ctx.profile["category"])
-        by_weekday[t.date.weekday()].append(t.amount / seas if seas else t.amount)
+        per_day[t.date] = per_day.get(t.date, 0.0) + (t.amount / seas if seas else t.amount)
+
+    by_weekday: dict[int, list[float]] = {i: [] for i in range(7)}
+    if per_day:
+        # Never count days before the seller's first recorded sale as zeros.
+        first_sale = min((t.date for t in ctx.transactions if t.type == "sale"),
+                         default=ctx.as_of)
+        d = max(first_sale, ctx.as_of - timedelta(days=config.SALES_BASELINE_WINDOW_DAYS - 1))
+        while d <= ctx.as_of:
+            by_weekday[d.weekday()].append(per_day.get(d, 0.0))
+            d += timedelta(days=1)
 
     overall = [v for vals in by_weekday.values() for v in vals]
     fallback = statistics.mean(overall) if overall else 0.0
@@ -59,17 +75,30 @@ def _weekday_baseline(ctx: SellerContext) -> tuple[dict[int, float], float]:
 
 
 def _growth_factor(ctx: SellerContext) -> float:
-    """Growth per TREND_WINDOW_DAYS, clamped to avoid runaway extrapolation."""
+    """
+    Growth per TREND_WINDOW_DAYS, clamped to avoid runaway extrapolation.
+
+    Measured on de-seasonalised sales, exactly like the weekday baseline. The
+    projection multiplies by the seasonal factor afterwards, so measuring
+    growth on raw sales would count the seasonal step twice (a November
+    forecast would read the October -> November uplift as growth and then
+    apply November's factor on top). Fixed for the finals: audit B1 / R12.
+    """
     n = config.TREND_WINDOW_DAYS
     recent_start = ctx.as_of - timedelta(days=n - 1)
     prior_start = recent_start - timedelta(days=n)
+    category = ctx.profile["category"]
+
+    def deseasonalised(t) -> float:
+        seas = _seasonal(t.date, category)
+        return t.amount / seas if seas else t.amount
 
     recent = sum(
-        t.amount for t in ctx.transactions
+        deseasonalised(t) for t in ctx.transactions
         if t.type == "sale" and recent_start <= t.date <= ctx.as_of
     )
     prior = sum(
-        t.amount for t in ctx.transactions
+        deseasonalised(t) for t in ctx.transactions
         if t.type == "sale" and prior_start <= t.date < recent_start
     )
     if prior <= 0:
@@ -105,15 +134,12 @@ def _future_payout_dates(ctx: SellerContext, horizon_end: date) -> list[date]:
     return out
 
 
-def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tuple[date | None, float]:
+def _payout_replay(ctx: SellerContext, fee_rate: float,
+                   refund_rate: float) -> tuple[date | None, float, list[dict]]:
     """
-    Replay the payout schedule across actual history to recover the platform's
-    payout state at `as_of`: which sale dates have already been released, and
-    how much rolling reserve is currently being held.
-
-    Deriving this from the transaction history (rather than reading a value
-    written by the data generator) is what makes the forecaster valid for any
-    `as_of` date, and therefore backtestable.
+    Replay the payout schedule across actual history. Returns the last sale
+    date released, the rolling reserve currently held, and every payout the
+    schedule says should have been made by `as_of` (date and expected amount).
     """
     sched = ctx.profile["payout_schedule"]
     anchor = date.fromisoformat(sched["anchor"])
@@ -126,11 +152,12 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
         if t.type == "sale":
             sales_by_date[t.date] = sales_by_date.get(t.date, 0.0) + t.amount
     if not sales_by_date:
-        return None, 0.0
+        return None, 0.0, []
     history_start = min(sales_by_date)
 
     released_through: date | None = None
     held_reserve = 0.0
+    releases: list[dict] = []
     d = anchor
     while d <= ctx.as_of:
         cutoff = d - timedelta(days=hold_days)
@@ -139,11 +166,102 @@ def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tup
             gross = sum(v for k, v in sales_by_date.items() if window_start <= k <= cutoff)
             net = gross * (1 - fee_rate - refund_rate)
             if net > 0:
+                releases.append({"scheduled": d,
+                                 "amount": round(net * (1 - reserve) + held_reserve, 2)})
                 held_reserve = net * reserve
                 released_through = cutoff
         d += timedelta(days=cadence)
 
-    return released_through, round(held_reserve, 2)
+    return released_through, round(held_reserve, 2), releases
+
+
+def payout_state(ctx: SellerContext, fee_rate: float, refund_rate: float) -> tuple[date | None, float]:
+    """
+    Replay the payout schedule across actual history to recover the platform's
+    payout state at `as_of`: which sale dates have already been released, and
+    how much rolling reserve is currently being held.
+
+    Deriving this from the transaction history (rather than reading a value
+    written by the data generator) is what makes the forecaster valid for any
+    `as_of` date, and therefore backtestable.
+    """
+    released_through, held_reserve, _ = _payout_replay(ctx, fee_rate, refund_rate)
+    return released_through, held_reserve
+
+
+def payouts_in_transit(ctx: SellerContext, fee_rate: float, refund_rate: float) -> list[dict]:
+    """
+    Payouts the schedule says were due by `as_of` but that have not reached the
+    bank: the schedule expects N payouts, the bank ledger shows fewer, so the
+    most recent ones are still on their way.
+
+    Without this check a late payout is lost twice over: the schedule says it
+    was paid, so the forecast never pays it, yet it is not in the opening bank
+    balance either. Found by the finals stress test (finding N1).
+    """
+    _, _, releases = _payout_replay(ctx, fee_rate, refund_rate)
+    received = sum(1 for t in ctx.transactions
+                   if t.ledger == "bank" and t.type == "payout" and t.amount > 0)
+    missing = len(releases) - received
+    if missing <= 0:
+        return []
+    return [{"scheduled": r["scheduled"].isoformat(), "amount": r["amount"]}
+            for r in releases[-missing:]]
+
+
+def _recurring_dates(r: dict, as_of: date, horizon_end: date) -> list[date]:
+    """
+    Future dates of a detected recurring payment. Monthly bills fall on their
+    usual day of the month (or the last day of a shorter month); anything else
+    repeats on its measured day-gap.
+    """
+    last_seen = date.fromisoformat(r["last_seen"])
+    out: list[date] = []
+    if r.get("monthly"):
+        y, m = last_seen.year, last_seen.month
+        while True:
+            m += 1
+            if m > 12:
+                m, y = 1, y + 1
+            due = date(y, m, min(r["day_of_month"], calendar.monthrange(y, m)[1]))
+            if due > horizon_end:
+                break
+            if due > as_of:
+                out.append(due)
+        return out
+    cadence = max(1, r["cadence_days"])
+    due = last_seen + timedelta(days=cadence)
+    while due <= as_of:
+        due += timedelta(days=cadence)
+    while due <= horizon_end:
+        out.append(due)
+        due += timedelta(days=cadence)
+    return out
+
+
+# Characters of a tool result the language model is given (see app/agent.py).
+LLM_TOOL_RESULT_CHARS = 20000
+
+# How far before its due date a declared bill may have been paid and still be
+# recognised as that bill in the bank ledger.
+OBLIGATION_PAID_LOOKBACK_DAYS = 14
+
+
+def _obligation_paid(ctx: SellerContext, obligation: dict) -> bool:
+    """
+    True if the bank ledger shows this declared bill as paid: an outflow of the
+    same amount to the same counterparty, no more than 14 days before it was due.
+    """
+    due = date.fromisoformat(obligation["due"])
+    earliest = due - timedelta(days=OBLIGATION_PAID_LOOKBACK_DAYS)
+    amount = float(obligation["amount"])
+    return any(
+        t.ledger == "bank" and t.amount < 0
+        and t.counterparty == obligation["counterparty"]
+        and abs(abs(t.amount) - amount) < 0.01
+        and t.date >= earliest
+        for t in ctx.transactions
+    )
 
 
 @dataclass
@@ -214,11 +332,21 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         pipeline[d] = pipeline.get(d, 0.0) + gross * (1 - fee_rate - refund_rate)
 
     payout_events: dict[date, float] = {}
+    # Payouts a scenario delays past the last forecast day. The money is late,
+    # not lost, so it is reported instead of silently disappearing.
+    payouts_pending: list[dict] = []
     remaining = dict(pipeline)
     # The rolling reserve is withheld on one payout and released on the next,
     # so it delays cash rather than reducing it. Seeded with the reserve the
     # platform is actually holding at as_of.
     held_reserve = opening_held_reserve
+    # A payout that was due but has not reached the bank is still owed. Its
+    # true landing day is unknown, so it is expected on the first forecast day
+    # and listed in the output so the assumption is visible.
+    in_transit = payouts_in_transit(ctx, fee_rate, refund_rate)
+    for p in in_transit:
+        landing = ctx.as_of + timedelta(days=1)
+        payout_events[landing] = round(payout_events.get(landing, 0.0) + p["amount"], 2)
     for pd in _future_payout_dates(ctx, horizon_end):
         cutoff = pd - timedelta(days=hold_days)
         release = sum(v for k, v in remaining.items() if k <= cutoff)
@@ -227,31 +355,30 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         remaining = {k: v for k, v in remaining.items() if k > cutoff}
         # A delayed payout releases the same money, just later.
         landing = pd + timedelta(days=max(0, sc.payout_delay_days))
+        paid = round(release * (1 - reserve) + held_reserve, 2)
         if landing <= horizon_end:
-            payout_events[landing] = round(
-                payout_events.get(landing, 0.0) + release * (1 - reserve) + held_reserve, 2)
+            payout_events[landing] = round(payout_events.get(landing, 0.0) + paid, 2)
+        else:
+            payouts_pending.append({"scheduled": pd.isoformat(),
+                                    "date": landing.isoformat(), "amount": paid})
         held_reserve = release * reserve
 
     # --- 3/4/5. outflows ---------------------------------------------------
     recurring = detect_recurring(ctx)
     recurring_events: list[dict] = []
     for r in recurring:
-        cadence = max(1, r["cadence_days"])
-        next_date = date.fromisoformat(r["last_seen"]) + timedelta(days=cadence)
-        while next_date <= ctx.as_of:
-            next_date += timedelta(days=cadence)
-        while next_date <= horizon_end:
+        for due in _recurring_dates(r, ctx.as_of, horizon_end):
             recurring_events.append({
-                "date": next_date,
+                "date": due,
                 "amount": r["amount"],
                 "counterparty": r["counterparty"],
                 "category": r["category"],
                 "source": "recurring_detected",
             })
-            next_date += timedelta(days=cadence)
 
     obligation_events: list[dict] = []
     stock_arrivals: dict[date, float] = {}
+    first_day = ctx.as_of + timedelta(days=1)
     for o in ctx.profile.get("scheduled_obligations", []):
         original_due = date.fromisoformat(o["due"])
         od = original_due + timedelta(
@@ -260,20 +387,35 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         parts = [(od, amount)]
         if o["counterparty"] in sc.obligation_splits:
             parts = [(od, amount / 2), (od + timedelta(days=30), amount / 2)]
+        # A bill due today or earlier that the bank ledger does not show as
+        # paid is the most urgent one of all. It is charged on the first day
+        # of the forecast and marked overdue - never silently dropped.
+        if original_due <= ctx.as_of and _obligation_paid(ctx, o):
+            continue
         # Goods arrive on the originally agreed date. Negotiating to *pay*
         # later does not delay the delivery, so the stock is not shifted.
+        # (For an overdue bill the stock is counted from the first day.)
         inv = float(o.get("inventory_value", 0.0) or 0.0)
-        if inv > 0 and ctx.as_of < original_due <= horizon_end:
-            stock_arrivals[original_due] = stock_arrivals.get(original_due, 0.0) + inv
+        stock_date = max(original_due, first_day)
+        if inv > 0 and stock_date <= horizon_end:
+            stock_arrivals[stock_date] = stock_arrivals.get(stock_date, 0.0) + inv
         for pdate, pamount in parts:
-            if ctx.as_of < pdate <= horizon_end:
+            overdue = pdate <= ctx.as_of
+            if overdue:
+                pdate = first_day
+            if pdate <= horizon_end:
+                note = o.get("note", "")
+                if overdue:
+                    note = (f"Overdue: was due {original_due.isoformat()} and no matching "
+                            f"payment is in the bank ledger." + (f" {note}" if note else ""))
                 obligation_events.append({
                     "date": pdate,
                     "amount": pamount,
                     "counterparty": o["counterparty"],
                     "category": o["category"],
                     "source": "scheduled_obligation",
-                    "note": o.get("note", ""),
+                    "note": note,
+                    "overdue": overdue,
                 })
 
     # --- scenario-only events -------------------------------------------------
@@ -319,6 +461,10 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
 
     stock_on_hand = 0.0
     stock_used_total = 0.0
+    # The other ledger: money already earned that the marketplace has not paid
+    # out yet. Starts from the real platform balance and moves with projected
+    # sales (net of fees and refunds) and payouts.
+    queue = m["platform_balance"]
     for i in range(1, horizon_days + 1):
         d = ctx.as_of + timedelta(days=i)
         gross = projected_sales[d]
@@ -355,6 +501,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         outflow = variable + chargebacks + fixed
 
         balance += inflow + inflow_other - outflow
+        queue += gross * (1 - fee_rate - refund_rate) - inflow
         series.append({
             "date": d.isoformat(),
             "projected_sales": round(gross, 2),
@@ -364,6 +511,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "cogs_covered_by_stock": round(from_stock, 2),
             "outflow_fixed": round(fixed, 2),
             "balance": round(balance, 2),
+            "payout_queue": round(queue, 2),
             "events": [
                 {"counterparty": e["counterparty"], "amount": round(e["amount"], 2),
                  "category": e["category"], "source": e["source"]}
@@ -384,14 +532,18 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
         # frequently weeks earlier than the trough itself - a fixed lookback
         # would blame whatever ordinary bills happen to land near the low point.
         agg: dict[str, float] = {}
+        count: dict[str, int] = {}
         for s in series:
             sd = date.fromisoformat(s["date"])
             if sd <= trough_date:
                 for e in s["events"]:
                     key = e["counterparty"]
                     agg[key] = agg.get(key, 0.0) + e["amount"]
+                    count[key] = count.get(key, 0) + 1
+        # `payments` says how many payments the amount adds up, so three rent
+        # payments are never described as "one payment".
         drivers = [
-            {"counterparty": k, "amount": round(v, 2)}
+            {"counterparty": k, "amount": round(v, 2), "payments": count[k]}
             for k, v in sorted(agg.items(), key=lambda kv: -kv[1])[:4]
         ]
 
@@ -399,15 +551,35 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
     if trough and trough["balance"] < buffer_level:
         shortfall_to_buffer = round(buffer_level - trough["balance"], 2)
 
-    # How long the balance stays below the buffer - i.e. how long a bridge
-    # facility would need to run.
+    # Payout timing as a named cause. The bills decide WHEN the balance is
+    # lowest; the payout hold decides whether the seller's own earnings are
+    # there to meet them. This is the money already earned and still held by
+    # the marketplace on the day of the low point, set against the gap.
+    payout_hold = None
+    if trough:
+        held = max(0.0, trough["payout_queue"])
+        payout_hold = {
+            "held_at_trough": round(held, 2),
+            "trough_date": trough["date"],
+            "share_of_gap_pct": (round(min(100.0, held / shortfall_to_buffer * 100), 1)
+                                 if shortfall_to_buffer > 0 else None),
+            "covers_gap": bool(shortfall_to_buffer > 0 and held >= shortfall_to_buffer),
+            "hold_days": hold_days,
+            "cadence_days": int(ctx.profile["payout_schedule"]["cadence_days"]),
+        }
+
+    # How long a bridge facility would need to run: from the first day below
+    # the buffer to the last one. This can be longer than `days_below_buffer`
+    # when the balance recovers for a few days in between (a payout lands, then
+    # the next bill takes it under again) - a bridge cannot be handed back for
+    # those days, so the span is the right financing duration.
     bridge_days = 0
     if below_buffer:
         first = date.fromisoformat(below_buffer[0]["date"])
         last = date.fromisoformat(below_buffer[-1]["date"])
         bridge_days = (last - first).days + 1
 
-    return {
+    out = {
         "seller_id": ctx.seller_id,
         "as_of": ctx.as_of.isoformat(),
         "horizon_days": horizon_days,
@@ -433,9 +605,12 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             {"date": d.isoformat(), "amount": a}
             for d, a in sorted(payout_events.items())
         ],
+        "payouts_pending_at_horizon": payouts_pending,
+        "payouts_in_transit": in_transit,
         "scheduled_obligations": [
             {"date": e["date"].isoformat(), "amount": round(e["amount"], 2),
-             "counterparty": e["counterparty"], "note": e.get("note", "")}
+             "counterparty": e["counterparty"], "note": e.get("note", ""),
+             "overdue": bool(e.get("overdue"))}
             for e in sorted(obligation_events, key=lambda e: e["date"])
         ],
         "recurring_detected": recurring,
@@ -446,6 +621,7 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "first_negative_date": negative[0]["date"] if negative else None,
             "days_below_buffer": len(below_buffer),
             "first_below_buffer_date": below_buffer[0]["date"] if below_buffer else None,
+            "last_below_buffer_date": below_buffer[-1]["date"] if below_buffer else None,
             # Lead time to arrange a facility: distinct from how long the money
             # is needed for, and the constraint that rules products in or out.
             "days_until_first_shortfall": (
@@ -458,8 +634,16 @@ def forecast_cashflow(ctx: SellerContext, horizon_days: int = 60,
             "stock_drawn_down": round(stock_used_total, 2),
             "stock_remaining_at_horizon": round(stock_on_hand, 2),
             "primary_drivers": drivers,
+            "payout_hold": payout_hold,
         },
     }
+    # The findings go first. In LLM mode a tool result is cut to
+    # LLM_TOOL_RESULT_CHARS characters before the model sees it; with the
+    # day-by-day series first, the findings of any forecast longer than about
+    # 60 days were cut off and the model never saw them.
+    lead = ("seller_id", "as_of", "horizon_days", "currency", "opening_bank_balance",
+            "opening_platform_balance", "safety_buffer", "findings")
+    return {**{k: out[k] for k in lead}, **{k: v for k, v in out.items() if k not in lead}}
 
 
 def backtest(seller_id: str, cutoff: date, horizon_days: int = 30) -> dict:
@@ -531,6 +715,11 @@ def backtest(seller_id: str, cutoff: date, horizon_days: int = 30) -> dict:
         "actual_balance": round(actual, 2),
         "absolute_error": round(error, 2),
         "pct_error_vs_actual": round(error / denom * 100, 2),
+        # The same error before the one-off adjustment, on the same
+        # denominator as the headline figure, so the two can be compared.
+        "raw_error_pct_of_monthly_revenue": round(
+            error / max(ctx_past.metrics["avg_monthly_revenue"], 1.0) * 100, 2
+        ),
         "undeclared_one_offs": one_offs,
         "undeclared_one_off_total": one_off_total,
         "adjusted_error": adjusted_error,

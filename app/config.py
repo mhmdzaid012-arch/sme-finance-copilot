@@ -61,6 +61,13 @@ SEASONALITY_DAMPING = {
 # never depend on a network call or a credential.
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 MAX_AGENT_STEPS = 6
+# A live demo must never hang on a slow network. Each call to the model gives
+# up after LLM_TIMEOUT_SECONDS (the SDK's own default is 600 seconds with two
+# retries), and a whole turn gives up after LLM_TURN_BUDGET_SECONDS. In both
+# cases the turn falls back to offline mode, which needs no network.
+LLM_TIMEOUT_SECONDS = float(os.environ.get("LLM_TIMEOUT_SECONDS", "20"))
+LLM_MAX_RETRIES = 1
+LLM_TURN_BUDGET_SECONDS = float(os.environ.get("LLM_TURN_BUDGET_SECONDS", "45"))
 
 
 def anthropic_api_key() -> str | None:

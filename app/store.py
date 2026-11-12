@@ -246,6 +246,14 @@ def detect_recurring(ctx: SellerContext, lookback_days: int = 180) -> list[dict]
             continue
         median_gap = statistics.median(gaps)
         amounts = [abs(t.amount) for t in items]
+        # A bill paid about once a month is a calendar bill ("rent on the
+        # 1st"), not a fixed number of days. Projecting it by day-gap makes it
+        # drift: the 1st becomes the 2nd, then the 3rd. The usual day is the
+        # most common day of the month (latest one on a tie, so a bill on the
+        # 30th that falls on 28 February still counts as the 30th).
+        monthly = 27 <= median_gap <= 32
+        days = [t.date.day for t in items]
+        usual_day = max(set(days), key=lambda d: (days.count(d), d))
         recurring.append({
             "counterparty": counterparty,
             "category": category,
@@ -254,7 +262,8 @@ def detect_recurring(ctx: SellerContext, lookback_days: int = 180) -> list[dict]
             "last_seen": items[-1].date.isoformat(),
             "occurrences": len(items),
             "gap_stddev_days": round(gap_stddev, 2),
-            "day_of_month": items[-1].date.day,
+            "monthly": monthly,
+            "day_of_month": usual_day if monthly else items[-1].date.day,
         })
 
     recurring.sort(key=lambda r: -r["amount"])

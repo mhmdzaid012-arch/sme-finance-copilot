@@ -39,6 +39,44 @@ def _fmt_eur(x: float) -> str:
     return f"EUR {x:,.0f}"
 
 
+def payout_hold_sentence(f: dict) -> str:
+    """
+    Name payout timing as a cause, with the figure. The bills decide when the
+    balance is lowest; the payout hold is why the seller's own earnings are
+    not there to meet them. Empty when there is no gap to explain.
+    """
+    hold, gap = f.get("payout_hold"), f.get("shortfall_to_buffer") or 0.0
+    if not hold or gap <= 0 or hold["held_at_trough"] <= 0:
+        return ""
+    held = _fmt_eur(hold["held_at_trough"])
+    if hold["covers_gap"]:
+        size = f"more than the whole {_fmt_eur(gap)} gap"
+    else:
+        size = f"about {hold['share_of_gap_pct']:.0f}% of the {_fmt_eur(gap)} gap"
+    return (f"Payout timing is the underlying cause: on {hold['trough_date']} the "
+            f"marketplace will still be holding about {held} that you have already "
+            f"earned, {size}. The bills set the date; the {hold['hold_days']}-day payout "
+            f"hold is why your own money is not there to meet them.")
+
+
+def _span_note(f: dict) -> str:
+    """Explain the two day-counts when they differ (47 days of bridge, 43 below)."""
+    span, below = f["suggested_bridge_days"], f["days_below_buffer"]
+    if not span or span == below:
+        return ""
+    return (f" Those {span} days run from the first dip on {f['first_below_buffer_date']} "
+            f"to the last day below the buffer, {f['last_below_buffer_date']}; the "
+            f"balance is under the buffer on {below} of them.")
+
+
+def _driver_label(d: dict) -> str:
+    """'Rent (EUR 850)' for one payment, 'Rent (EUR 2,550 over 3 payments)' for several."""
+    n = d.get("payments", 1)
+    if n > 1:
+        return f"{d['counterparty']} ({_fmt_eur(d['amount'])} over {n} payments)"
+    return f"{d['counterparty']} ({_fmt_eur(d['amount'])})"
+
+
 def generate_alerts(ctx: SellerContext, forecast: dict,
                     include_financing: bool = True) -> dict:
     """Turn a forecast into a ranked, actionable alert list."""
@@ -54,9 +92,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
     gap = f["shortfall_to_buffer"] or 0.0
 
     drivers = f["primary_drivers"]
-    driver_text = ", ".join(
-        f"{d['counterparty']} ({_fmt_eur(d['amount'])})" for d in drivers[:3]
-    ) or "ordinary operating costs"
+    driver_text = ", ".join(_driver_label(d) for d in drivers[:3]) or "ordinary operating costs"
 
     # --- the headline cash alert ------------------------------------------
     if f["goes_negative"]:
@@ -71,9 +107,13 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
             "detail": (
                 f"On current trends the bank balance goes negative on {first_neg} and "
                 f"bottoms out at {_fmt_eur(trough_balance)} on {trough_date}. The "
-                f"payments driving it are {driver_text}. To stay above your "
-                f"{_fmt_eur(buffer_level)} safety buffer throughout you would need "
-                f"about {_fmt_eur(gap)} for roughly {duration} days."
+                f"payments driving it are {driver_text}."
+                # Only state an amount and a duration when there is one to state.
+                + (f" To stay above your {_fmt_eur(buffer_level)} safety buffer "
+                   f"throughout you would need about {_fmt_eur(gap)} for roughly "
+                   f"{duration} days." if gap > 0 and duration else "")
+                + _span_note(f)
+                + (" " + payout_hold_sentence(f) if payout_hold_sentence(f) else "")
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,
@@ -93,6 +133,7 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 f"{_fmt_eur(trough_balance)} on {trough_date}. It does not go negative, "
                 f"so this is a thin-margin warning rather than a missed-payment risk. "
                 f"Main drivers: {driver_text}."
+                + (" " + payout_hold_sentence(f) if payout_hold_sentence(f) else "")
             ),
             "amount_needed": round(gap, 2),
             "days_needed": duration,
@@ -128,10 +169,16 @@ def generate_alerts(ctx: SellerContext, forecast: dict,
                 "headline": (
                     f"One payment causes most of the squeeze: "
                     f"{top['counterparty']} at {_fmt_eur(top['amount'])}"
+                    if top.get("payments", 1) == 1 else
+                    f"{top['payments']} payments to {top['counterparty']} add up to most "
+                    f"of the squeeze: {_fmt_eur(top['amount'])} in total"
                 ),
                 "detail": (
-                    f"This single obligation is the biggest cause of the "
-                    f"{_fmt_eur(gap)} gap."
+                    (f"This single obligation is the biggest cause of the "
+                     f"{_fmt_eur(gap)} gap."
+                     if top.get("payments", 1) == 1 else
+                     f"Together these {top['payments']} payments are the biggest cause "
+                     f"of the {_fmt_eur(gap)} gap.")
                     + (lambda t30, tsplit: (
                         f" Tested: paying it 30 days later - {t30.lower()}"
                         if t30 else "")

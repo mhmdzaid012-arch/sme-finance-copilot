@@ -71,6 +71,8 @@ def _hero() -> dict:
         "first_negative_date": fi["first_negative_date"],
         "trough_balance": fi["trough_balance"],
         "trough_date": fi["trough_date"],
+        # Earned money still held by the marketplace on the day of the low point.
+        "payout_queue_at_trough": fi["payout_hold"]["held_at_trough"],
         "need_amount": amount,
         "need_days": days,
         "lead_days": lead,
@@ -136,6 +138,17 @@ def _accuracy() -> dict:
             "adjusted_error": hero30["adjusted_error"],
             "adjusted_pct_of_revenue": hero30["adjusted_error_pct_of_monthly_revenue"],
         },
+        # The headline figure removes one-off payments nobody declared and is
+        # divided by monthly revenue. These two show it without each choice.
+        "unadjusted_mean_pct": round(statistics.mean(
+            abs(r["raw_error_pct_of_monthly_revenue"]) for r in rows), 1),
+        "unadjusted_worst_pct": round(max(
+            abs(r["raw_error_pct_of_monthly_revenue"]) for r in rows), 1),
+        "balance_based_mean_pct": round(statistics.mean(
+            abs(r["adjusted_pct_error"]) for r in rows), 1),
+        "one_off_share_of_raw_error_pct": round(100 * (1 - sum(
+            abs(r["adjusted_error"]) for r in rows) / sum(
+            abs(r["absolute_error"]) for r in rows)), 1),
         "consistency_mean_pct": round(statistics.mean(errs), 1),
         "consistency_worst_pct": round(max(errs), 1),
         "stress": stress,

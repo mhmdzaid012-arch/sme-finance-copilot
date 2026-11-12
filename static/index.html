@@ -482,17 +482,21 @@ function renderForecast(f) {
       <div class="k">Lowest projected point</div>
       <div class="v" style="color:${fi.trough_balance < 0 ? 'var(--crit)' : 'inherit'}">
         ${eur(fi.trough_balance)} on ${esc(fi.trough_date)}</div>
+      ${fi.payout_hold && fi.shortfall_to_buffer > 0 ? `<div class="k">Your money in the payout queue that day</div>
+        <div class="v">${eur(fi.payout_hold.held_at_trough)}</div>` : ''}
       ${fi.goes_negative ? `<div class="k">Goes negative</div>
         <div class="v" style="color:var(--crit)">${esc(fi.first_negative_date)}</div>` : ''}
       ${fi.shortfall_to_buffer > 0 ? `<div class="k">Needed to hold the buffer</div>
         <div class="v">${eur(fi.shortfall_to_buffer)} for ${fi.suggested_bridge_days} days</div>
+        ${fi.suggested_bridge_days !== fi.days_below_buffer ? `<div class="k">Days below the buffer in that span</div>
+        <div class="v">${fi.days_below_buffer} of ${fi.suggested_bridge_days}</div>` : ''}
         <div class="k">Lead time to arrange</div>
         <div class="v">${fi.days_until_first_shortfall} days</div>` : ''}
     </div>
     ${fi.primary_drivers && fi.primary_drivers.length ? `
       <div style="margin-top:11px"><b style="font-size:12.5px">What drives the drawdown</b>
       <table style="margin-top:5px"><tbody>${fi.primary_drivers.map(d =>
-        `<tr><td>${esc(d.counterparty)}</td><td class="num">${eur(d.amount)}</td></tr>`).join('')}
+        `<tr><td>${esc(d.counterparty)}${d.payments > 1 ? ` (${d.payments} payments)` : ''}</td><td class="num">${eur(d.amount)}</td></tr>`).join('')}
       </tbody></table></div>` : ''}
     <details style="margin-top:11px"><summary>Assumptions behind this projection</summary>
       <div class="kv" style="margin-top:8px">

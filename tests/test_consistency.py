@@ -111,6 +111,7 @@ def _required_phrases(f: dict) -> dict[str, list[str]]:
         eur(h["bill_amount"]), pretty_date(h["first_negative_date"]),
         eur(h["trough_balance"]), pretty_date(h["trough_date"]),
         eur(h["need_amount"]), f"{h['need_days']} days", f"{h['lead_days']} days",
+        eur(h["payout_queue_at_trough"]),
         h["recommended"]["name"], eur(h["recommended"]["cost"]),
         h["cheapest_overall"]["name"], eur(h["cheapest_overall"]["cost"]),
     ]
@@ -119,6 +120,10 @@ def _required_phrases(f: dict) -> dict[str, list[str]]:
     return {
         "README.md": hero + accuracy + [tests],
         "TECHNICAL.md": accuracy + [
+            # The accuracy figure is never quoted without its unadjusted and
+            # balance-based versions.
+            f"{a['unadjusted_mean_pct']}%", f"{a['unadjusted_worst_pct']}%",
+            f"{a['balance_based_mean_pct']}%", f"{a['one_off_share_of_raw_error_pct']}%",
             eur(bt["raw_error"]), eur(bt["undeclared_one_offs"]), tests,
             eur(h["mca"]["cost"]), eur(h["recommended"]["cost"]),
             f"{f['counts']['transactions']:,} transactions",
@@ -142,8 +147,24 @@ def test_documents_quote_the_live_figures(doc, stored_facts):
 def test_no_stale_figures_anywhere(doc):
     path = DECK_SCRIPT if doc == "build_deck.js" else DOCS[doc]
     text = path.read_text(encoding="utf-8")
-    found = [s for s in STALE if s in text]
+    found = [s for s in STALE if _quoted_as_a_whole_figure(s, text)]
     assert not found, f"{doc} still contains stale figures: {found}"
+
+
+def _quoted_as_a_whole_figure(stale: str, text: str) -> bool:
+    """True if `stale` appears as a figure of its own, not inside a longer
+    number: "2.5%" must be caught, "42.5%" (a current figure) must not."""
+    before = r"(?<![\d.,])" if stale[0].isdigit() else ""
+    after = r"(?!\d)" if stale[-1].isdigit() else ""
+    return re.search(before + re.escape(stale) + after, text) is not None
+
+
+def test_stale_figure_check_matches_whole_figures_only():
+    assert _quoted_as_a_whole_figure("2.5%", "the error was 2.5% then")
+    assert _quoted_as_a_whole_figure("EUR 800", "she makes EUR 800 a month")
+    assert _quoted_as_a_whole_figure("€", "costs €5")
+    assert not _quoted_as_a_whole_figure("2.5%", "worst case 42.5%")
+    assert not _quoted_as_a_whole_figure("EUR 800", "about EUR 8000")
 
 
 def test_deck_takes_every_figure_from_the_facts_file():
@@ -152,6 +173,34 @@ def test_deck_takes_every_figure_from_the_facts_file():
     assert "facts.json" in src
     literals = re.findall(r'["\'`][^"\'`\n]*EUR \d', src)
     assert not literals, f"hard-coded amounts in the deck: {literals[:5]}"
+
+
+def test_real_data_backtest_figures_in_the_docs_match_the_evidence_file():
+    """The UCI figures are published in two documents; both must match the file."""
+    uci = json.loads((config.EVIDENCE_DIR / "uci_backtest.json").read_text(encoding="utf-8"))
+    h60 = uci["all_origins"]["60"]
+    for doc in ("README.md", "TECHNICAL.md"):
+        text = DOCS[doc].read_text(encoding="utf-8")
+        for method in ("model", "last_week", "last_year"):
+            assert f"{h60[method]['total_error_mean_pct']}%" in text, (doc, method)
+        assert "CC BY 4.0" in text and "10.24432/C5CG6D" in text, doc
+    assert uci["dataset"]["licence"] == "CC BY 4.0"
+
+
+def test_recorded_live_run_is_current_or_labelled_as_old(stored_facts):
+    """The live-LLM transcript cannot be regenerated without an API key. It must
+    either quote today's figures or say plainly that it predates them."""
+    text = (config.EVIDENCE_DIR / "llm_live_run.md").read_text(encoding="utf-8")
+    current = eur(stored_facts["hero"]["need_amount"]) in text
+    assert current or "Recorded before the finals fixes" in text
+
+
+def test_third_party_data_is_never_committed():
+    ignored = (config.ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "data/external/" in ignored and ".env" in ignored
+    tracked = subprocess.run(["git", "ls-files", "data/external", ".env"], cwd=config.ROOT,
+                             capture_output=True, text=True).stdout.strip()
+    assert tracked == "", f"must not be committed: {tracked}"
 
 
 def test_accuracy_is_never_described_as_real_world_without_the_stress_result():

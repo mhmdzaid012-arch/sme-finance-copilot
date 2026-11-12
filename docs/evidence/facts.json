@@ -4,7 +4,7 @@
     "sellers": 4,
     "products": 18,
     "transactions": 4794,
-    "tests": 232,
+    "tests": 407,
     "evidence_scenarios": 18,
     "audit_records": 79
   },
@@ -21,116 +21,117 @@
     "bill_amount": 6800.0,
     "bill_due": "2026-09-25",
     "first_negative_date": "2026-09-25",
-    "trough_balance": -5084.33,
+    "trough_balance": -5054.79,
     "trough_date": "2026-10-04",
-    "need_amount": 6584.33,
+    "payout_queue_at_trough": 8458.57,
+    "need_amount": 6554.79,
     "need_days": 47,
     "lead_days": 6,
-    "balance_day_60": 2814.61,
+    "balance_day_60": 2670.9,
     "balance_series": [
       [
         "09-11",
-        2862.29
+        2922.49
       ],
       [
         "09-14",
-        2212.59
+        2214.39
       ],
       [
         "09-17",
-        1079.6
+        1084.86
       ],
       [
         "09-20",
-        259.26
+        268.97
       ],
       [
         "09-23",
-        4178.48
+        4195.21
       ],
       [
         "09-26",
-        -2994.36
+        -2973.42
       ],
       [
         "09-29",
-        -3198.87
+        -3175.04
       ],
       [
         "10-02",
-        -4968.1
+        -4940.68
       ],
       [
         "10-05",
-        -389.59
+        -389.25
       ],
       [
         "10-08",
-        -707.8
+        -776.66
       ],
       [
         "10-11",
-        -1039.35
+        -969.63
       ],
       [
         "10-14",
-        -3260.59
+        -3244.72
       ],
       [
         "10-17",
-        -3869.02
+        -3847.07
       ],
       [
         "10-20",
-        822.88
+        763.92
       ],
       [
         "10-23",
-        592.28
+        540.8
       ],
       [
         "10-26",
-        386.23
+        341.92
       ],
       [
         "10-29",
-        150.59
+        114.98
       ],
       [
         "11-01",
-        -763.71
+        -1640.92
       ],
       [
         "11-04",
-        3420.68
+        3257.25
       ],
       [
         "11-07",
-        3063.03
+        2911.34
       ],
       [
         "11-09",
-        2814.61
+        2670.9
       ]
     ],
     "cheapest_overall": {
       "name": "Granary Supplier Payment Terms",
-      "cost": 195.99,
+      "cost": 195.11,
       "speed_days": 7,
       "too_slow": true
     },
     "recommended": {
       "name": "Ember Seasonal Bridge",
-      "cost": 218.15,
+      "cost": 217.17,
       "speed_days": 6,
       "verdict": "avoids_negative",
       "days_below_buffer": 3
     },
     "mca": {
       "name": "SwiftCash Merchant Advance",
-      "cost": 1843.61,
+      "cost": 1835.34,
       "speed_days": 1,
-      "effective_apr": 0.9774,
+      "effective_apr": 0.9818,
       "verdict": "improves"
     },
     "verified_options": [
@@ -140,8 +141,8 @@
         "speed_days": 6,
         "verdict": "avoids_negative",
         "verdict_text": "You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).",
-        "cost": 218.15,
-        "trough_balance": 958.66,
+        "cost": 217.17,
+        "trough_balance": 780.35,
         "days_below_buffer": 3,
         "goes_negative": false
       },
@@ -151,8 +152,8 @@
         "speed_days": 3,
         "verdict": "avoids_negative",
         "verdict_text": "You never go negative, but you dip below your EUR 1,500 safety buffer for 9 day(s).",
-        "cost": 592.59,
-        "trough_balance": 277.55,
+        "cost": 589.93,
+        "trough_balance": 290.82,
         "days_below_buffer": 9,
         "goes_negative": false
       },
@@ -161,40 +162,40 @@
         "name": "SwiftCash Merchant Advance",
         "speed_days": 1,
         "verdict": "improves",
-        "verdict_text": "Better, but you still go negative from 2026-10-02.",
-        "cost": 1843.61,
-        "trough_balance": -796.2,
-        "days_below_buffer": 12,
+        "verdict_text": "Better, but you still go negative from 2026-10-01.",
+        "cost": 1835.34,
+        "trough_balance": -927.25,
+        "days_below_buffer": 13,
         "goes_negative": true
       }
     ]
   },
   "whatif_demo": {
-    "trough_before": -5084.33,
+    "trough_before": -5054.79,
     "rows": [
       {
         "label": "Pay the supplier 3 weeks later",
         "verdict": "improves",
         "headline": "Better, but you still go negative from 2026-10-16.",
-        "trough_after": -3925.05
+        "trough_after": -4081.45
       },
       {
         "label": "Marketplace payouts arrive 3 days late",
         "verdict": "worsens",
         "headline": "This makes the shortfall worse.",
-        "trough_after": -5412.36
+        "trough_after": -5378.0
       },
       {
         "label": "Take Ember Seasonal Bridge",
         "verdict": "avoids_negative",
         "headline": "You never go negative, but you dip below your EUR 1,500 safety buffer for 3 day(s).",
-        "trough_after": 958.66
+        "trough_after": 780.35
       },
       {
         "label": "Take SwiftCash Merchant Advance",
         "verdict": "improves",
-        "headline": "Better, but you still go negative from 2026-10-02.",
-        "trough_after": -796.2
+        "headline": "Better, but you still go negative from 2026-10-01.",
+        "trough_after": -927.25
       }
     ],
     "chart": {
@@ -202,173 +203,173 @@
       "baseline": [
         [
           "09-11",
-          2862.29
+          2922.49
         ],
         [
           "09-14",
-          2212.59
+          2214.39
         ],
         [
           "09-17",
-          1079.6
+          1084.86
         ],
         [
           "09-20",
-          259.26
+          268.97
         ],
         [
           "09-23",
-          4178.48
+          4195.21
         ],
         [
           "09-26",
-          -2994.36
+          -2973.42
         ],
         [
           "09-29",
-          -3198.87
+          -3175.04
         ],
         [
           "10-02",
-          -4968.1
+          -4940.68
         ],
         [
           "10-05",
-          -389.59
+          -389.25
         ],
         [
           "10-08",
-          -707.8
+          -776.66
         ],
         [
           "10-11",
-          -1039.35
+          -969.63
         ],
         [
           "10-14",
-          -3260.59
+          -3244.72
         ],
         [
           "10-17",
-          -3869.02
+          -3847.07
         ],
         [
           "10-20",
-          822.88
+          763.92
         ],
         [
           "10-23",
-          592.28
+          540.8
         ],
         [
           "10-26",
-          386.23
+          341.92
         ],
         [
           "10-29",
-          150.59
+          114.98
         ],
         [
           "11-01",
-          -763.71
+          -1640.92
         ],
         [
           "11-04",
-          3420.68
+          3257.25
         ],
         [
           "11-07",
-          3063.03
+          2911.34
         ],
         [
           "11-09",
-          2814.61
+          2670.9
         ]
       ],
       "scenario": [
         [
           "09-11",
-          2862.29
+          2922.49
         ],
         [
           "09-14",
-          2212.59
+          2214.39
         ],
         [
           "09-17",
-          7663.93
+          7639.65
         ],
         [
           "09-20",
-          6843.59
+          6823.76
         ],
         [
           "09-23",
-          10762.81
+          10750.0
         ],
         [
           "09-26",
-          3589.97
+          3581.37
         ],
         [
           "09-29",
-          3385.46
+          3379.75
         ],
         [
           "10-02",
-          1616.23
+          1614.11
         ],
         [
           "10-05",
-          6194.74
+          6165.54
         ],
         [
           "10-08",
-          5876.53
+          5778.13
         ],
         [
           "10-11",
-          5544.98
+          5585.16
         ],
         [
           "10-14",
-          3323.74
+          3310.07
         ],
         [
           "10-17",
-          1014.69
+          1014.73
         ],
         [
           "10-20",
-          5706.59
+          5625.72
         ],
         [
           "10-23",
-          5475.99
+          5402.6
         ],
         [
           "10-26",
-          5269.94
+          5203.72
         ],
         [
           "10-29",
-          5034.3
+          4976.78
         ],
         [
           "11-01",
-          4120.0
+          3220.88
         ],
         [
           "11-04",
-          8304.39
+          8119.05
         ],
         [
           "11-07",
-          7946.74
+          7773.14
         ],
         [
           "11-09",
-          7698.32
+          7532.69
         ]
       ]
     }
@@ -456,50 +457,94 @@
   },
   "accuracy": {
     "hero_backtest_30d": {
-      "raw_error": 4920.54,
+      "raw_error": 4826.71,
       "undeclared_one_offs": 4500.0,
-      "adjusted_error": 420.54,
-      "adjusted_pct_of_revenue": 3.82
+      "adjusted_error": 326.71,
+      "adjusted_pct_of_revenue": 2.97
     },
-    "consistency_mean_pct": 3.1,
-    "consistency_worst_pct": 6.5,
+    "unadjusted_mean_pct": 13.2,
+    "unadjusted_worst_pct": 59.7,
+    "balance_based_mean_pct": 3.8,
+    "one_off_share_of_raw_error_pct": 80.5,
+    "consistency_mean_pct": 1.5,
+    "consistency_worst_pct": 3.0,
     "stress": {
-      "note": "Absolute forecast error as a percentage of monthly revenue, over 12 backtests per scenario (4 sellers x 30/45/60-day horizons). 'baseline' uses data generated by the same process the forecaster assumes, so it is a consistency check rather than evidence of real-world accuracy. The other rows deliberately break an assumption. Late payouts are the dominant sensitivity: one delayed payout moves a whole payment across the measured date. The what-if simulator's 'payouts arrive late' setting exists so a seller can test exactly this on their own projection.",
+      "note": "Absolute forecast error as a percentage of monthly revenue. Each run is 12 backtests (4 sellers x 30/45/60-day horizons). 'baseline' uses data generated by the same process the forecaster assumes, so it is a consistency check rather than evidence of real-world accuracy. The other rows deliberately break an assumption. In the late-payout rows every payout releases the sales it was scheduled to release but lands 0-3 days late; a payout pushed past the end of the history stays pending. Those rows repeat the run over 100 independent sets of draws, one seeded generator per seller. Late payouts are the dominant sensitivity, and the error is concentrated (see by_payout_position): it is large when a payout is due on the day the forecast is measured and arrives late, and close to the baseline otherwise. A payout that is late on the day the forecast is MADE no longer hurts: the forecaster notices it is missing from the bank ledger and expects it. The what-if simulator's 'payouts arrive late' setting exists so a seller can test exactly this on their own projection.",
       "results": [
         {
           "key": "baseline",
           "label": "Same process the forecaster assumes",
-          "mean_pct": 3.1,
-          "worst_pct": 6.5,
+          "mean_pct": 1.5,
+          "worst_pct": 3.0,
           "backtests": 12
         },
         {
           "key": "noisier_sales",
           "label": "Daily sales twice as noisy (sd 0.16 -> 0.30)",
-          "mean_pct": 4.4,
-          "worst_pct": 9.5,
+          "mean_pct": 3.3,
+          "worst_pct": 5.9,
           "backtests": 12
         },
         {
           "key": "different_seasonality",
           "label": "A seasonal pattern the forecaster does not know",
-          "mean_pct": 8.3,
-          "worst_pct": 16.8,
+          "mean_pct": 7.6,
+          "worst_pct": 13.4,
           "backtests": 12
         },
         {
           "key": "late_payouts",
           "label": "Marketplace payouts arrive 0-3 days late at random",
-          "mean_pct": 19.4,
-          "worst_pct": 47.9,
-          "backtests": 12
+          "mean_pct": 9.5,
+          "worst_pct": 42.5,
+          "backtests": 1200,
+          "sets_of_draws": 100,
+          "median_pct": 2.2,
+          "p90_pct": 41.0,
+          "by_payout_position": {
+            "no_payout_in_transit": {
+              "backtests": 690,
+              "mean_pct": 1.4,
+              "worst_pct": 3.0
+            },
+            "in_transit_on_forecast_date": {
+              "backtests": 273,
+              "mean_pct": 2.1,
+              "worst_pct": 3.4
+            },
+            "in_transit_on_measured_date": {
+              "backtests": 237,
+              "mean_pct": 41.5,
+              "worst_pct": 42.5
+            }
+          }
         },
         {
           "key": "all_three",
           "label": "All three at once",
-          "mean_pct": 26.6,
-          "worst_pct": 46.4,
-          "backtests": 12
+          "mean_pct": 14.8,
+          "worst_pct": 42.1,
+          "backtests": 1200,
+          "sets_of_draws": 100,
+          "median_pct": 8.7,
+          "p90_pct": 41.0,
+          "by_payout_position": {
+            "no_payout_in_transit": {
+              "backtests": 690,
+              "mean_pct": 9.3,
+              "worst_pct": 18.0
+            },
+            "in_transit_on_forecast_date": {
+              "backtests": 273,
+              "mean_pct": 6.4,
+              "worst_pct": 17.9
+            },
+            "in_transit_on_measured_date": {
+              "backtests": 237,
+              "mean_pct": 40.7,
+              "worst_pct": 42.1
+            }
+          }
         }
       ]
     }

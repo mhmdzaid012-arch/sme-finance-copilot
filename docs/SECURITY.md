@@ -117,8 +117,17 @@ wrap"). A disguised attack can't be cut out precisely, so the whole field is wit
 **Reporting.** The seller is told once per session that notes on their account
 contained text aimed at the assistant.
 
-**Output checks (`check_output`).** These block any claim of approval, guarantee or
-certainty, and anything shaped like an account or card number.
+**Output checks (`check_output`).** Four families of claim are blocked, each in its
+common wordings: that financing **is approved** ("your loan is approved", "you are
+pre-approved", "has been approved"), that an outcome is **guaranteed**, that it is
+**certain** ("you will definitely get", "you're certain to qualify"), and that the
+assistant **has acted** ("I have submitted your application", "funds are on the way").
+Anything shaped like an account or card number is blocked too. Honest, hedged wording
+passes ("approval is not guaranteed", "if it is approved", "once approved"), and every
+reply in the evidence pack and in the live LLM transcript still passes
+(`tests/test_demo_safety.py`). The submitted version caught only three exact wordings.
+This is still pattern matching: an unusual phrasing can get through. The system prompt
+forbids these claims, and no wording can make anything execute without the human.
 
 **False positives are tested too**, in the same six languages
 (`test_benign_questions_in_other_languages_are_not_flagged`). A guardrail that fires
@@ -170,10 +179,15 @@ Ordered by residual risk, meaning the risk left after the controls described abo
 **Likelihood** high · **Impact** high · **Residual** medium
 
 This is measured, not guessed. `scripts/stress_test.py` shows that when payouts arrive
-0-3 days late at random, the mean forecast error rises to **19.4%** of monthly revenue.
-The consistency check, where the data matches the forecaster's assumptions, shows 3.1%.
+0-3 days late at random, the mean forecast error rises to **9.5%** of monthly revenue
+(median 2.2%, worst case 42.5%, 1,200 backtests). The error is concentrated: 41.5% on
+average when a payout is due on the measured date and arrives late, 1.4% when no payout
+is in transit. The consistency check, where the data matches the forecaster's assumptions,
+shows 1.5%. The submitted version reported 19.4% for late payouts; its test harness
+deleted some late payouts instead of delaying them, which is fixed and tested
+(`tests/test_stress_harness.py`).
 Undeclared one-off bills are the second blind spot: in one backtest, EUR 4,500 of a
-EUR 4,921 error was a single deposit nobody had declared.
+EUR 4,827 error was a single deposit nobody had declared.
 
 *Controls:* the what-if simulator lets a seller test late payouts on their own
 projection, and declared bills are honoured exactly. Both measurements are published.
@@ -256,7 +270,7 @@ recommended after simulation.
 ### R11 - LLM mode is exercised live, but not by the test suite
 **Likelihood** medium · **Impact** medium · **Residual** low
 
-All 232 tests and the evidence pack run in offline mode so that they need no key and
+All 407 tests and the evidence pack run in offline mode so that they need no key and
 always give the same answer. LLM mode was run against the live API on 18 October 2026
 (`scripts/live_llm_check.py`, transcript in `docs/evidence/llm_live_run.md`): eight
 scenarios, all answered in LLM mode with no fallback; both injection attempts were
@@ -265,24 +279,40 @@ said "I approve"; the action-tier session staged it for human confirmation and
 executed nothing. That run found one real defect: the output guardrail withheld a
 correct reply because it said approval "is not guaranteed". The rule now lets a
 negated claim through and still blocks the claim itself, with tests for both.
+Since the finals, each call to the model gives up after 20 seconds with one retry, and
+a whole turn after 45 seconds; either way the turn falls back to offline mode
+(the SDK default was 600 seconds with two retries, which could freeze a live turn).
 *Residual:* model behaviour can drift between runs and model versions. Re-run the
 script before every demo and review the transcript. The negation rule also opens a
 narrow gap: a claim preceded by a negation word within 30 characters passes, so an
 odd sentence like "not only is it guaranteed" would not be caught. The system prompt
 forbids such claims, and no wording can make anything execute without the human.
 
-### R12 - Growth estimate double-counts seasonality
-**Likelihood** certain for some start dates · **Impact** medium · **Residual** medium
+### R12 - Growth estimate double-counted seasonality (fixed)
+**Likelihood** none after the fix · **Impact** medium · **Residual** low
 
-Found in our own October review. The growth rate is measured on raw sales, which
-already contain the seasonal step, and the seasonal factor is then applied again.
-For a forecast that starts in November this over-projects sales by roughly 30% at
-day 60; for a January start it errs the other way. The hero scenario starts in
-September, where the effect is small, but the error is real.
-*Controls:* growth is clamped, and every forecast publishes its growth assumption.
-*Fix:* de-seasonalise the history before measuring growth. Deferred until after
-submission because it moves every published figure, and we chose to disclose it
-rather than change the numbers two days before the deadline.
+Found in our own October review and disclosed, unfixed, in the submitted version. The
+growth rate was measured on raw sales, which already contain the seasonal step, and the
+seasonal factor was then applied again. **Fixed in commit `f0196c0`** (`finals` branch): growth is now
+measured on de-seasonalised sales, the same way as the weekday baseline, so seasonality
+is applied exactly once.
+
+Measured on a test seller whose sales follow the seasonal calendar with no trend at
+all, so the right answer is a growth factor of exactly 1.0
+(`tests/test_seasonality_growth.py`):
+
+| Forecast starts | | Growth factor used | Sales error at day 60 | Sales error at day 180 |
+|---|---|---:|---:|---:|
+| 28 November | before | 1.1964 | +46.9% | +216.7% |
+| 28 November | after | 1.0000 | 0.0% | 0.0% |
+| 28 January | before | 0.80 (raw 0.6479, held at the floor) | -38.0% | -76.2% |
+| 28 January | after | 1.0000 | 0.0% | 0.0% |
+
+The hero scenario starts in September, where the effect was small: Amara's growth
+factor moved from 1.0376 to 1.0150 and her lowest balance by about EUR 30.
+*Residual:* the monthly seasonal factors themselves are still fixed constants that
+mirror the data generator, so the consistency check cannot test them. The stress test's
+"seasonal pattern the forecaster doesn't know" row measures that exposure.
 
 ---
 

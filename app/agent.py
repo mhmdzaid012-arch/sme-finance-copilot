@@ -24,6 +24,7 @@ Every turn passes through the same pipeline regardless of mode:
 from __future__ import annotations
 
 import json
+import time
 import uuid
 
 from . import config
@@ -37,10 +38,10 @@ from .security.permissions import (
     request_action,
 )
 from .store import get_seller
-from .tools.alerts import generate_alerts
+from .tools.alerts import generate_alerts, payout_hold_sentence
 from .tools.analysis import analyse_business
 from .tools.financing import match_financing
-from .tools.forecast import forecast_cashflow
+from .tools.forecast import LLM_TOOL_RESULT_CHARS, forecast_cashflow
 from .tools.whatif import WhatIfError, simulate, verify_financing_options
 
 SYSTEM_PROMPT = """You are the SME Finance Copilot, an assistant for owners of small \
@@ -437,7 +438,8 @@ def run_offline(session: Session, message: str) -> dict:
                 f"at {_fmt(f['trough_balance'])} on {f['trough_date']}."
             )
             drivers = ", ".join(
-                f"{d['counterparty']} ({_fmt(d['amount'])})"
+                f"{d['counterparty']} ({_fmt(d['amount'])}"
+                + (f" over {d['payments']} payments)" if d.get("payments", 1) > 1 else ")")
                 for d in f["primary_drivers"][:2]
             )
             lines.append(
@@ -447,6 +449,15 @@ def run_offline(session: Session, message: str) -> dict:
                 f"{f['suggested_bridge_days']} days, and you have "
                 f"{f['days_until_first_shortfall']} days to arrange it."
             )
+            if payout_hold_sentence(f):
+                lines.append(payout_hold_sentence(f))
+            if f["suggested_bridge_days"] != f["days_below_buffer"]:
+                lines.append(
+                    f"The {f['suggested_bridge_days']} days run from the first dip "
+                    f"({f['first_below_buffer_date']}) to the last day below the buffer "
+                    f"({f['last_below_buffer_date']}); you are under the buffer on "
+                    f"{f['days_below_buffer']} of them."
+                )
         elif f["days_below_buffer"]:
             lines.append(
                 f"No shortfall, but it gets tight: the balance dips below your "
@@ -614,7 +625,10 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
     except ImportError:  # pragma: no cover
         return run_offline(session, message)
 
-    client = anthropic.Anthropic(api_key=config.anthropic_api_key())
+    client = anthropic.Anthropic(api_key=config.anthropic_api_key(),
+                                 timeout=config.LLM_TIMEOUT_SECONDS,
+                                 max_retries=config.LLM_MAX_RETRIES)
+    started = time.monotonic()
     ctx = get_seller(session.seller_id)
 
     untrusted_blocks, inj = collect_untrusted_notes(session)
@@ -636,6 +650,9 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
 
     try:
         for _ in range(config.MAX_AGENT_STEPS):
+            if time.monotonic() - started > config.LLM_TURN_BUDGET_SECONDS:
+                raise TimeoutError(
+                    f"turn exceeded {config.LLM_TURN_BUDGET_SECONDS:.0f}s in LLM mode")
             response = client.messages.create(
                 model=config.ANTHROPIC_MODEL,
                 max_tokens=2000,
@@ -662,7 +679,7 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
                 tool_results.append({
                     "type": "tool_result",
                     "tool_use_id": block.id,
-                    "content": json.dumps(result, default=str)[:20000],
+                    "content": json.dumps(result, default=str)[:LLM_TOOL_RESULT_CHARS],
                 })
             messages.append({"role": "user", "content": tool_results})
         else:
