@@ -10,7 +10,7 @@ the previous 90 days. Every number below came from a command run in these sessio
 (11-12 November 2026); the command is named next to it.
 
 How to pick this up later: read this file, run `git log --oneline`, then
-`pip install -r requirements-dev.txt && pytest -q` (expect 367 passed).
+`pip install -r requirements-dev.txt && pytest -q` (expect 407 passed).
 
 ---
 
@@ -19,8 +19,8 @@ How to pick this up later: read this file, run `git log --oneline`, then
 1. Fixed 12 defects with regression tests: the seasonality double-count (R12), the broken stress-test tool, and audit items A2, A3, A5, B2, B4, B6, B10 plus one new one (N1). A4 turned out to be a labelling gap and is now explained in the product.
 2. Amara's story barely moved: lowest balance -EUR 5,084 -> -EUR 5,055, amount needed EUR 6,584 -> EUR 6,555, still 47 days, same dates, same recommended product. New: the product now says EUR 8,459 of her own money is in the payout queue on her lowest day.
 3. The accuracy numbers improved and are now honestly caveated: consistency check 3.1% -> 1.5%; late-payout stress test 19.4% -> 9.5% (1,200 runs, not 12); and a first real-data test (UCI) where the sales forecast beats "repeat last week" but loses to "same week last year".
-4. Still open: 10 smaller findings from the fresh review wait for approval (section 5), most importantly the narrow output guardrail (N6) and the missing time-out in LLM mode (N4). The deck is not edited (section 7), and the recorded live-LLM transcript predates the fixes.
-5. Tests: 232 -> 367, all passing.
+4. The two findings that could hurt a live demo are fixed: the output guardrail now blocks the common wordings of "approved" (N6), and LLM mode gives up after 20 seconds and falls back to offline (N4). Still open: 8 smaller findings wait for approval (section 5), the deck is not edited (section 7), and the recorded live-LLM transcript predates the fixes.
+5. Tests: 232 -> 407, all passing.
 
 ---
 
@@ -31,13 +31,13 @@ How to pick this up later: read this file, run `git log --oneline`, then
 It reproduced the committed `docs/evidence/` exactly, apart from `audit_log.jsonl`
 (timestamps and random ids differ on every run).
 
-"After" = `finals` at commit `4da9784`: `python scripts/generate_evidence.py`, then read
+"After" = `finals` at the latest commit: `python scripts/generate_evidence.py`, then read
 `docs/evidence/facts.json`, `backtest_results.json`, `stress_test.json`.
 UCI rows: `python scripts/uci_download.py` then `python scripts/uci_backtest.py`.
 
 | Number | Before | After | Where it appears |
 |---|---:|---:|---|
-| Tests passing (`pytest -q`) | 232 | 367 | README, TECHNICAL, SECURITY, facts.json, deck |
+| Tests passing (`pytest -q`) | 232 | 407 | README, TECHNICAL, SECURITY, facts.json, deck |
 | Consistency check, mean error (% of monthly revenue) | 3.1% | 1.5% | README, TECHNICAL 3.6, SECURITY R1, scenarios.md, deck |
 | Consistency check, worst case | 6.5% | 3.0% | same |
 | Same check without the one-off adjustment | not reported | 13.2% mean, 59.7% worst | TECHNICAL 3.6 (new disclosure) |
@@ -220,12 +220,17 @@ Checked and found correct:
 - Start-up: `import app.main` takes 0.46 s; the page is 38 KB with no external files.
 - All four sellers, every GET route, horizons 7 to 180 days: no errors.
 
+**Approved and fixed on 12 November** (`tests/test_demo_safety.py`, 40 tests):
+
+| # | Finding | Before | After |
+|---|---|---|---|
+| N6 | The output guardrail was narrower than the pitch says | "Your loan is approved.", "You are pre-approved for EUR 5,000", "I have submitted your application." and "Consider it done - funds are on the way" all passed; only three exact wordings were blocked | 18 wordings of the four forbidden claims (approved, guaranteed, certain, already acted) are blocked; 16 honest or hedged sentences still pass; every reply in `scenarios.md` and in the live LLM transcript still passes (0 false positives). It is still pattern matching: an unusual phrasing can get through |
+| N4 | LLM mode had no time-out | SDK default: 600-second read time-out, 2 retries | each call gives up after 20 seconds with 1 retry, a whole turn after 45 seconds, then the turn falls back to offline mode. Tested with a fake client; no network used |
+
 **Still present - need approval before fixing.** Effort: S = under an hour, M = half a day.
 
 | # | Finding | Evidence | Demo severity | Effort | Recommendation |
 |---|---|---|---|---|---|
-| N6 | The output guardrail is narrower than the pitch says | "Your loan is approved.", "You are pre-approved for EUR 5,000", "I have submitted your application." and "Consider it done - funds are on the way" all pass `check_output`. Only "you are approved", "guaranteed / we guarantee" and "you will definitely get" are blocked. Slide 14 says an output guardrail enforces "never says approved" | **High** if a judge probes LLM mode | S | **Fix** (more wordings, with tests), or soften slide 14 |
-| N4 | LLM mode has no time-out | The SDK default is a 600-second read time-out with 2 retries (`anthropic._constants`). On poor venue Wi-Fi a live turn could hang for minutes before the offline fallback starts | **High** in a live LLM demo | S | **Fix** (about 20 seconds, 1 retry) |
 | N9 | LLM mode has no memory between turns | `/api/chat` never passes the conversation history to the model, so "and what if I take that one?" has no context | Medium | S-M | Fix, or script the demo as single questions |
 | N2 | `/api/seller/{id}/whatif` returns a server error on malformed input | text where a number or an object is expected gives HTTP 500; a horizon of -5 or 1,000,000,000 is accepted and echoed back | Low (not reachable from the UI) | S | Fix |
 | N3 | `/api/seller/{id}/financing` accepts nonsense | amount "NaN" gives HTTP 500; negative amounts are silently replaced by EUR 5,500 | Low | S | Fix |
@@ -295,10 +300,10 @@ changes. Check each slide against this list either way.
 | 9 | "Take SwiftCash Merchant Advance ... low point -EUR 796" | "-EUR 927" | same |
 | 11 Evidence | "3.1% consistency check" | "1.5%" | seasonality and monthly-bill fixes |
 | 11 | "19.4% when payouts arrive 0-3 days late: the real weak spot, published" | "9.5% when payouts arrive 0-3 days late (1,200 simulated backtests): the real weak spot, published" | stress tool fixed and re-measured; N1 fix |
-| 11 | "232 tests" | "367 tests" | new regression tests |
+| 11 | "232 tests" | "407 tests" | new regression tests |
 | 11 (optional, hand edit) | - | a third number: "19% error on a real retailer's 60-day sales: beats repeating last week (30%), loses to last year's data (7%)" | first evidence on data we did not generate |
-| 14 Appendix A1 | "An output guardrail enforces that, not just a prompt." | until N6 is fixed: "A system rule and an output check for the most direct wordings back that up." | the guardrail lets "your loan is approved" through |
-| 16 Appendix A3 | "with 232 tests" | "with 367 tests" | new tests |
+| 14 Appendix A1 | "An output guardrail enforces that, not just a prompt." | can stay now that N6 is fixed. Safer wording: "An output guardrail checks for it, not just a prompt." | the guardrail now blocks the common wordings, but it is pattern matching, so "enforces" promises a little more than it can |
+| 16 Appendix A3 | "with 232 tests" | "with 407 tests" | new tests |
 | 6 (optional) | "names the payment causing the squeeze" | "names the payment causing the squeeze and the payout hold behind it" | A5 |
 
 Unchanged and still true: slide 1 (EUR 5,007, EUR 3,180), slide 2 (EUR 10,991,
@@ -328,7 +333,7 @@ Ranked by effect on judges per hour of work.
 
 | # | What | Why a judge would care | Effort | Risk |
 |---|---|---|---|---|
-| 1 | **Make the live demo safe:** fix N4 (time-out) and N6 (guardrail wordings), then rehearse once with Wi-Fi off | A hung screen or a "your loan is approved" slip costs more marks than any feature gains. Security is 30% of the marking | S (1-2 hours) | Very low |
+| 1 | **Rehearse the live demo once with Wi-Fi off, and once in LLM mode after re-running `scripts/live_llm_check.py`** (N4 and N6 are now fixed, so the code side is done) | A hung screen or a wrong sentence costs more marks than any feature gains. The fallback and the wider guardrail are tested with a fake model, not yet seen live | S (1 hour, team) | Very low |
 | 2 | **Show the late-payout risk on the main chart:** a second, lighter line for "if payouts slip 3 days", using the existing what-if | Turns the measured weak spot (9.5%, section 3) into something visible, and answers "how sure are you?" without claiming a precision we don't have | S-M | Low: display only, no number changes |
 | 3 | **"Shorter hold" what-if - a thin slice of the Payout Engine:** let the seller ask "what if my hold were 3 days, not 10?" (for merchant-fulfilled sellers: ship faster, paid sooner) | It puts a euro figure on the product's own thesis and offers a free fix before any loan | M | Medium: a new what-if path; keep it out of the baseline so no existing number moves |
 | 4 | **Use the seller's own last year for seasonality when a year of history exists** | Section 6 shows why: 7.4% against our 19.1% on real data. "We tested on real data, found we lost to last year's numbers, and fixed it" is a strong answer | M | Low for the demo: the sandbox has 6 months of history, so its numbers do not change |
@@ -343,7 +348,7 @@ On the three ideas already on the table:
 
 ## 9. Open questions for the team
 
-1. **Approval:** which of N2, N3, N4, N6, N9, N10, N11, N12 (section 5) should be fixed? Recommended at least N4 and N6. Also B9 (moves "13.7 days" on two slides) and B8.
+1. **Approval:** which of N2, N3, N9, N10, N11, N12 (section 5) should be fixed? N4 and N6 are done. Also B9 (moves "13.7 days" on two slides) and B8.
 2. **Branch name:** the default branch is `master`. The pull request targets it. Say so if you wanted a `main` branch.
 3. **Live-LLM transcript:** re-run `python scripts/live_llm_check.py` with your key after the last fix, so `docs/evidence/llm_live_run.md` shows current figures. I did not run it and did not create or read any `.env`.
 4. **Deck:** edit by hand from section 7, or re-run `scripts/build_deck.js`?
@@ -356,7 +361,7 @@ On the three ideas already on the table:
 
 ## 10. Tests and commits
 
-`pytest -q` on `finals`: **367 passed** (submitted version: 232).
+`pytest -q` on `finals`: **407 passed** (submitted version: 232).
 
 | Commit | What |
 |---|---|
@@ -376,10 +381,12 @@ On the three ideas already on the table:
 | `5dc7018` | Step 5: real-data backtest of the sales forecast on UCI Online Retail II |
 | `2d9e298` | Label the recorded live-LLM transcript as pre-fix |
 | `4da9784` | Add requirements-dev.txt (pytest) and list dependency licences |
-| (latest) | This report |
+| `e57e6fd` | Full version of this report |
+| (latest) | Fix N6 (output guardrail) and N4 (LLM time-out); report updated |
 
-One deviation from "one commit per logical change": `6932410` holds B4 and the accuracy
-disclosures together, because they shared one regeneration of the evidence.
+Two deviations from "one commit per logical change": `6932410` holds B4 and the accuracy
+disclosures together, and the latest commit holds N4 and N6 together, in both cases
+because they shared one regeneration of the evidence.
 
 ---
 

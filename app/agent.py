@@ -24,6 +24,7 @@ Every turn passes through the same pipeline regardless of mode:
 from __future__ import annotations
 
 import json
+import time
 import uuid
 
 from . import config
@@ -624,7 +625,10 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
     except ImportError:  # pragma: no cover
         return run_offline(session, message)
 
-    client = anthropic.Anthropic(api_key=config.anthropic_api_key())
+    client = anthropic.Anthropic(api_key=config.anthropic_api_key(),
+                                 timeout=config.LLM_TIMEOUT_SECONDS,
+                                 max_retries=config.LLM_MAX_RETRIES)
+    started = time.monotonic()
     ctx = get_seller(session.seller_id)
 
     untrusted_blocks, inj = collect_untrusted_notes(session)
@@ -646,6 +650,9 @@ def run_llm(session: Session, message: str, history: list[dict]) -> dict:
 
     try:
         for _ in range(config.MAX_AGENT_STEPS):
+            if time.monotonic() - started > config.LLM_TURN_BUDGET_SECONDS:
+                raise TimeoutError(
+                    f"turn exceeded {config.LLM_TURN_BUDGET_SECONDS:.0f}s in LLM mode")
             response = client.messages.create(
                 model=config.ANTHROPIC_MODEL,
                 max_tokens=2000,

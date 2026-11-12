@@ -140,16 +140,42 @@ SENSITIVE_PATTERNS = [
     (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "national_id"),
 ]
 
+# Each family lists the common wordings of one forbidden claim. The first
+# version caught only "you are approved", "guaranteed" and "you will definitely
+# get", so "Your loan is approved" and "You are pre-approved" went through
+# (finals review, finding N6). Hedged, conditional and negated uses are let
+# through by _is_negated_or_collateral below.
+_ADVERB = r"(?:\s+(?:now|already|fully|officially|formally|definitely|just))*"
 OUTPUT_RED_FLAGS = [
-    (re.compile(r"\b(?:you are|you're)\s+approved\b", re.IGNORECASE),
+    (re.compile(
+        r"\bpre-?\s?approved\b"
+        r"|(?:\b(?:is|are|was|were|been|got|get|gets)|'re|'s|'ve been)" + _ADVERB + r"\s+approved\b"
+        r"|\bapproval\s+(?:is|has been|was)" + _ADVERB + r"\s+(?:granted|confirmed|given)\b"
+        r"|\b(?:approved|cleared)\s+for\s+(?:EUR|a\s+(?:loan|credit|facility|bridge|advance))",
+        re.IGNORECASE),
      "states_approval",
      "The copilot must never state that financing is approved; it does not underwrite."),
-    (re.compile(r"\b(?:guaranteed|we guarantee)\b", re.IGNORECASE),
+    (re.compile(r"\b(?:guaranteed|(?:i|we)\s+(?:can\s+)?guarantee|guarantees?\s+you)\b",
+                re.IGNORECASE),
      "guarantee",
      "No outcome can be guaranteed to a seller."),
-    (re.compile(r"\byou will (?:definitely|certainly) (?:get|receive)\b", re.IGNORECASE),
+    (re.compile(
+        r"\byou(?:\s+will|'ll)\s+(?:definitely|certainly|surely)\s+"
+        r"(?:get|receive|qualify|be\s+accepted|be\s+funded)\b"
+        r"|\byou(?:\s+are|'re)\s+(?:certain|sure|bound)\s+to\s+(?:get|receive|qualify|be)\b",
+        re.IGNORECASE),
      "certainty_claim",
      "Eligibility matching is not a credit decision and must not be framed as one."),
+    (re.compile(
+        r"\b(?:i\s+have|i've|we\s+have|we've)" + _ADVERB + r"\s+(?:submitted|sent|filed|lodged)\b"
+        r"|\b(?:application|request)\s+(?:has been|was|is)" + _ADVERB
+        + r"\s+(?:submitted|sent|filed|lodged)\b"
+        r"|\bconsider\s+it\s+done\b"
+        r"|\b(?:funds?|money)\s+(?:is|are)\s+on\s+(?:the|its|their)\s+way\b"
+        r"|\b(?:funds?|money)\s+(?:has|have)\s+been\s+(?:sent|transferred|released|paid)\b",
+        re.IGNORECASE),
+     "claims_action_taken",
+     "The copilot cannot act: only the human can approve an action in the interface."),
 ]
 
 
@@ -249,8 +275,13 @@ def wrap_untrusted(label: str, content: str) -> tuple[str, list[Finding]]:
 # not guaranteed"), and "personally guaranteed" describes a loan's collateral,
 # not an outcome. Both were blocked by the first version of these rules: the
 # live LLM run on 18 Oct 2026 had a correct reply withheld for saying exactly that.
+# The same goes for hedged or conditional wording, which is honest: "if the
+# application is approved", "assumes it is approved", "once it has been sent".
 _NEGATION_WINDOW = re.compile(
-    r"(?:\bnot\b|n't\b|\bnever\b|\bno\b|\bcannot\b|\bnothing\b|\bpersonally\b|\bpersonal\b)"
+    r"(?:\bnot\b|n't\b|\bnever\b|\bno\b|\bcannot\b|\bnothing\b|\bpersonally\b|\bpersonal\b"
+    r"|\bif\b|\bonce\b|\bwhen\b|\bwhether\b|\bunless\b|\buntil\b|\bbefore\b|\bafter\b"
+    r"|\bassum\w*|\bwould\b|\bcould\b|\bmight\b|\bmay\b|\bneeds?\s+to\b|\bhas\s+to\b"
+    r"|\bhave\s+to\b|\bmust\b|\bto\s+be\b|\bbeing\b|\blikel\w+)"
     r"[^.!?,;:\n]{0,30}$", re.IGNORECASE)
 
 

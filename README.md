@@ -37,7 +37,7 @@ You can regenerate everything at any time:
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
 pip install -r requirements-dev.txt    # adds pytest, which the app itself does not need
-pytest -q                              # 367 tests
+pytest -q                              # 407 tests
 ```
 
 ---
@@ -105,7 +105,8 @@ API and writes the transcript to `docs/evidence/llm_live_run.md`.
 **Offline mode is not a stub.** It exists so the repository behaves the same for
 anyone who clones it, with no credential, no network call and no cost. If a model is
 configured but unavailable in the middle of a session, the turn falls back to offline
-mode instead of failing. LLM mode was run against the live API on 18 October 2026:
+mode instead of failing: each call to the model gives up after 20 seconds and a whole
+turn after 45. LLM mode was run against the live API on 18 October 2026:
 eight scenarios, all answered in LLM mode, and both injection attempts were refused.
 See risk R11 in [docs/SECURITY.md](docs/SECURITY.md).
 
@@ -229,7 +230,7 @@ scripts/
                          (install docs/deck-assets/fonts/ArchivoBlack-Regular.ttf
                          before opening the .pptx; the PDF already embeds it)
 static/index.html    single-file UI, no external dependencies
-tests/               367 tests
+tests/               407 tests
 ```
 
 ## API
