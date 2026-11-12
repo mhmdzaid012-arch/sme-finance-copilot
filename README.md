@@ -36,6 +36,7 @@ You can regenerate everything at any time:
 ```bash
 python scripts/generate_data.py        # deterministic synthetic ledger
 python scripts/generate_evidence.py    # evidence pack, stress test and facts.json
+pip install -r requirements-dev.txt    # adds pytest, which the app itself does not need
 pytest -q                              # 367 tests
 ```
 
@@ -283,3 +284,16 @@ it to check the sales forecast on a real retailer
 
 No new software dependency was added: the spreadsheet is read with the Python
 standard library.
+
+Software dependencies and their licences (as reported by the installed packages):
+
+| Package | Licence | Needed for |
+|---|---|---|
+| FastAPI | MIT | the web app |
+| Uvicorn | BSD-3-Clause | the web server |
+| Pydantic | MIT | request validation |
+| Anthropic SDK | Apache-2.0 | LLM mode only (optional) |
+| pytest | MIT | running the tests only (`requirements-dev.txt`) |
+
+The deck's headline font, Archivo Black, is under the SIL Open Font License
+(`docs/deck-assets/fonts/OFL.txt`).
